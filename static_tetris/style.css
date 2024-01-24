@@ -1,0 +1,19 @@
+.grid {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333333;
+
+}
+.row {
+    
+}
+
+.block {
+    float: left;
+    width: 20px;
+    height: 20px;
+    background-color: #333333;
+    border: 1px solid lightblue;
+}
