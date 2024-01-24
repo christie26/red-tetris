@@ -20,6 +20,7 @@ Install [node](https://nodejs.org/en/) first. After that:
 
 ```
 $ npm install
+$ npm install --force
 ```
 
 Edit `params.js` for your needs.
