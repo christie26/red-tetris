@@ -46,17 +46,45 @@ function init() {
     }
   })
 }
+function touchBorder(fallingPiece, moveDirection) {
+  const { left, top, direction, elements } = fallingPiece
+  return elements[direction].some(element => {
+    if (moveDirection === 'left') {
+      const check = (element + left) % 10
+      if (check < 1) {
+        return true
+      }
+    } else if (moveDirection === 'right') {
+      const check = (element + left) % 10
+      if (check > 8) {
+        return true
+      }
+    } else if (moveDirection === 'down') {
+      const check = element / 10 + top
+      if (check > 19) {
+        return true
+      }
+    }
+    return false
+  })
+}
 function movePieceLeft(fallingPiece) {
-  if (fallingPiece.left > 0) {
+  if (!touchBorder(fallingPiece, 'left')) {
     fallingPiece.left--
+    renderPiece(fallingPiece)
   }
-  renderPiece(fallingPiece)
 }
 function movePieceRight(fallingPiece) {
-  if (fallingPiece.left < 9) {
+  if (!touchBorder(fallingPiece, 'right')) {
     fallingPiece.left++
+    renderPiece(fallingPiece)
   }
-  renderPiece(fallingPiece)
+}
+function movePieceDown(fallingPiece) {
+  if (!touchBorder(fallingPiece, 'down')) {
+    fallingPiece.top++
+    renderPiece(fallingPiece)
+  }
 }
 function rotatePiece(fallingPiece) {
   if (fallingPiece.direction < 3) {
