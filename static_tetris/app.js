@@ -18,8 +18,10 @@ const fallingPiece = {
   direction: 0,
   elements: null,
 }
+
 // Init
 init()
+
 
 function init() {
   const board = document.getElementById('board')
@@ -61,6 +63,7 @@ function touchBorder(fallingPiece, moveDirection) {
       }
     } else if (moveDirection === 'down') {
       const check = element / 10 + top
+      console.log("check", check);
       if (check > 19) {
         return true
       }
@@ -68,24 +71,28 @@ function touchBorder(fallingPiece, moveDirection) {
     return false
   })
 }
+
 function movePieceLeft(fallingPiece) {
   if (!touchBorder(fallingPiece, 'left')) {
     fallingPiece.left--
     renderPiece(fallingPiece)
   }
 }
+
 function movePieceRight(fallingPiece) {
   if (!touchBorder(fallingPiece, 'right')) {
     fallingPiece.left++
     renderPiece(fallingPiece)
   }
 }
+
 function movePieceDown(fallingPiece) {
   if (!touchBorder(fallingPiece, 'down')) {
     fallingPiece.top++
     renderPiece(fallingPiece)
   }
 }
+
 function rotatePiece(fallingPiece) {
   if (fallingPiece.direction < 3) {
     fallingPiece.direction++
@@ -95,14 +102,40 @@ function rotatePiece(fallingPiece) {
   renderPiece(fallingPiece)
 }
 
+function fixPiece(fallingPiece, board) {
+  const { type, left, top, direction, elements } = fallingPiece;
+
+  elements[direction].forEach(element => {
+    const x = left + element % 10;
+    const y = top + Math.floor(element / 10);
+    const position = y * 10 + x;
+
+    board.children[element + left + 10 * top].classList.add(type, 'falling');
+
+    if (position >= 0 && position < board.length) {
+      board.children[position].classList.add(type, 'set');
+    }
+
+    board.querySelectorAll('li').forEach(element => {
+      element.classList.remove(type, 'falling')
+    })
+  })
+}
+
 function renderPiece(fallingPiece) {
   const board = document.getElementById('board')
   const { type, left, top, direction, elements } = fallingPiece
 
+  if (touchBorder(fallingPiece, 'down')) {
+    fixPiece(fallingPiece, board);
+  }
+
+  else {
   board.querySelectorAll('li').forEach(element => {
     element.classList.remove(type, 'falling')
   })
   elements[direction].forEach(element => {
     board.children[element + left + 10 * top].classList.add(type, 'falling')
   })
+}
 }
