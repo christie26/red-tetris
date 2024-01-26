@@ -1,15 +1,47 @@
-const pieces = [
-  (square = [
+const pieces = {
+  oBlock: [
     [0, 1, 10, 11],
     [0, 1, 10, 11],
-  ]),
-  (tree = [
-    [0, 1, 2, 11],
-    [2, 12, 22, 11],
-    [20, 21, 22, 11],
-    [0, 10, 20, 11],
-  ]),
-]
+    [0, 1, 10, 11],
+    [0, 1, 10, 11],
+  ],
+  tBlock: [
+    [11, 0, 1, 2],
+    [11, 2, 12, 22],
+    [11, 20, 21, 22],
+    [11, 0, 10, 20],
+  ],
+  jBlock: [
+    [11, 0, 10, 12],
+    [11, 1, 2, 21],
+    [11, 10, 12, 22],
+    [11, 20, 21, 1],
+  ],
+  lBlock: [
+    [11, 20, 10, 12],
+    [11, 1, 0, 21],
+    [11, 10, 12, 2],
+    [11, 22, 21, 1],
+  ],
+  sBlock: [
+    [11, 1, 2, 10],
+    [11, 22, 12, 1],
+    [11, 12, 20, 21],
+    [11, 0, 10, 21],
+  ],
+  zBlock: [
+    [11, 1, 0, 12],
+    [11, 2, 12, 21],
+    [11, 10, 21, 22],
+    [11, 1, 10, 20],
+  ],
+  iBlock: [
+    [11, 10, 12, 13],
+    [11, 1, 21, 31],
+    [11, 10, 12, 13],
+    [11, 1, 21, 31],
+  ],
+}
 
 const fallingPiece = {
   type: null,
@@ -29,11 +61,11 @@ function init() {
     let child = document.createElement('li')
     board.appendChild(child)
   }
-  fallingPiece.type = 'tree'
+  fallingPiece.type = 'iBlock'
   fallingPiece.left = 0
   fallingPiece.top = 0
   fallingPiece.direction = 0
-  fallingPiece.elements = pieces[1]
+  fallingPiece.elements = pieces.iBlock
   renderPiece(fallingPiece)
 
   document.addEventListener('keydown', event => {
@@ -99,6 +131,16 @@ function rotatePiece(fallingPiece) {
   } else {
     fallingPiece.direction = 0
   }
+  const center =
+    (fallingPiece.elements[fallingPiece.direction][0] + fallingPiece.left) % 10
+  fallingPiece.elements[fallingPiece.direction].forEach(element => {
+    let col = (element + fallingPiece.left) % 10
+    if (center + 5 < col) {
+      fallingPiece.left++
+    } else if (center - 5 > col) {
+      fallingPiece.left--
+    }
+  })
   renderPiece(fallingPiece)
 }
 

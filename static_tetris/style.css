@@ -21,15 +21,24 @@ h1 {
     box-shadow: 0 0 0 1px #000 inset; 
 }
 
-.square {
-    width: 30px;
-    height: 30px;
-    background-color: red;
-    box-shadow: 0 0 0 1px #000 inset; 
+.oBlock {
+    background-color: lightcoral;
 }
-.tree {
-    width: 30px;
-    height: 30px;
-    background-color: green;
-    box-shadow: 0 0 0 1px #000 inset; 
+.tBlock {
+    background-color: #f6cefc;
+}
+.jBlock {
+    background-color: lightblue;
+}
+.lBlock {
+    background-color: pink;
+}
+.sBlock {
+    background-color:darkkhaki;
+}
+.zBlock {
+    background-color: lightgreen;
+}
+.iBlock {
+    background-color: lightgray;
 }
