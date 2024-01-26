@@ -152,15 +152,15 @@ function fixPiece(fallingPiece, board) {
     const y = top + Math.floor(element / 10);
     const position = y * 10 + x;
 
-    board.children[element + left + 10 * top].classList.add(type, 'falling');
+    // board.children[element + left + 10 * top].classList.add(type, 'falling');
 
     if (position >= 0 && position < board.length) {
       board.children[position].classList.add(type, 'set');
     }
 
-    board.querySelectorAll('li').forEach(element => {
-      element.classList.remove(type, 'falling')
-    })
+    // board.querySelectorAll('li').forEach(element => {
+    //   element.classList.remove(type, 'falling')
+    // })
   })
 }
 
@@ -168,11 +168,11 @@ function renderPiece(fallingPiece) {
   const board = document.getElementById('board')
   const { type, left, top, direction, elements } = fallingPiece
 
-  if (touchBorder(fallingPiece, 'down')) {
-    fixPiece(fallingPiece, board);
-  }
+  // if (touchBorder(fallingPiece, 'down')) {
+  // if () {
+  //   fixPiece(fallingPiece, board);
+  // }
 
-  else {
   board.querySelectorAll('li').forEach(element => {
     element.classList.remove(type, 'falling')
   })
@@ -180,4 +180,4 @@ function renderPiece(fallingPiece) {
     board.children[element + left + 10 * top].classList.add(type, 'falling')
   })
 }
-}
+
