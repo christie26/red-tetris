@@ -1,15 +1,47 @@
-const pieces = [
-  (square = [
+const pieces = {
+  oBlock: [
     [0, 1, 10, 11],
     [0, 1, 10, 11],
-  ]),
-  (tree = [
+    [0, 1, 10, 11],
+    [0, 1, 10, 11],
+  ],
+  tBlock: [
     [0, 1, 2, 11],
     [2, 12, 22, 11],
     [20, 21, 22, 11],
     [0, 10, 20, 11],
-  ]),
-]
+  ],
+  jBlock: [
+    [0, 10, 11, 12],
+    [1, 2, 11, 21],
+    [10, 11, 12, 22],
+    [20, 21, 11, 1],
+  ],
+  lBlock: [
+    [20, 10, 11, 12],
+    [1, 0, 11, 21],
+    [10, 11, 12, 2],
+    [22, 21, 11, 1],
+  ],
+  sBlock: [
+    [1, 2, 10, 11],
+    [22, 12, 11, 1],
+    [1, 2, 10, 11],
+    [22, 12, 11, 1],
+  ],
+  zBlock: [
+    [1, 0, 12, 11],
+    [2, 12, 11, 21],
+    [1, 0, 12, 11],
+    [2, 12, 11, 21],
+  ],
+  iBlock: [
+    [0, 1, 2, 3],
+    [1, 11, 21, 31],
+    [0, 1, 2, 3],
+    [1, 11, 21, 31],
+  ],
+}
 
 const fallingPiece = {
   type: null,
@@ -27,11 +59,11 @@ function init() {
     let child = document.createElement('li')
     board.appendChild(child)
   }
-  fallingPiece.type = 'tree'
+  fallingPiece.type = 'tBlock'
   fallingPiece.left = 0
   fallingPiece.top = 0
   fallingPiece.direction = 0
-  fallingPiece.elements = pieces[1]
+  fallingPiece.elements = pieces.tBlock
   renderPiece(fallingPiece)
 
   document.addEventListener('keydown', event => {
@@ -92,6 +124,7 @@ function rotatePiece(fallingPiece) {
   } else {
     fallingPiece.direction = 0
   }
+  fallingPiece.elements.forEach(element => {})
   renderPiece(fallingPiece)
 }
 
