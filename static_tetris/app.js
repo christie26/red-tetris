@@ -6,40 +6,40 @@ const pieces = {
     [0, 1, 10, 11],
   ],
   tBlock: [
-    [0, 1, 2, 11],
-    [2, 12, 22, 11],
-    [20, 21, 22, 11],
-    [0, 10, 20, 11],
+    [11, 0, 1, 2],
+    [11, 2, 12, 22],
+    [11, 20, 21, 22],
+    [11, 0, 10, 20],
   ],
   jBlock: [
-    [0, 10, 11, 12],
-    [1, 2, 11, 21],
-    [10, 11, 12, 22],
-    [20, 21, 11, 1],
+    [11, 0, 10, 12],
+    [11, 1, 2, 21],
+    [11, 10, 12, 22],
+    [11, 20, 21, 1],
   ],
   lBlock: [
-    [20, 10, 11, 12],
-    [1, 0, 11, 21],
-    [10, 11, 12, 2],
-    [22, 21, 11, 1],
+    [11, 20, 10, 12],
+    [11, 1, 0, 21],
+    [11, 10, 12, 2],
+    [11, 22, 21, 1],
   ],
   sBlock: [
-    [1, 2, 10, 11],
-    [22, 12, 11, 1],
-    [1, 2, 10, 11],
-    [22, 12, 11, 1],
+    [11, 1, 2, 10],
+    [11, 22, 12, 1],
+    [11, 12, 20, 21],
+    [11, 0, 10, 21],
   ],
   zBlock: [
-    [1, 0, 12, 11],
-    [2, 12, 11, 21],
-    [1, 0, 12, 11],
-    [2, 12, 11, 21],
+    [11, 1, 0, 12],
+    [11, 2, 12, 21],
+    [11, 10, 21, 22],
+    [11, 1, 10, 20],
   ],
   iBlock: [
-    [0, 1, 2, 3],
-    [1, 11, 21, 31],
-    [0, 1, 2, 3],
-    [1, 11, 21, 31],
+    [11, 10, 12, 13],
+    [11, 1, 21, 31],
+    [11, 10, 12, 13],
+    [11, 1, 21, 31],
   ],
 }
 
@@ -59,11 +59,11 @@ function init() {
     let child = document.createElement('li')
     board.appendChild(child)
   }
-  fallingPiece.type = 'tBlock'
+  fallingPiece.type = 'iBlock'
   fallingPiece.left = 0
   fallingPiece.top = 0
   fallingPiece.direction = 0
-  fallingPiece.elements = pieces.tBlock
+  fallingPiece.elements = pieces.iBlock
   renderPiece(fallingPiece)
 
   document.addEventListener('keydown', event => {
@@ -124,7 +124,16 @@ function rotatePiece(fallingPiece) {
   } else {
     fallingPiece.direction = 0
   }
-  fallingPiece.elements.forEach(element => {})
+  const center =
+    (fallingPiece.elements[fallingPiece.direction][0] + fallingPiece.left) % 10
+  fallingPiece.elements[fallingPiece.direction].forEach(element => {
+    let col = (element + fallingPiece.left) % 10
+    if (center + 5 < col) {
+      fallingPiece.left++
+    } else if (center - 5 > col) {
+      fallingPiece.left--
+    }
+  })
   renderPiece(fallingPiece)
 }
 
