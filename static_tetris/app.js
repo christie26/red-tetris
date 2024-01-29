@@ -57,7 +57,7 @@ const movements = {
   ArrowDown: fasterSpeed,
   ArrowUp: rotatePiece,
 };
-
+let fixxing = false;
 init();
 
 function init() {
@@ -144,12 +144,18 @@ function movePieceDown(fallingPiece) {
   return;
 }
 function fasterSpeed(fallingPiece) {
+  if (fixxing) {
+    return;
+  }
   clearInterval(intervalId);
   intervalId = setInterval(function () {
     movePieceDown(fallingPiece);
   }, 50);
 }
 function resetSpeed(fallingPiece) {
+  if (fixxing) {
+    return;
+  }
   clearInterval(intervalId);
   intervalId = setInterval(function () {
     movePieceDown(fallingPiece);
@@ -178,10 +184,11 @@ function rotatePiece(fallingPiece) {
 }
 
 function fixPiece() {
+  fixxing = true;
   clearInterval(intervalId);
-  intervalId = 0;
   setTimeout(function () {
     renderFixedPiece(fallingPiece);
+    fixxing = false;
   }, 2000);
 }
 
