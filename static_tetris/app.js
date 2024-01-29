@@ -1,4 +1,3 @@
-const board = document.getElementById('board');
 const boardWidth = 9;
 const boardHeight = 19;
 
@@ -46,7 +45,8 @@ const pieces = {
     [11, 1, 21, 31],
   ],
 };
-
+let intervalId;
+const board = document.getElementById('board');
 const fallingPiece = {
   type: null,
   left: 0,
@@ -54,8 +54,14 @@ const fallingPiece = {
   direction: 0,
   elements: null,
 };
-
-// Init
+const movements = {
+  ArrowLeft: movePieceLeft,
+  ArrowRight: movePieceRight,
+  ArrowDown: fasterSpeed,
+  ArrowUp: rotatePiece,
+  // TODO: add Space: fixPiece
+};
+let fixxing = false;
 init();
 
 function init() {
@@ -63,34 +69,37 @@ function init() {
     let child = document.createElement('li');
     board.appendChild(child);
   }
-  fallingPiece.type = 'zBlock'; // set the css class that corresponds to the piece type
-  fallingPiece.left = 0;
-  fallingPiece.top = 0;
-  fallingPiece.direction = 0;
-  fallingPiece.elements = pieces.zBlock;
-  renderPiece(fallingPiece);
-
-  const movements = {
-    // Function object
-    ArrowLeft: movePieceLeft,
-    ArrowRight: movePieceRight,
-    ArrowDown: movePieceDown,
-    ArrowUp: rotatePiece,
-  };
-
   document.addEventListener('keydown', event => {
     movements[event.key](fallingPiece);
   });
+  document.addEventListener('keyup', event => {
+    if (event.key === 'ArrowDown') {
+      resetSpeed(fallingPiece);
+    }
+  });
+}
+
+function newPiece() {
+  const keys = Object.keys(pieces);
+  const randomKey = keys[Math.floor(Math.random() * keys.length)];
+  fallingPiece.type = randomKey;
+  fallingPiece.left = 2 + Math.floor(Math.random() * 5);
+  fallingPiece.top = 0;
+  fallingPiece.direction = 0;
+  fallingPiece.elements = pieces[randomKey];
+  renderPiece(fallingPiece);
+
+  intervalId = setInterval(function () {
+    movePieceDown(fallingPiece);
+  }, 200);
 }
 
 function touchBorder(fallingPiece, moveDirection) {
-  const { left, top, direction, elements } = fallingPiece; // Recover what's in fallingPiece by destructuring it
+  const { left, top, direction, elements } = fallingPiece;
   return elements[direction].some(element => {
-    // some(): loop and also tests if something is true
-    const x = (element + left) % 10; // Find the position of the piece between 0 and 9 using the horizontal % (knowing that element + left = index in the board)
-    const y = Math.floor(element / 10) + top; // Math.floor rounds down to the nearest int to avoid comma-delimited numbers (element / 10 = line index in the board)
+    const x = (element + left) % 10;
+    const y = Math.floor(element / 10) + top;
     const checks = {
-      // Boolean object
       left: x < 1,
       right: x >= boardWidth,
       down: y >= boardHeight,
@@ -98,26 +107,62 @@ function touchBorder(fallingPiece, moveDirection) {
     return checks[moveDirection];
   });
 }
-
+function touchOtherPiece(fallingPiece) {
+  const { left, top, direction, elements } = fallingPiece;
+  return elements[direction].some(element => {
+    const square = board.children[element + left + 10 * top];
+    return square.classList.contains('fixed');
+  });
+}
 function movePieceLeft(fallingPiece) {
   if (!touchBorder(fallingPiece, 'left')) {
     fallingPiece.left--;
+    if (touchOtherPiece(fallingPiece)) {
+      fallingPiece.left++;
+    }
     renderPiece(fallingPiece);
   }
 }
-
 function movePieceRight(fallingPiece) {
   if (!touchBorder(fallingPiece, 'right')) {
     fallingPiece.left++;
+    if (touchOtherPiece(fallingPiece)) {
+      fallingPiece.left--;
+    }
     renderPiece(fallingPiece);
   }
 }
 
 function movePieceDown(fallingPiece) {
-  if (!touchBorder(fallingPiece, 'down')) {
-    fallingPiece.top++;
+  fallingPiece.top++;
+  if (touchOtherPiece(fallingPiece)) {
+    fallingPiece.top--;
+    fixPiece(fallingPiece);
+  } else if (touchBorder(fallingPiece, 'down')) {
+    renderPiece(fallingPiece);
+    fixPiece(fallingPiece);
+  } else {
     renderPiece(fallingPiece);
   }
+  return;
+}
+function fasterSpeed(fallingPiece) {
+  if (fixxing) {
+    return;
+  }
+  clearInterval(intervalId);
+  intervalId = setInterval(function () {
+    movePieceDown(fallingPiece);
+  }, 50);
+}
+function resetSpeed(fallingPiece) {
+  if (fixxing) {
+    return;
+  }
+  clearInterval(intervalId);
+  intervalId = setInterval(function () {
+    movePieceDown(fallingPiece);
+  }, 200);
 }
 
 function rotatePiece(fallingPiece) {
@@ -130,7 +175,6 @@ function rotatePiece(fallingPiece) {
     const row = Math.floor(element / 10) + fallingPiece.top;
     const boardCenter = 5;
     if (center + boardCenter < col) {
-      // If the current edge is larger in x than half the array, then the frero is lost.
       fallingPiece.left++;
     } else if (center - boardCenter > col) {
       fallingPiece.left--;
@@ -141,31 +185,52 @@ function rotatePiece(fallingPiece) {
   renderPiece(fallingPiece);
 }
 
+function fixPiece() {
+  // TODO: possible to go down more
+  // TODO: end of game (touch ceiling)
+  fixxing = true;
+  clearInterval(intervalId);
+  setTimeout(function () {
+    renderFixedPiece(fallingPiece);
+    fixxing = false;
+  }, 2000);
+}
+
 function renderPiece(fallingPiece) {
   const { type, left, top, direction, elements } = fallingPiece;
 
-  fallingPiece.elements[fallingPiece.direction].forEach(element => {
-    const row = Math.floor(element / 10) + fallingPiece.top;
-    if (row < boardHeight) {
-      board.querySelectorAll('li').forEach(element => {
-        element.classList.remove(type); // Falling
-      });
-      elements[direction].forEach(element => {
-        board.children[element + left + 10 * top].classList.add(type); // Falling
-      });
-    } else {
+  board.querySelectorAll('li').forEach(element => {
+    if (element.classList.contains('falling', type)) {
+      element.classList.remove(type, 'falling');
     }
+  });
+  elements[direction].forEach(element => {
+    board.children[element + left + 10 * top].classList.add(type, 'falling');
   });
 }
 
-// elements: the entire piece with all 4 squares
-// element: the position of a square in the piece
-// ForEach is applied 4 times, once for each tile / element
-// element + left + 10 * top : To draw the piece in the right place (the position
-// is already set at the start of the function) as we're in a one-dimensional
-// dimension. Left positions on the horizontal axis and (10 = board width) * top
-// means that we adjust the distance to the top, lowering the piece top times.
+function renderFixedPiece(fallingPiece) {
+  const { type, left, top, direction, elements } = fallingPiece;
+  board.querySelectorAll('li').forEach(element => {
+    if (element.classList.contains('falling', type)) {
+      element.classList.remove(type, 'falling');
+    }
+  });
+  elements[direction].forEach(element => {
+    board.children[element + left + 10 * top].classList.add(type, 'fixed');
+  });
+  // TODO: clean full lines
+  newPiece();
+}
 
-// In the code, there's a one-dimensional array to represent a board that is
-// in two dimensions. In code, the board is on a single line but
-// which are stacked to make our 2d grid visual.
+// elements: La piece entiere avec les 4 carres
+// element: c'est la position d'un carre de la piece
+// ForEach s'applique 4 fois, une fois pour chaque carre / element
+// element + left + 10 * top : Pour dessiner la piece au bon endroit (la position
+// est deja set au debut de la fonction) car on est dans un tableau en une
+// dimension. Left positionne sur l'axe horizontal et (10 = largeur du board) * top
+// veut dire que l'on ajuste la distance avec le haut, on baisse la piece de top fois.
+
+// Dans le code, il y a un tableau d'une dimension pour representer un board qui est
+// lui en deux dimensions. Le tableau en code est que sur une seule ligne mais
+// qui sont empilees pour faire notre grille en 2d visuellement.
