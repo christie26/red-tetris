@@ -1,6 +1,3 @@
-const boardWidth = 9;
-const boardHeight = 19;
-
 const pieces = {
   oBlock: [
     [0, 1, 10, 11], // Direction 0
@@ -45,8 +42,13 @@ const pieces = {
     [11, 1, 21, 31],
   ],
 };
+
 let intervalId;
+
 const board = document.getElementById('board');
+const boardWidth = 9;
+const boardHeight = 19;
+
 const fallingPiece = {
   type: null,
   left: 0,
@@ -54,6 +56,7 @@ const fallingPiece = {
   direction: 0,
   elements: null,
 };
+
 const movements = {
   ArrowLeft: movePieceLeft,
   ArrowRight: movePieceRight,
@@ -61,7 +64,9 @@ const movements = {
   ArrowUp: rotatePiece,
   // TODO: add Space: fixPiece
 };
+
 let fixxing = false;
+
 init();
 
 function init() {
@@ -114,6 +119,7 @@ function touchOtherPiece(fallingPiece) {
     return square.classList.contains('fixed');
   });
 }
+
 function movePieceLeft(fallingPiece) {
   if (!touchBorder(fallingPiece, 'left')) {
     fallingPiece.left--;
@@ -123,13 +129,14 @@ function movePieceLeft(fallingPiece) {
     renderPiece(fallingPiece);
   }
 }
+
 function movePieceRight(fallingPiece) {
   if (!touchBorder(fallingPiece, 'right')) {
     fallingPiece.left++;
     if (touchOtherPiece(fallingPiece)) {
-      console.log("before", fallingPiece.left);
+      console.log('before', fallingPiece.left);
       fallingPiece.left--;
-      console.log("after", fallingPiece.left);
+      console.log('after', fallingPiece.left);
     }
     renderPiece(fallingPiece);
   }
@@ -140,8 +147,7 @@ function movePieceDown(fallingPiece) {
   if (touchOtherPiece(fallingPiece)) {
     fallingPiece.top--;
     fixPiece(fallingPiece);
-  } else 
-  if (touchBorder(fallingPiece, 'down')) {
+  } else if (touchBorder(fallingPiece, 'down')) {
     renderPiece(fallingPiece);
     fixPiece(fallingPiece);
   } else {
@@ -149,6 +155,7 @@ function movePieceDown(fallingPiece) {
   }
   return;
 }
+
 function fasterSpeed(fallingPiece) {
   if (fixxing) {
     return;
@@ -158,6 +165,7 @@ function fasterSpeed(fallingPiece) {
     movePieceDown(fallingPiece);
   }, 50);
 }
+
 function resetSpeed(fallingPiece) {
   if (fixxing) {
     return;
@@ -168,25 +176,54 @@ function resetSpeed(fallingPiece) {
   }, 200);
 }
 
-function rotatePiece(fallingPiece) {
-  fallingPiece.direction = (fallingPiece.direction + 1) % 4;
-  const center = // horizontal center position (in x)
-    (fallingPiece.elements[fallingPiece.direction][0] + fallingPiece.left) % 10;
+function canRotate(fallingPiece) {
+  const nextDirection = (fallingPiece.direction + 1) % 4;
+  const elements = pieces[fallingPiece.type][nextDirection];
 
-  fallingPiece.elements[fallingPiece.direction].forEach(element => {
+  for (let element of elements) {
     let col = (element + fallingPiece.left) % 10; // Position of current edge horizontally (in x)
-    const row = Math.floor(element / 10) + fallingPiece.top;
-    const boardCenter = 5;
+    let row = Math.floor(element / 10) + fallingPiece.top;
 
-    if (center + boardCenter < col) {
-      fallingPiece.left++;
-    } else if (center - boardCenter > col) {
-      fallingPiece.left--;
-    } else if (row > boardHeight) {
-      fallingPiece.top--;
+    if (
+      col < 0 ||
+      col >= boardWidth ||
+      row >= boardHeight ||
+      board.children[
+        element + fallingPiece.left + 10 * fallingPiece.top
+      ].classList.contains('fixed')
+    ) {
+      return false;
     }
-  });
-  renderPiece(fallingPiece);
+  }
+  return true;
+}
+
+function rotatePiece(fallingPiece) {
+  if (canRotate(fallingPiece)) {
+    fallingPiece.direction = (fallingPiece.direction + 1) % 4;
+    renderPiece(fallingPiece);
+  }
+
+  //   fallingPiece.direction = (fallingPiece.direction + 1) % 4;
+  //   const center = // horizontal center position (in x)
+  //     (fallingPiece.elements[fallingPiece.direction][0] + fallingPiece.left) %
+  //     10;
+
+  //   fallingPiece.elements[fallingPiece.direction].forEach(element => {
+  //     let col = (element + fallingPiece.left) % 10; // Position of current edge horizontally (in x)
+  //     const row = Math.floor(element / 10) + fallingPiece.top;
+  //     const boardCenter = 5;
+
+  //     if (center + boardCenter < col) {
+  //       fallingPiece.left++;
+  //     } else if (center - boardCenter > col) {
+  //       fallingPiece.left--;
+  //     } else if (row > boardHeight) {
+  //       fallingPiece.top--;
+  //     }
+  //   });
+  //   renderPiece(fallingPiece);
+  // }
 }
 
 function fixPiece() {
@@ -227,14 +264,14 @@ function renderFixedPiece(fallingPiece) {
   newPiece();
 }
 
-// elements: La piece entiere avec les 4 carres
-// element: c'est la position d'un carre de la piece
-// ForEach s'applique 4 fois, une fois pour chaque carre / element
-// element + left + 10 * top : Pour dessiner la piece au bon endroit (la position
-// est deja set au debut de la fonction) car on est dans un tableau en une
-// dimension. Left positionne sur l'axe horizontal et (10 = largeur du board) * top
-// veut dire que l'on ajuste la distance avec le haut, on baisse la piece de top fois.
+// elements: the entire piece with all 4 squares
+// element: the position of a square in the piece
+// ForEach is applied 4 times, once for each tile / element
+// element + left + 10 * top : To draw the piece in the right place (the position
+// is already set at the start of the function) as we're in a one-dimensional
+// dimension. Left positions on the horizontal axis and (10 = board width) * top
+// means that we adjust the distance to the top, lowering the piece top times.
 
-// Dans le code, il y a un tableau d'une dimension pour representer un board qui est
-// lui en deux dimensions. Le tableau en code est que sur une seule ligne mais
-// qui sont empilees pour faire notre grille en 2d visuellement.
+// In the code, there's a one-dimensional array to represent a board that is
+// in two dimensions. In code, the board is on a single line but
+// which are stacked to make our 2d grid visual.
