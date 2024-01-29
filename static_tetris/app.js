@@ -42,7 +42,7 @@ const pieces = {
     [11, 1, 21, 31],
   ],
 };
-
+let intervalId;
 const fallingPiece = {
   type: null,
   left: 0,
@@ -50,9 +50,13 @@ const fallingPiece = {
   direction: 0,
   elements: null,
 };
-let intervalId;
+const movements = {
+  ArrowLeft: movePieceLeft,
+  ArrowRight: movePieceRight,
+  ArrowDown: fasterSpeed,
+  ArrowUp: rotatePiece,
+};
 
-// Init
 init();
 
 function init() {
@@ -61,10 +65,17 @@ function init() {
     let child = document.createElement('li');
     board.appendChild(child);
   }
+  document.addEventListener('keydown', event => {
+    movements[event.key](fallingPiece);
+  });
+  document.addEventListener('keyup', event => {
+    if (event.key === 'ArrowDown') {
+      resetSpeed(fallingPiece);
+    }
+  });
 }
 
 function newPiece() {
-  console.log(fallingPiece, intervalId);
   const keys = Object.keys(pieces);
   const randomKey = keys[Math.floor(Math.random() * keys.length)];
   fallingPiece.type = randomKey;
@@ -77,17 +88,6 @@ function newPiece() {
   intervalId = setInterval(function () {
     movePieceDown(fallingPiece);
   }, 200);
-
-  const movements = {
-    ArrowLeft: movePieceLeft,
-    ArrowRight: movePieceRight,
-    ArrowDown: movePieceDown,
-    ArrowUp: rotatePiece,
-  };
-
-  document.addEventListener('keydown', event => {
-    movements[event.key](fallingPiece);
-  });
 }
 
 function touchBorder(fallingPiece, moveDirection) {
@@ -100,7 +100,6 @@ function touchBorder(fallingPiece, moveDirection) {
       left: x < 1,
       right: x >= 9,
       down: y >= 19,
-      finish: y === 19,
     };
     return checks[moveDirection];
   });
@@ -116,24 +115,47 @@ function touchOtherPiece(fallingPiece) {
 function movePieceLeft(fallingPiece) {
   if (!touchBorder(fallingPiece, 'left')) {
     fallingPiece.left--;
+    if (touchOtherPiece(fallingPiece)) {
+      fallingPiece.left++;
+    }
     renderPiece(fallingPiece);
   }
 }
-
 function movePieceRight(fallingPiece) {
   if (!touchBorder(fallingPiece, 'right')) {
     fallingPiece.left++;
+    if (touchOtherPiece(fallingPiece)) {
+      fallingPiece.left--;
+    }
     renderPiece(fallingPiece);
   }
 }
 
 function movePieceDown(fallingPiece) {
-  if (!touchBorder(fallingPiece, 'down')) {
-    fallingPiece.top++;
+  fallingPiece.top++;
+  if (touchBorder(fallingPiece, 'down')) {
     renderPiece(fallingPiece);
-    return;
+    fixPiece(fallingPiece);
+  } else if (touchOtherPiece(fallingPiece)) {
+    fallingPiece.top--;
+    renderPiece(fallingPiece);
+    fixPiece(fallingPiece);
+  } else {
+    renderPiece(fallingPiece);
   }
+  return;
+}
+function fasterSpeed(fallingPiece) {
   clearInterval(intervalId);
+  intervalId = setInterval(function () {
+    movePieceDown(fallingPiece);
+  }, 50);
+}
+function resetSpeed(fallingPiece) {
+  clearInterval(intervalId);
+  intervalId = setInterval(function () {
+    movePieceDown(fallingPiece);
+  }, 200);
 }
 
 function rotatePiece(fallingPiece) {
@@ -177,10 +199,6 @@ function renderPiece(fallingPiece) {
   elements[direction].forEach(element => {
     board.children[element + left + 10 * top].classList.add(type, 'falling');
   });
-
-  if (touchBorder(fallingPiece, 'finish')) {
-    fixPiece();
-  }
 }
 
 function renderFixedPiece(fallingPiece) {
