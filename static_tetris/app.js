@@ -44,7 +44,7 @@ const pieces = {
 };
 let intervalId;
 const board = document.getElementById('board');
-const fallingPiece = {
+let fallingPiece = {
   type: null,
   left: 0,
   top: 0,
@@ -59,8 +59,8 @@ const movements = {
   // TODO: add Space: fixPiece
 };
 let fixxing = false;
-init();
 
+init();
 function init() {
   for (let i = 0; i < 200; i++) {
     let child = document.createElement('li');
@@ -75,7 +75,23 @@ function init() {
     }
   });
 }
-
+function newGame() {
+  board.querySelectorAll('li').forEach(element => {
+    element.classList.remove(
+      'fixed',
+      'falling',
+      'oBlock',
+      'tBlock',
+      'jBlock',
+      'lBlock',
+      'sBlock',
+      'zBlock',
+      'iBlock',
+    );
+  });
+  clearInterval(intervalId);
+  newPiece();
+}
 function newPiece() {
   const keys = Object.keys(pieces);
   const randomKey = keys[Math.floor(Math.random() * keys.length)];
@@ -91,7 +107,7 @@ function newPiece() {
   }, 200);
 }
 
-function touchBorder(fallingPiece, moveDirection) {
+function availableToMove(fallingPiece, moveDirection) {
   const { left, top, direction, elements } = fallingPiece;
   return elements[direction].some(element => {
     const x = (element + left) % 10;
@@ -112,19 +128,27 @@ function touchOtherPiece(fallingPiece) {
   });
 }
 function movePieceLeft(fallingPiece) {
-  if (!touchBorder(fallingPiece, 'left')) {
+  if (!availableToMove(fallingPiece, 'left')) {
     fallingPiece.left--;
     if (touchOtherPiece(fallingPiece)) {
       fallingPiece.left++;
+    }
+    if (fixxing && !availableToMove(fallingPiece, 'down')) {
+      fixxing = false;
+      resetSpeed(fallingPiece);
     }
     renderPiece(fallingPiece);
   }
 }
 function movePieceRight(fallingPiece) {
-  if (!touchBorder(fallingPiece, 'right')) {
+  if (!availableToMove(fallingPiece, 'right')) {
     fallingPiece.left++;
     if (touchOtherPiece(fallingPiece)) {
       fallingPiece.left--;
+    }
+    if (fixxing && !availableToMove(fallingPiece, 'down')) {
+      fixxing = false;
+      resetSpeed(fallingPiece);
     }
     renderPiece(fallingPiece);
   }
@@ -135,7 +159,7 @@ function movePieceDown(fallingPiece) {
   if (touchOtherPiece(fallingPiece)) {
     fallingPiece.top--;
     fixPiece(fallingPiece);
-  } else if (touchBorder(fallingPiece, 'down')) {
+  } else if (availableToMove(fallingPiece, 'down')) {
     renderPiece(fallingPiece);
     fixPiece(fallingPiece);
   } else {
@@ -153,6 +177,7 @@ function fasterSpeed(fallingPiece) {
   }, 50);
 }
 function resetSpeed(fallingPiece) {
+  console.log('reset');
   if (fixxing) {
     return;
   }
@@ -184,13 +209,15 @@ function rotatePiece(fallingPiece) {
 }
 
 function fixPiece() {
-  // TODO: possible to go down more
   // TODO: end of game (touch ceiling)
   fixxing = true;
   clearInterval(intervalId);
   setTimeout(function () {
-    renderFixedPiece(fallingPiece);
-    fixxing = false;
+    if (fixxing) {
+      clearInterval(intervalId);
+      renderFixedPiece(fallingPiece);
+      fixxing = false;
+    }
   }, 2000);
 }
 
@@ -198,7 +225,7 @@ function renderPiece(fallingPiece) {
   const { type, left, top, direction, elements } = fallingPiece;
 
   board.querySelectorAll('li').forEach(element => {
-    if (element.classList.contains('falling', type)) {
+    if (element.classList.contains(type, 'falling')) {
       element.classList.remove(type, 'falling');
     }
   });
@@ -210,7 +237,7 @@ function renderPiece(fallingPiece) {
 function renderFixedPiece(fallingPiece) {
   const { type, left, top, direction, elements } = fallingPiece;
   board.querySelectorAll('li').forEach(element => {
-    if (element.classList.contains('falling', type)) {
+    if (element.classList.contains(type, 'falling')) {
       element.classList.remove(type, 'falling');
     }
   });
