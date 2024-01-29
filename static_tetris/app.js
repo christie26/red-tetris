@@ -67,6 +67,8 @@ const movements = {
 
 let fixxing = false;
 
+/* Generate new piece and initialization */
+
 init();
 
 function init() {
@@ -84,6 +86,20 @@ function init() {
   });
 }
 
+function movePieceDown(fallingPiece) {
+  fallingPiece.top++;
+  if (touchOtherPiece(fallingPiece)) {
+    fallingPiece.top--;
+    fixPiece(fallingPiece);
+  } else if (touchBorder(fallingPiece, 'down')) {
+    renderPiece(fallingPiece);
+    fixPiece(fallingPiece);
+  } else {
+    renderPiece(fallingPiece);
+  }
+  return;
+}
+
 function newPiece() {
   const keys = Object.keys(pieces);
   const randomKey = keys[Math.floor(Math.random() * keys.length)];
@@ -98,6 +114,8 @@ function newPiece() {
     movePieceDown(fallingPiece);
   }, 200);
 }
+
+/* Moving a Piece management */
 
 function touchBorder(fallingPiece, moveDirection) {
   const { left, top, direction, elements } = fallingPiece;
@@ -120,41 +138,66 @@ function touchOtherPiece(fallingPiece) {
   });
 }
 
+// function isNextToFixedPieceOrBottom(fallingPiece, direction) {
+//   const { left, top, elements } = fallingPiece;
+//   let offset = direction === 'left' ? -1 : 1;
+//   return elements[fallingPiece.direction].some(element => {
+//     let row = Math.floor(element / 10) + top;
+//     if (row === boardHeight - 1) return true; // Adjacent to the end of the boqrd
+//     let adjacentSquare = board.children[element + left + offset + 10 * top];
+//     return adjacentSquare && adjacentSquare.classList.contains('fixed');
+//   });
+// }
+
+// function canMoveLeft(fallingPiece) {
+//   return (
+//     !touchBorder(fallingPiece, 'left') &&
+//     isNextToFixedPieceOrBottom(fallingPiece, 'left')
+//   );
+// }
+
 function movePieceLeft(fallingPiece) {
-  if (!touchBorder(fallingPiece, 'left')) {
-    fallingPiece.left--;
-    if (touchOtherPiece(fallingPiece)) {
-      fallingPiece.left++;
+  // if (fixxing) {
+  //   if (canMoveLeft(fallingPiece)) {
+  //     fallingPiece.left--;
+  //     renderPiece(fallingPiece);
+  //   }
+  // } else {
+    if (!touchBorder(fallingPiece, 'left')) {
+      fallingPiece.left--;
+      if (touchOtherPiece(fallingPiece)) {
+        fallingPiece.left++;
+      }
+      renderPiece(fallingPiece);
     }
-    renderPiece(fallingPiece);
-  }
+  // }
 }
+
+// function canMoveRight(fallingPiece) {
+//   return (
+//     !touchBorder(fallingPiece, 'right') &&
+//     isNextToFixedPieceOrBottom(fallingPiece, 'right')
+//   );
+// }
 
 function movePieceRight(fallingPiece) {
-  if (!touchBorder(fallingPiece, 'right')) {
-    fallingPiece.left++;
-    if (touchOtherPiece(fallingPiece)) {
-      console.log('before', fallingPiece.left);
-      fallingPiece.left--;
-      console.log('after', fallingPiece.left);
+  // if (fixxing) {
+  //   if (canMoveRight(fallingPiece)) {
+  //     fallingPiece.left++;
+  //     renderPiece(fallingPiece);
+  //   }
+  // } else {
+    if (!touchBorder(fallingPiece, 'right')) {
+      fallingPiece.left++;
+      if (touchOtherPiece(fallingPiece)) {
+        fallingPiece.left--;
+      }
+      renderPiece(fallingPiece);
     }
-    renderPiece(fallingPiece);
-  }
+  // }
 }
 
-function movePieceDown(fallingPiece) {
-  fallingPiece.top++;
-  if (touchOtherPiece(fallingPiece)) {
-    fallingPiece.top--;
-    fixPiece(fallingPiece);
-  } else if (touchBorder(fallingPiece, 'down')) {
-    renderPiece(fallingPiece);
-    fixPiece(fallingPiece);
-  } else {
-    renderPiece(fallingPiece);
-  }
-  return;
-}
+/* Space bar management */
 
 function fasterSpeed(fallingPiece) {
   if (fixxing) {
@@ -175,6 +218,8 @@ function resetSpeed(fallingPiece) {
     movePieceDown(fallingPiece);
   }, 200);
 }
+
+/* ArrowUp rotation management */
 
 function canRotate(fallingPiece) {
   const nextDirection = (fallingPiece.direction + 1) % 4;
@@ -203,28 +248,9 @@ function rotatePiece(fallingPiece) {
     fallingPiece.direction = (fallingPiece.direction + 1) % 4;
     renderPiece(fallingPiece);
   }
-
-  //   fallingPiece.direction = (fallingPiece.direction + 1) % 4;
-  //   const center = // horizontal center position (in x)
-  //     (fallingPiece.elements[fallingPiece.direction][0] + fallingPiece.left) %
-  //     10;
-
-  //   fallingPiece.elements[fallingPiece.direction].forEach(element => {
-  //     let col = (element + fallingPiece.left) % 10; // Position of current edge horizontally (in x)
-  //     const row = Math.floor(element / 10) + fallingPiece.top;
-  //     const boardCenter = 5;
-
-  //     if (center + boardCenter < col) {
-  //       fallingPiece.left++;
-  //     } else if (center - boardCenter > col) {
-  //       fallingPiece.left--;
-  //     } else if (row > boardHeight) {
-  //       fallingPiece.top--;
-  //     }
-  //   });
-  //   renderPiece(fallingPiece);
-  // }
 }
+
+/* Fix the piece and render the falling or fixed piece management */
 
 function fixPiece() {
   // TODO: possible to go down more
