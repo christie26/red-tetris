@@ -127,7 +127,9 @@ function movePieceRight(fallingPiece) {
   if (!touchBorder(fallingPiece, 'right')) {
     fallingPiece.left++;
     if (touchOtherPiece(fallingPiece)) {
+      console.log("before", fallingPiece.left);
       fallingPiece.left--;
+      console.log("after", fallingPiece.left);
     }
     renderPiece(fallingPiece);
   }
@@ -138,7 +140,8 @@ function movePieceDown(fallingPiece) {
   if (touchOtherPiece(fallingPiece)) {
     fallingPiece.top--;
     fixPiece(fallingPiece);
-  } else if (touchBorder(fallingPiece, 'down')) {
+  } else 
+  if (touchBorder(fallingPiece, 'down')) {
     renderPiece(fallingPiece);
     fixPiece(fallingPiece);
   } else {
@@ -174,6 +177,7 @@ function rotatePiece(fallingPiece) {
     let col = (element + fallingPiece.left) % 10; // Position of current edge horizontally (in x)
     const row = Math.floor(element / 10) + fallingPiece.top;
     const boardCenter = 5;
+
     if (center + boardCenter < col) {
       fallingPiece.left++;
     } else if (center - boardCenter > col) {
