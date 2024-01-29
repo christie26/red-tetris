@@ -56,6 +56,7 @@ const movements = {
   ArrowRight: movePieceRight,
   ArrowDown: fasterSpeed,
   ArrowUp: rotatePiece,
+  // TODO: add Space: fixPiece
 };
 let fixxing = false;
 init();
@@ -91,11 +92,10 @@ function newPiece() {
 }
 
 function touchBorder(fallingPiece, moveDirection) {
-  const { left, top, direction, elements } = fallingPiece; // On recupere ce qu'il y a dans fallingPiece en faisant une destructuration
+  const { left, top, direction, elements } = fallingPiece;
   return elements[direction].some(element => {
-    // some() : boucle et en plus il teste si un truc est vrai
-    const x = (element + left) % 10; // Permet de savoir la position de la piece entre 0 et 9 grace au % a l'horizontal (en sachant que element + left = index dans le board)
-    const y = Math.floor(element / 10) + top; // Math.floor arrondit au int en dessous pour eviter les nombres a virgules (element / 10 = index de la ligne dans le board)
+    const x = (element + left) % 10;
+    const y = Math.floor(element / 10) + top;
     const checks = {
       left: x < 1,
       right: x >= 9,
@@ -184,6 +184,8 @@ function rotatePiece(fallingPiece) {
 }
 
 function fixPiece() {
+  // TODO: possible to go down more
+  // TODO: end of game (touch ceiling)
   fixxing = true;
   clearInterval(intervalId);
   setTimeout(function () {
@@ -215,6 +217,7 @@ function renderFixedPiece(fallingPiece) {
   elements[direction].forEach(element => {
     board.children[element + left + 10 * top].classList.add(type, 'fixed');
   });
+  // TODO: clean full lines
   newPiece();
 }
 
