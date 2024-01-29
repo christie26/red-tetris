@@ -1,3 +1,7 @@
+const board = document.getElementById('board');
+const boardWidth = 9;
+const boardHeight = 19;
+
 const pieces = {
   oBlock: [
     [0, 1, 10, 11], // Direction 0
@@ -6,7 +10,7 @@ const pieces = {
     [0, 1, 10, 11], // Direction 3
   ],
   tBlock: [
-    [11, 0, 1, 2], // Le premier de chaque tableau est l'index du centre de la piece (celui qui est commun a chaque rotation)
+    [11, 0, 1, 2], // The first of each table is the index of the center of the piece (the one common to each rotation).
     [11, 2, 12, 22],
     [11, 20, 21, 22],
     [11, 0, 10, 20],
@@ -55,12 +59,11 @@ const fallingPiece = {
 init();
 
 function init() {
-  const board = document.getElementById('board');
   for (let i = 0; i < 200; i++) {
     let child = document.createElement('li');
     board.appendChild(child);
   }
-  fallingPiece.type = 'zBlock'; // set la classe css qui correspond au type de la piece
+  fallingPiece.type = 'zBlock'; // set the css class that corresponds to the piece type
   fallingPiece.left = 0;
   fallingPiece.top = 0;
   fallingPiece.direction = 0;
@@ -68,7 +71,7 @@ function init() {
   renderPiece(fallingPiece);
 
   const movements = {
-    // Objet de fonctions
+    // Function object
     ArrowLeft: movePieceLeft,
     ArrowRight: movePieceRight,
     ArrowDown: movePieceDown,
@@ -77,60 +80,24 @@ function init() {
 
   document.addEventListener('keydown', event => {
     movements[event.key](fallingPiece);
-    // if (event.key === 'ArrowLeft') {
-    //   movePieceLeft(fallingPiece)
-    // } else if (event.key === 'ArrowRight') {
-    //   movePieceRight(fallingPiece)
-    // } else if (event.key === 'ArrowDown') {
-    //   movePieceDown(fallingPiece)
-    // } else if (event.key === 'ArrowUp') {
-    //   rotatePiece(fallingPiece)
-    // }
   });
 }
 
 function touchBorder(fallingPiece, moveDirection) {
-  const { left, top, direction, elements } = fallingPiece; // On recupere ce qu'il y a dans fallingPiece en faisant une destructuration
+  const { left, top, direction, elements } = fallingPiece; // Recover what's in fallingPiece by destructuring it
   return elements[direction].some(element => {
-    // some() : boucle et en plus il teste si un truc est vrai
-    const x = (element + left) % 10; // Permet de savoir la position de la piece entre 0 et 9 grace au % a l'horizontal (en sachant que element + left = index dans le board)
-    const y = Math.floor(element / 10) + top; // Math.floor arrondit au int en dessous pour eviter les nombres a virgules (element / 10 = index de la ligne dans le board)
+    // some(): loop and also tests if something is true
+    const x = (element + left) % 10; // Find the position of the piece between 0 and 9 using the horizontal % (knowing that element + left = index in the board)
+    const y = Math.floor(element / 10) + top; // Math.floor rounds down to the nearest int to avoid comma-delimited numbers (element / 10 = line index in the board)
     const checks = {
-      // Objet de booleen
+      // Boolean object
       left: x < 1,
-      right: x >= 9,
-      down: y >= 19,
+      right: x >= boardWidth,
+      down: y >= boardHeight,
     };
     return checks[moveDirection];
-    // if (moveDirection === 'left') {
-    //   const check = (element + left) % 10
-    //   if (check < 1) {
-    //     return true
-    //   }
-    // } else if (moveDirection === 'right') {
-    //   const check = (element + left) % 10
-    //   if (check >= 9) {
-    //     return true
-    //   }
-    // } else if (moveDirection === 'down') {
-    //   const check = Math.floor(element / 10) + top
-    //   console.log("check", check);
-    //   if (check >= 19) {
-    //     return true
-    //   }
-    // }
-    // return false
   });
 }
-
-// Exemple de some():
-// function hasPairNb(nbArr) {
-//   return nbArr.some(nb => nb % 2 === 0);
-// }
-// hasPairNb([1, 3, 4, 5]);
-// des que some tombe sur pair, il s'arrete et return true
-// s'il n'y avait pas de pair, il aurait boucle sur tout le tableau et
-// finit par return false
 
 function movePieceLeft(fallingPiece) {
   if (!touchBorder(fallingPiece, 'left')) {
@@ -154,24 +121,19 @@ function movePieceDown(fallingPiece) {
 }
 
 function rotatePiece(fallingPiece) {
-  // if (fallingPiece.direction < 3) {
-  //   fallingPiece.direction++;
-  // } else {
-  //   fallingPiece.direction = 0;
-  // }
   fallingPiece.direction = (fallingPiece.direction + 1) % 4;
-  const center = // position du centre a l'horizontal (en x)
+  const center = // horizontal center position (in x)
     (fallingPiece.elements[fallingPiece.direction][0] + fallingPiece.left) % 10;
 
   fallingPiece.elements[fallingPiece.direction].forEach(element => {
-    let col = (element + fallingPiece.left) % 10; // Position du carre actuel a l'horizontal (en x)
+    let col = (element + fallingPiece.left) % 10; // Position of current edge horizontally (in x)
     const row = Math.floor(element / 10) + fallingPiece.top;
     const boardCenter = 5;
-    if (center + boardCenter < col) { // Si le carre actuel est plus grand en x que la moitie du tableau alors le frero est perdu quoi
+    if (center + boardCenter < col) { // If the current edge is larger in x than half the array, then the frero is lost.
       fallingPiece.left++;
     } else if (center -  boardCenter > col) {
       fallingPiece.left--;
-    } else if (row > 19) {
+    } else if (row > boardHeight) {
       fallingPiece.top--;
     }
   });
@@ -199,7 +161,6 @@ function rotatePiece(fallingPiece) {
 // }
 
 function renderPiece(fallingPiece) {
-  const board = document.getElementById('board'); // peut etre mettre en variable globale
   const { type, left, top, direction, elements } = fallingPiece;
 
   // if (touchBorder(fallingPiece, 'down')) {
@@ -214,14 +175,15 @@ function renderPiece(fallingPiece) {
     board.children[element + left + 10 * top].classList.add(type, 'falling');
   });
 }
-// elements: La piece entiere avec les 4 carres
-// element: c'est la position d'un carre de la piece
-// ForEach s'applique 4 fois, une fois pour chaque carre / element
-// element + left + 10 * top : Pour dessiner la piece au bon endroit (la position
-// est deja set au debut de la fonction) car on est dans un tableau en une
-// dimension. Left positionne sur l'axe horizontal et (10 = largeur du board) * top
-// veut dire que l'on ajuste la distance avec le haut, on baisse la piece de top fois.
 
-// Dans le code, il y a un tableau d'une dimension pour representer un board qui est
-// lui en deux dimensions. Le tableau en code est que sur une seule ligne mais
-// qui sont empilees pour faire notre grille en 2d visuellement.
+// elements: the entire piece with all 4 squares
+// element: the position of a square in the piece
+// ForEach is applied 4 times, once for each tile / element
+// element + left + 10 * top : To draw the piece in the right place (the position
+// is already set at the start of the function) as we're in a one-dimensional
+// dimension. Left positions on the horizontal axis and (10 = board width) * top
+// means that we adjust the distance to the top, lowering the piece top times.
+
+// In the code, there's a one-dimensional array to represent a board that is
+// in two dimensions. In code, the board is on a single line but
+// which are stacked to make our 2d grid visual.
