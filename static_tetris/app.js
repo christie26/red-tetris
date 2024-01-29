@@ -43,6 +43,7 @@ const pieces = {
   ],
 };
 let intervalId;
+const board = document.getElementById('board');
 const fallingPiece = {
   type: null,
   left: 0,
@@ -60,7 +61,6 @@ const movements = {
 init();
 
 function init() {
-  const board = document.getElementById('board');
   for (let i = 0; i < 200; i++) {
     let child = document.createElement('li');
     board.appendChild(child);
@@ -107,7 +107,6 @@ function touchBorder(fallingPiece, moveDirection) {
 function touchOtherPiece(fallingPiece) {
   const { left, top, direction, elements } = fallingPiece;
   return elements[direction].some(element => {
-    const board = document.getElementById('board');
     const square = board.children[element + left + 10 * top];
     return square.classList.contains('fixed');
   });
@@ -133,11 +132,10 @@ function movePieceRight(fallingPiece) {
 
 function movePieceDown(fallingPiece) {
   fallingPiece.top++;
-  if (touchBorder(fallingPiece, 'down')) {
-    renderPiece(fallingPiece);
-    fixPiece(fallingPiece);
-  } else if (touchOtherPiece(fallingPiece)) {
+  if (touchOtherPiece(fallingPiece)) {
     fallingPiece.top--;
+    fixPiece(fallingPiece);
+  } else if (touchBorder(fallingPiece, 'down')) {
     renderPiece(fallingPiece);
     fixPiece(fallingPiece);
   } else {
@@ -188,7 +186,6 @@ function fixPiece() {
 }
 
 function renderPiece(fallingPiece) {
-  const board = document.getElementById('board'); // peut etre mettre en variable globale
   const { type, left, top, direction, elements } = fallingPiece;
 
   board.querySelectorAll('li').forEach(element => {
@@ -202,7 +199,6 @@ function renderPiece(fallingPiece) {
 }
 
 function renderFixedPiece(fallingPiece) {
-  const board = document.getElementById('board');
   const { type, left, top, direction, elements } = fallingPiece;
   board.querySelectorAll('li').forEach(element => {
     if (element.classList.contains('falling', type)) {
