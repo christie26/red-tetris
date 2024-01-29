@@ -129,9 +129,10 @@ function rotatePiece(fallingPiece) {
     let col = (element + fallingPiece.left) % 10; // Position of current edge horizontally (in x)
     const row = Math.floor(element / 10) + fallingPiece.top;
     const boardCenter = 5;
-    if (center + boardCenter < col) { // If the current edge is larger in x than half the array, then the frero is lost.
+    if (center + boardCenter < col) {
+      // If the current edge is larger in x than half the array, then the frero is lost.
       fallingPiece.left++;
-    } else if (center -  boardCenter > col) {
+    } else if (center - boardCenter > col) {
       fallingPiece.left--;
     } else if (row > boardHeight) {
       fallingPiece.top--;
@@ -140,39 +141,20 @@ function rotatePiece(fallingPiece) {
   renderPiece(fallingPiece);
 }
 
-// function fixPiece(fallingPiece, board) {
-//   const { type, left, top, direction, elements } = fallingPiece;
-
-//   elements[direction].forEach(element => {
-//     const x = left + element % 10;
-//     const y = top + Math.floor(element / 10);
-//     const position = y * 10 + x;
-
-//     // board.children[element + left + 10 * top].classList.add(type, 'falling');
-
-//     if (position >= 0 && position < board.length) {
-//       board.children[position].classList.add(type, 'set');
-//     }
-
-//     // board.querySelectorAll('li').forEach(element => {
-//     //   element.classList.remove(type, 'falling')
-//     // })
-//   })
-// }
-
 function renderPiece(fallingPiece) {
   const { type, left, top, direction, elements } = fallingPiece;
 
-  // if (touchBorder(fallingPiece, 'down')) {
-  // if () {
-  //   fixPiece(fallingPiece, board);
-  // }
-
-  board.querySelectorAll('li').forEach(element => {
-    element.classList.remove(type, 'falling');
-  });
-  elements[direction].forEach(element => {
-    board.children[element + left + 10 * top].classList.add(type, 'falling');
+  fallingPiece.elements[fallingPiece.direction].forEach(element => {
+    const row = Math.floor(element / 10) + fallingPiece.top;
+    if (row < boardHeight) {
+      board.querySelectorAll('li').forEach(element => {
+        element.classList.remove(type); // Falling
+      });
+      elements[direction].forEach(element => {
+        board.children[element + left + 10 * top].classList.add(type); // Falling
+      });
+    } else {
+    }
   });
 }
 

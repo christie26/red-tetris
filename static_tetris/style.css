@@ -4,6 +4,7 @@ h1 {
     margin-top: 100px;
     margin-bottom: 80px;
 }
+
 #board {
     list-style-type: none;
     padding: 0;
@@ -24,21 +25,27 @@ h1 {
 .oBlock {
     background-color: lightcoral;
 }
+
 .tBlock {
     background-color: #f6cefc;
 }
+
 .jBlock {
     background-color: lightblue;
 }
+
 .lBlock {
     background-color: pink;
 }
+
 .sBlock {
     background-color:darkkhaki;
 }
+
 .zBlock {
     background-color: lightgreen;
 }
+
 .iBlock {
     background-color: lightgray;
 }
