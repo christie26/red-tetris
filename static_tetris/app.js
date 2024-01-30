@@ -277,22 +277,33 @@ function renderPiece(fallingPiece) {
 
 function renderFixedPiece(fallingPiece) {
   const { type, left, top, direction, elements } = fallingPiece;
+  const lines = [];
   elements[direction].forEach(element => {
     board.children[element + left + 10 * top].classList.remove('falling');
     board.children[element + left + 10 * top].classList.add(type, 'fixed');
+    lines.push(Math.floor((element + left + 10 * top) / 10));
   });
-  console.log('TODO: clean full lines');
+  lines.forEach(line => {
+    clearLine(line);
+  });
+
   newPiece();
 }
 
-// elements: the entire piece with all 4 squares
-// element: the position of a square in the piece
-// ForEach is applied 4 times, once for each tile / element
-// element + left + 10 * top : To draw the piece in the right place (the position
-// is already set at the start of the function) as we're in a one-dimensional
-// dimension. Left positions on the horizontal axis and (10 = board width) * top
-// means that we adjust the distance to the top, lowering the piece top times.
-
-// In the code, there's a one-dimensional array to represent a board that is
-// in two dimensions. In code, the board is on a single line but
-// which are stacked to make our 2d grid visual.
+function clearLine(line) {
+  for (element = line * 10; element < line * 10 + 10; element++) {
+    if (!board.children[element].classList.contains('fixed')) {
+      return;
+    }
+  }
+  for (element = line * 10; element < line * 10 + 10; element++) {
+    board.children[element].classList.remove('fixed');
+  }
+  for (let element = line * 10 - 1; element >= 0; element--) {
+    if (board.children[element].classList.contains('fixed')) {
+      const classes = Array.from(board.children[element].classList);
+      board.children[element].classList.remove(...classes);
+      board.children[element + 10].classList.add(...classes);
+    }
+  }
+}
