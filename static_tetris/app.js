@@ -232,18 +232,33 @@ function fallSprint(fallingPiece) {
 }
 
 /* Rotation */
-function canRotate(fallingPiece) {
+function checkBorderRotate(fallingPiece) {
+  const nextDirection = (fallingPiece.direction + 1) % 4;
+  const center = // position du centre a l'horizontal (en x)
+    (fallingPiece.elements[nextDirection][0] + fallingPiece.left) % 10;
+  fallingPiece.elements[nextDirection].forEach(element => {
+    let col = (element + fallingPiece.left) % 10;
+    const row = Math.floor(element / 10) + fallingPiece.top;
+    const boardCenter = 5;
+    if (center + boardCenter < col) {
+      fallingPiece.left++;
+      return 'left';
+    } else if (center - boardCenter > col) {
+      fallingPiece.left--;
+      return 'right';
+    } else if (row > 19) {
+      fallingPiece.top--;
+      return 'up';
+    }
+  });
+}
+
+function checkOtherPieceRotate(fallingPiece) {
   const nextDirection = (fallingPiece.direction + 1) % 4;
   const elements = pieces[fallingPiece.type][nextDirection];
 
   for (let element of elements) {
-    let col = (element + fallingPiece.left) % 10; // Position of current edge horizontally (in x)
-    let row = Math.floor(element / 10) + fallingPiece.top;
-
     if (
-      col < 0 ||
-      col >= boardWidth ||
-      row >= boardHeight ||
       board.children[
         element + fallingPiece.left + 10 * fallingPiece.top
       ].classList.contains('fixed')
@@ -255,13 +270,22 @@ function canRotate(fallingPiece) {
 }
 
 function rotatePiece(fallingPiece) {
-  if (canRotate(fallingPiece)) {
+  const adjustMove = checkBorderRotate(fallingPiece);
+  if (checkOtherPieceRotate(fallingPiece)) {
     if (fixxing) {
       fixxing = false;
       resetSpeed(fallingPiece);
     }
     fallingPiece.direction = (fallingPiece.direction + 1) % 4;
     renderPiece(fallingPiece);
+  } else {
+    if (adjustMove === 'left') {
+      fallingPiece.left--;
+    } else if (adjustMove === 'right') {
+      fallingPiece.left++;
+    } else if (adjustMove === 'up') {
+      fallingPiece.top--;
+    }
   }
 }
 
