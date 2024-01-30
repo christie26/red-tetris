@@ -70,11 +70,10 @@ const movements = {
   ArrowDown: fasterSpeed,
   ArrowUp: rotatePiece,
   ' ': fallSprint,
-  // TODO: add Space: fixPiece
 };
 
 let fixxing = false;
-
+let sprint = false;
 /* Generate new piece and initialization */
 
 init();
@@ -116,6 +115,8 @@ function stopGame() {
   clearInterval(intervalId);
 }
 function newPiece() {
+  sprint = false;
+  fixxing = false;
   const keys = Object.keys(pieces);
   const randomKey = keys[Math.floor(Math.random() * keys.length)];
   fallingPiece = { ...initPiece };
@@ -219,11 +220,11 @@ function resetSpeed(fallingPiece) {
 
 /* SpaceBar */
 function fallSprint(fallingPiece) {
+  sprint = true;
   if (fixxing) {
     clearInterval(intervalId);
     return;
   }
-  // Ne pas laisser le time out en cas de space bar pour le fix juste fix et creer une nouvelle piece
   clearInterval(intervalId);
   intervalId = setInterval(function () {
     movePieceDown(fallingPiece);
@@ -268,15 +269,19 @@ function rotatePiece(fallingPiece) {
 
 function fixPiece() {
   // TODO: end of game (touch ceiling)
-  fixxing = true;
-  clearInterval(intervalId);
-  setTimeout(function () {
-    if (fixxing) {
-      clearInterval(intervalId);
-      renderFixedPiece(fallingPiece);
-      fixxing = false;
-    }
-  }, 2000);
+  if (sprint) {
+    clearInterval(intervalId);
+    renderFixedPiece(fallingPiece);
+  } else {
+    fixxing = true;
+    clearInterval(intervalId);
+    setTimeout(function () {
+      if (fixxing) {
+        clearInterval(intervalId);
+        renderFixedPiece(fallingPiece);
+      }
+    }, 2000);
+  }
 }
 
 function renderPiece(fallingPiece) {
@@ -314,7 +319,8 @@ function clearLine(line) {
     }
   }
   for (element = line * 10; element < line * 10 + 10; element++) {
-    board.children[element].classList.remove('fixed');
+    const classes = Array.from(board.children[element].classList);
+    board.children[element].classList.remove(...classes);
   }
   for (let element = line * 10 - 1; element >= 0; element--) {
     if (board.children[element].classList.contains('fixed')) {
