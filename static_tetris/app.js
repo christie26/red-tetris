@@ -49,7 +49,14 @@ const board = document.getElementById('board');
 const boardWidth = 9;
 const boardHeight = 19;
 
-const fallingPiece = {
+let fallingPiece = {
+  type: null,
+  left: 0,
+  top: 0,
+  direction: 0,
+  elements: null,
+};
+const initPiece = {
   type: null,
   left: 0,
   top: 0,
@@ -101,6 +108,24 @@ function newGame() {
   clearInterval(intervalId);
   newPiece();
 }
+function stopGame() {
+  clearInterval(intervalId);
+}
+function newPiece() {
+  const keys = Object.keys(pieces);
+  const randomKey = keys[Math.floor(Math.random() * keys.length)];
+  fallingPiece = { ...initPiece };
+  fallingPiece.type = randomKey;
+  fallingPiece.left = 2 + Math.floor(Math.random() * 5);
+  fallingPiece.top = 0;
+  fallingPiece.direction = 0;
+  fallingPiece.elements = pieces[randomKey];
+  renderPiece(fallingPiece);
+
+  intervalId = setInterval(function () {
+    movePieceDown(fallingPiece);
+  }, 200);
+}
 
 function movePieceDown(fallingPiece) {
   fallingPiece.top++;
@@ -114,21 +139,6 @@ function movePieceDown(fallingPiece) {
     renderPiece(fallingPiece);
   }
   return;
-}
-
-function newPiece() {
-  const keys = Object.keys(pieces);
-  const randomKey = keys[Math.floor(Math.random() * keys.length)];
-  fallingPiece.type = randomKey;
-  fallingPiece.left = 2 + Math.floor(Math.random() * 5);
-  fallingPiece.top = 0;
-  fallingPiece.direction = 0;
-  fallingPiece.elements = pieces[randomKey];
-  renderPiece(fallingPiece);
-
-  intervalId = setInterval(function () {
-    movePieceDown(fallingPiece);
-  }, 200);
 }
 
 function availableToMove(fallingPiece, moveDirection) {
@@ -152,24 +162,6 @@ function touchOtherPiece(fallingPiece) {
   });
 }
 
-// function isNextToFixedPieceOrBottom(fallingPiece, direction) {
-//   const { left, top, elements } = fallingPiece;
-//   let offset = direction === 'left' ? -1 : 1;
-//   return elements[fallingPiece.direction].some(element => {
-//     let row = Math.floor(element / 10) + top;
-//     if (row === boardHeight - 1) return true; // Adjacent to the end of the boqrd
-//     let adjacentSquare = board.children[element + left + offset + 10 * top];
-//     return adjacentSquare && adjacentSquare.classList.contains('fixed');
-//   });
-// }
-
-// function canMoveLeft(fallingPiece) {
-//   return (
-//     !touchBorder(fallingPiece, 'left') &&
-//     isNextToFixedPieceOrBottom(fallingPiece, 'left')
-//   );
-// }
-
 function movePieceLeft(fallingPiece) {
   if (!availableToMove(fallingPiece, 'left')) {
     fallingPiece.left--;
@@ -183,14 +175,6 @@ function movePieceLeft(fallingPiece) {
     renderPiece(fallingPiece);
   }
 }
-
-// function canMoveRight(fallingPiece) {
-//   return (
-//     !touchBorder(fallingPiece, 'right') &&
-//     isNextToFixedPieceOrBottom(fallingPiece, 'right')
-//   );
-// }
-
 function movePieceRight(fallingPiece) {
   if (!availableToMove(fallingPiece, 'right')) {
     fallingPiece.left++;
@@ -204,7 +188,6 @@ function movePieceRight(fallingPiece) {
     renderPiece(fallingPiece);
   }
 }
-
 function movePieceDown(fallingPiece) {
   fallingPiece.top++;
   if (touchOtherPiece(fallingPiece)) {
@@ -227,7 +210,6 @@ function fasterSpeed(fallingPiece) {
     movePieceDown(fallingPiece);
   }, 50);
 }
-
 function resetSpeed(fallingPiece) {
   console.log('reset');
   if (fixxing) {
@@ -238,7 +220,6 @@ function resetSpeed(fallingPiece) {
     movePieceDown(fallingPiece);
   }, 200);
 }
-
 /* ArrowUp rotation management */
 
 function canRotate(fallingPiece) {
@@ -289,7 +270,7 @@ function renderPiece(fallingPiece) {
   const { type, left, top, direction, elements } = fallingPiece;
 
   board.querySelectorAll('li').forEach(element => {
-    if (element.classList.contains(type, 'falling')) {
+    if (element.classList.contains('falling')) {
       element.classList.remove(type, 'falling');
     }
   });
@@ -300,12 +281,8 @@ function renderPiece(fallingPiece) {
 
 function renderFixedPiece(fallingPiece) {
   const { type, left, top, direction, elements } = fallingPiece;
-  board.querySelectorAll('li').forEach(element => {
-    if (element.classList.contains(type, 'falling')) {
-      element.classList.remove(type, 'falling');
-    }
-  });
   elements[direction].forEach(element => {
+    board.children[element + left + 10 * top].classList.remove('falling');
     board.children[element + left + 10 * top].classList.add(type, 'fixed');
   });
   // TODO: clean full lines
