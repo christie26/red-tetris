@@ -65,8 +65,8 @@ const initPiece = {
 };
 
 const movements = {
-  ArrowLeft: movePieceLeft,
-  ArrowRight: movePieceRight,
+  ArrowLeft: moveLeft,
+  ArrowRight: moveRight,
   ArrowDown: fasterSpeed,
   ArrowUp: rotatePiece,
   ' ': fallSprint,
@@ -74,6 +74,7 @@ const movements = {
 
 let fixxing = false;
 let sprint = false;
+
 /* Generate new piece and initialization */
 
 init();
@@ -84,7 +85,6 @@ function init() {
   }
   document.addEventListener('keydown', e => {
     if (movements.hasOwnProperty(e.key)) {
-      // To check if the key is in movements before applying a function
       movements[e.key](fallingPiece);
     }
   });
@@ -128,23 +128,26 @@ function newPiece() {
   renderPiece(fallingPiece);
 
   intervalId = setInterval(function () {
-    movePieceDown(fallingPiece);
+    moveDown(fallingPiece);
   }, 200);
 }
 
-function movePieceDown(fallingPiece) {
-  fallingPiece.top++;
-  if (touchOtherPiece(fallingPiece)) {
-    fallingPiece.top--;
-    fixPiece(fallingPiece);
-  } else if (availableToMove(fallingPiece, 'down')) {
-    renderPiece(fallingPiece);
-    fixPiece(fallingPiece);
-  } else {
-    renderPiece(fallingPiece);
+function moveDown(fallingPiece) {
+  if (fallingPiece.top < boardHeight) {
+    fallingPiece.top++;
+    if (touchOtherPiece(fallingPiece)) {
+      fallingPiece.top--;
+      fixPiece(fallingPiece);
+    } else if (availableToMove(fallingPiece, 'down')) {
+      renderPiece(fallingPiece);
+      fixPiece(fallingPiece);
+    } else {
+      renderPiece(fallingPiece);
+    }
+    return;
   }
-  return;
 }
+
 /* Check before move */
 function availableToMove(fallingPiece, moveDirection) {
   const { left, top, direction, elements } = fallingPiece;
@@ -163,13 +166,17 @@ function availableToMove(fallingPiece, moveDirection) {
 function touchOtherPiece(fallingPiece) {
   const { left, top, direction, elements } = fallingPiece;
   return elements[direction].some(element => {
+    if (element + left + 10 * top > 199) {
+      return true;
+    }
     const square = board.children[element + left + 10 * top];
+    console.log(element + left + 10 * top);
     return square.classList.contains('fixed');
   });
 }
 
 /* Moving */
-function movePieceLeft(fallingPiece) {
+function moveLeft(fallingPiece) {
   if (!availableToMove(fallingPiece, 'left')) {
     fallingPiece.left--;
     if (touchOtherPiece(fallingPiece)) {
@@ -183,7 +190,7 @@ function movePieceLeft(fallingPiece) {
   }
 }
 
-function movePieceRight(fallingPiece) {
+function moveRight(fallingPiece) {
   if (!availableToMove(fallingPiece, 'right')) {
     fallingPiece.left++;
     if (touchOtherPiece(fallingPiece)) {
@@ -204,7 +211,7 @@ function fasterSpeed(fallingPiece) {
   }
   clearInterval(intervalId);
   intervalId = setInterval(function () {
-    movePieceDown(fallingPiece);
+    moveDown(fallingPiece);
   }, 50);
 }
 
@@ -214,7 +221,7 @@ function resetSpeed(fallingPiece) {
   }
   clearInterval(intervalId);
   intervalId = setInterval(function () {
-    movePieceDown(fallingPiece);
+    moveDown(fallingPiece);
   }, 200);
 }
 
@@ -227,7 +234,7 @@ function fallSprint(fallingPiece) {
   }
   clearInterval(intervalId);
   intervalId = setInterval(function () {
-    movePieceDown(fallingPiece);
+    moveDown(fallingPiece);
   }, 5);
 }
 
@@ -253,25 +260,11 @@ function checkBorderRotate(fallingPiece) {
   });
 }
 
-function checkOtherPieceRotate(fallingPiece) {
-  const nextDirection = (fallingPiece.direction + 1) % 4;
-  const elements = pieces[fallingPiece.type][nextDirection];
-
-  for (let element of elements) {
-    if (
-      board.children[
-        element + fallingPiece.left + 10 * fallingPiece.top
-      ].classList.contains('fixed')
-    ) {
-      return false;
-    }
-  }
-  return true;
-}
-
 function rotatePiece(fallingPiece) {
   const adjustMove = checkBorderRotate(fallingPiece);
-  if (checkOtherPieceRotate(fallingPiece)) {
+  let tempPiece = { ...fallingPiece };
+  tempPiece.direction = (tempPiece.direction + 1) % 4;
+  if (!touchOtherPiece(tempPiece)) {
     if (fixxing) {
       fixxing = false;
       resetSpeed(fallingPiece);
@@ -284,7 +277,7 @@ function rotatePiece(fallingPiece) {
     } else if (adjustMove === 'right') {
       fallingPiece.left++;
     } else if (adjustMove === 'up') {
-      fallingPiece.top--;
+      fallingPiece.top++;
     }
   }
 }
