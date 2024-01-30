@@ -36,9 +36,9 @@ const pieces = {
     [11, 1, 10, 20],
   ],
   iBlock: [
-    [11, 10, 12, 13],
+    [1, 0, 2, 3],
     [11, 1, 21, 31],
-    [11, 10, 12, 13],
+    [1, 0, 2, 3],
     [11, 1, 21, 31],
   ],
 };
@@ -125,6 +125,19 @@ function newPiece() {
   fallingPiece.top = 0;
   fallingPiece.direction = 0;
   fallingPiece.elements = pieces[randomKey];
+  for (element of fallingPiece.elements[fallingPiece.direction]) {
+    if (
+      board.children[
+        element + fallingPiece.left + 10 * fallingPiece.top
+      ].classList.contains('fixed')
+    ) {
+      renderPiece(fallingPiece);
+      setTimeout(function () {
+        alert('Game Over');
+      }, 1000);
+      return;
+    }
+  }
   renderPiece(fallingPiece);
 
   intervalId = setInterval(function () {
@@ -170,7 +183,6 @@ function touchOtherPiece(fallingPiece) {
       return true;
     }
     const square = board.children[element + left + 10 * top];
-    console.log(element + left + 10 * top);
     return square.classList.contains('fixed');
   });
 }
@@ -285,7 +297,6 @@ function rotatePiece(fallingPiece) {
 /* Render */
 
 function fixPiece() {
-  // TODO: end of game (touch ceiling)
   if (sprint) {
     clearInterval(intervalId);
     renderFixedPiece(fallingPiece);
@@ -318,9 +329,6 @@ function renderFixedPiece(fallingPiece) {
   const { type, left, top, direction, elements } = fallingPiece;
   const lines = [];
   elements[direction].forEach(element => {
-    if (element + left + 10 * top < 10) {
-      alert('Game Over');
-    }
     board.children[element + left + 10 * top].classList.remove('falling');
     board.children[element + left + 10 * top].classList.add(type, 'fixed');
     lines.push(Math.floor((element + left + 10 * top) / 10));
