@@ -132,7 +132,7 @@ function movePieceDown(fallingPiece) {
   if (touchOtherPiece(fallingPiece)) {
     fallingPiece.top--;
     fixPiece(fallingPiece);
-  } else if (touchBorder(fallingPiece, 'down')) {
+  } else if (availableToMove(fallingPiece, 'down')) {
     renderPiece(fallingPiece);
     fixPiece(fallingPiece);
   } else {
@@ -140,7 +140,7 @@ function movePieceDown(fallingPiece) {
   }
   return;
 }
-
+/* Check before move */
 function availableToMove(fallingPiece, moveDirection) {
   const { left, top, direction, elements } = fallingPiece;
   return elements[direction].some(element => {
@@ -154,6 +154,7 @@ function availableToMove(fallingPiece, moveDirection) {
     return checks[moveDirection];
   });
 }
+
 function touchOtherPiece(fallingPiece) {
   const { left, top, direction, elements } = fallingPiece;
   return elements[direction].some(element => {
@@ -162,6 +163,7 @@ function touchOtherPiece(fallingPiece) {
   });
 }
 
+/* Moving */
 function movePieceLeft(fallingPiece) {
   if (!availableToMove(fallingPiece, 'left')) {
     fallingPiece.left--;
@@ -175,6 +177,7 @@ function movePieceLeft(fallingPiece) {
     renderPiece(fallingPiece);
   }
 }
+
 function movePieceRight(fallingPiece) {
   if (!availableToMove(fallingPiece, 'right')) {
     fallingPiece.left++;
@@ -188,19 +191,7 @@ function movePieceRight(fallingPiece) {
     renderPiece(fallingPiece);
   }
 }
-function movePieceDown(fallingPiece) {
-  fallingPiece.top++;
-  if (touchOtherPiece(fallingPiece)) {
-    fallingPiece.top--;
-    fixPiece(fallingPiece);
-  } else if (availableToMove(fallingPiece, 'down')) {
-    renderPiece(fallingPiece);
-    fixPiece(fallingPiece);
-  } else {
-    renderPiece(fallingPiece);
-  }
-  return;
-}
+
 function fasterSpeed(fallingPiece) {
   if (fixxing) {
     return;
@@ -210,8 +201,8 @@ function fasterSpeed(fallingPiece) {
     movePieceDown(fallingPiece);
   }, 50);
 }
+
 function resetSpeed(fallingPiece) {
-  console.log('reset');
   if (fixxing) {
     return;
   }
@@ -220,8 +211,8 @@ function resetSpeed(fallingPiece) {
     movePieceDown(fallingPiece);
   }, 200);
 }
-/* ArrowUp rotation management */
 
+/* Rotation */
 function canRotate(fallingPiece) {
   const nextDirection = (fallingPiece.direction + 1) % 4;
   const elements = pieces[fallingPiece.type][nextDirection];
@@ -246,19 +237,25 @@ function canRotate(fallingPiece) {
 
 function rotatePiece(fallingPiece) {
   if (canRotate(fallingPiece)) {
+    if (fixxing) {
+      fixxing = false;
+      resetSpeed(fallingPiece);
+    }
     fallingPiece.direction = (fallingPiece.direction + 1) % 4;
     renderPiece(fallingPiece);
   }
 }
 
-/* Fix the piece and render the falling or fixed piece management */
+/* Render */
 
 function fixPiece() {
   // TODO: end of game (touch ceiling)
   fixxing = true;
+  console.log(intervalId);
   clearInterval(intervalId);
   setTimeout(function () {
     if (fixxing) {
+      // console.log('fix');
       clearInterval(intervalId);
       renderFixedPiece(fallingPiece);
       fixxing = false;
