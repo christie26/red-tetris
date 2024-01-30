@@ -255,7 +255,6 @@ function fixPiece() {
   clearInterval(intervalId);
   setTimeout(function () {
     if (fixxing) {
-      // console.log('fix');
       clearInterval(intervalId);
       renderFixedPiece(fallingPiece);
       fixxing = false;
@@ -282,7 +281,7 @@ function renderFixedPiece(fallingPiece) {
     board.children[element + left + 10 * top].classList.remove('falling');
     board.children[element + left + 10 * top].classList.add(type, 'fixed');
   });
-  // TODO: clean full lines
+  console.log('TODO: clean full lines');
   newPiece();
 }
 
