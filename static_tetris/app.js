@@ -6,7 +6,7 @@ const pieces = {
     [0, 1, 10, 11], // Direction 3
   ],
   tBlock: [
-    [11, 0, 1, 2], // Le premier de chaque tableau est l'index du centre de la piece (celui qui est commun a chaque rotation)
+    [11, 0, 1, 2], // The first of each table is the index of the center of the piece (the one common to each rotation).
     [11, 2, 12, 22],
     [11, 20, 21, 22],
     [11, 0, 10, 20],
@@ -42,15 +42,21 @@ const pieces = {
     [11, 1, 21, 31],
   ],
 };
+
 let intervalId;
+
 const board = document.getElementById('board');
-let fallingPiece = {
+const boardWidth = 9;
+const boardHeight = 19;
+
+const fallingPiece = {
   type: null,
   left: 0,
   top: 0,
   direction: 0,
   elements: null,
 };
+
 const movements = {
   ArrowLeft: movePieceLeft,
   ArrowRight: movePieceRight,
@@ -58,7 +64,10 @@ const movements = {
   ArrowUp: rotatePiece,
   // TODO: add Space: fixPiece
 };
+
 let fixxing = false;
+
+/* Generate new piece and initialization */
 
 init();
 function init() {
@@ -92,6 +101,21 @@ function newGame() {
   clearInterval(intervalId);
   newPiece();
 }
+
+function movePieceDown(fallingPiece) {
+  fallingPiece.top++;
+  if (touchOtherPiece(fallingPiece)) {
+    fallingPiece.top--;
+    fixPiece(fallingPiece);
+  } else if (touchBorder(fallingPiece, 'down')) {
+    renderPiece(fallingPiece);
+    fixPiece(fallingPiece);
+  } else {
+    renderPiece(fallingPiece);
+  }
+  return;
+}
+
 function newPiece() {
   const keys = Object.keys(pieces);
   const randomKey = keys[Math.floor(Math.random() * keys.length)];
@@ -114,8 +138,8 @@ function availableToMove(fallingPiece, moveDirection) {
     const y = Math.floor(element / 10) + top;
     const checks = {
       left: x < 1,
-      right: x >= 9,
-      down: y >= 19,
+      right: x >= boardWidth,
+      down: y >= boardHeight,
     };
     return checks[moveDirection];
   });
@@ -127,6 +151,25 @@ function touchOtherPiece(fallingPiece) {
     return square.classList.contains('fixed');
   });
 }
+
+// function isNextToFixedPieceOrBottom(fallingPiece, direction) {
+//   const { left, top, elements } = fallingPiece;
+//   let offset = direction === 'left' ? -1 : 1;
+//   return elements[fallingPiece.direction].some(element => {
+//     let row = Math.floor(element / 10) + top;
+//     if (row === boardHeight - 1) return true; // Adjacent to the end of the boqrd
+//     let adjacentSquare = board.children[element + left + offset + 10 * top];
+//     return adjacentSquare && adjacentSquare.classList.contains('fixed');
+//   });
+// }
+
+// function canMoveLeft(fallingPiece) {
+//   return (
+//     !touchBorder(fallingPiece, 'left') &&
+//     isNextToFixedPieceOrBottom(fallingPiece, 'left')
+//   );
+// }
+
 function movePieceLeft(fallingPiece) {
   if (!availableToMove(fallingPiece, 'left')) {
     fallingPiece.left--;
@@ -140,6 +183,14 @@ function movePieceLeft(fallingPiece) {
     renderPiece(fallingPiece);
   }
 }
+
+// function canMoveRight(fallingPiece) {
+//   return (
+//     !touchBorder(fallingPiece, 'right') &&
+//     isNextToFixedPieceOrBottom(fallingPiece, 'right')
+//   );
+// }
+
 function movePieceRight(fallingPiece) {
   if (!availableToMove(fallingPiece, 'right')) {
     fallingPiece.left++;
@@ -176,6 +227,7 @@ function fasterSpeed(fallingPiece) {
     movePieceDown(fallingPiece);
   }, 50);
 }
+
 function resetSpeed(fallingPiece) {
   console.log('reset');
   if (fixxing) {
@@ -187,26 +239,38 @@ function resetSpeed(fallingPiece) {
   }, 200);
 }
 
-function rotatePiece(fallingPiece) {
-  fallingPiece.direction = (fallingPiece.direction + 1) % 4;
-  const center = // position du centre a l'horizontal (en x)
-    (fallingPiece.elements[fallingPiece.direction][0] + fallingPiece.left) % 10;
+/* ArrowUp rotation management */
 
-  fallingPiece.elements[fallingPiece.direction].forEach(element => {
-    let col = (element + fallingPiece.left) % 10; // Position du carre actuel a l'horizontal (en x)
-    const row = Math.floor(element / 10) + fallingPiece.top;
-    const boardCenter = 5;
-    if (center + boardCenter < col) {
-      // Si le carre actuel est plus grand en x que la moitie du tableau alors le frero est perdu quoi
-      fallingPiece.left++;
-    } else if (center - boardCenter > col) {
-      fallingPiece.left--;
-    } else if (row > 19) {
-      fallingPiece.top--;
+function canRotate(fallingPiece) {
+  const nextDirection = (fallingPiece.direction + 1) % 4;
+  const elements = pieces[fallingPiece.type][nextDirection];
+
+  for (let element of elements) {
+    let col = (element + fallingPiece.left) % 10; // Position of current edge horizontally (in x)
+    let row = Math.floor(element / 10) + fallingPiece.top;
+
+    if (
+      col < 0 ||
+      col >= boardWidth ||
+      row >= boardHeight ||
+      board.children[
+        element + fallingPiece.left + 10 * fallingPiece.top
+      ].classList.contains('fixed')
+    ) {
+      return false;
     }
-  });
-  renderPiece(fallingPiece);
+  }
+  return true;
 }
+
+function rotatePiece(fallingPiece) {
+  if (canRotate(fallingPiece)) {
+    fallingPiece.direction = (fallingPiece.direction + 1) % 4;
+    renderPiece(fallingPiece);
+  }
+}
+
+/* Fix the piece and render the falling or fixed piece management */
 
 function fixPiece() {
   // TODO: end of game (touch ceiling)
@@ -248,14 +312,14 @@ function renderFixedPiece(fallingPiece) {
   newPiece();
 }
 
-// elements: La piece entiere avec les 4 carres
-// element: c'est la position d'un carre de la piece
-// ForEach s'applique 4 fois, une fois pour chaque carre / element
-// element + left + 10 * top : Pour dessiner la piece au bon endroit (la position
-// est deja set au debut de la fonction) car on est dans un tableau en une
-// dimension. Left positionne sur l'axe horizontal et (10 = largeur du board) * top
-// veut dire que l'on ajuste la distance avec le haut, on baisse la piece de top fois.
+// elements: the entire piece with all 4 squares
+// element: the position of a square in the piece
+// ForEach is applied 4 times, once for each tile / element
+// element + left + 10 * top : To draw the piece in the right place (the position
+// is already set at the start of the function) as we're in a one-dimensional
+// dimension. Left positions on the horizontal axis and (10 = board width) * top
+// means that we adjust the distance to the top, lowering the piece top times.
 
-// Dans le code, il y a un tableau d'une dimension pour representer un board qui est
-// lui en deux dimensions. Le tableau en code est que sur une seule ligne mais
-// qui sont empilees pour faire notre grille en 2d visuellement.
+// In the code, there's a one-dimensional array to represent a board that is
+// in two dimensions. In code, the board is on a single line but
+// which are stacked to make our 2d grid visual.
