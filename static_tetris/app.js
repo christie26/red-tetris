@@ -318,6 +318,9 @@ function renderFixedPiece(fallingPiece) {
   const { type, left, top, direction, elements } = fallingPiece;
   const lines = [];
   elements[direction].forEach(element => {
+    if (element + left + 10 * top < 10) {
+      alert('Game Over');
+    }
     board.children[element + left + 10 * top].classList.remove('falling');
     board.children[element + left + 10 * top].classList.add(type, 'fixed');
     lines.push(Math.floor((element + left + 10 * top) / 10));
