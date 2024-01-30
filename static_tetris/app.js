@@ -69,6 +69,7 @@ const movements = {
   ArrowRight: movePieceRight,
   ArrowDown: fasterSpeed,
   ArrowUp: rotatePiece,
+  ' ': fallSprint,
   // TODO: add Space: fixPiece
 };
 
@@ -82,11 +83,14 @@ function init() {
     let child = document.createElement('li');
     board.appendChild(child);
   }
-  document.addEventListener('keydown', event => {
-    movements[event.key](fallingPiece);
+  document.addEventListener('keydown', e => {
+    if (movements.hasOwnProperty(e.key)) {
+      // To check if the key is in movements before applying a function
+      movements[e.key](fallingPiece);
+    }
   });
-  document.addEventListener('keyup', event => {
-    if (event.key === 'ArrowDown') {
+  document.addEventListener('keyup', e => {
+    if (e.key === 'ArrowDown') {
       resetSpeed(fallingPiece);
     }
   });
@@ -192,6 +196,7 @@ function movePieceRight(fallingPiece) {
   }
 }
 
+/* ArrowDown */
 function fasterSpeed(fallingPiece) {
   if (fixxing) {
     return;
@@ -210,6 +215,19 @@ function resetSpeed(fallingPiece) {
   intervalId = setInterval(function () {
     movePieceDown(fallingPiece);
   }, 200);
+}
+
+/* SpaceBar */
+function fallSprint(fallingPiece) {
+  if (fixxing) {
+    clearInterval(intervalId);
+    return;
+  }
+  // Ne pas laisser le time out en cas de space bar pour le fix juste fix et creer une nouvelle piece
+  clearInterval(intervalId);
+  intervalId = setInterval(function () {
+    movePieceDown(fallingPiece);
+  }, 5);
 }
 
 /* Rotation */
@@ -251,7 +269,6 @@ function rotatePiece(fallingPiece) {
 function fixPiece() {
   // TODO: end of game (touch ceiling)
   fixxing = true;
-  console.log(intervalId);
   clearInterval(intervalId);
   setTimeout(function () {
     if (fixxing) {
