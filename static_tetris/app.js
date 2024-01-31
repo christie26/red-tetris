@@ -196,6 +196,7 @@ function moveLeft(fallingPiece) {
     }
     if (fixxing && !availableToMove(fallingPiece, 'down')) {
       fixxing = false;
+      fastSpeed = true;
       resetSpeed(fallingPiece);
     }
     renderPiece(fallingPiece);
@@ -210,6 +211,7 @@ function moveRight(fallingPiece) {
     }
     if (fixxing && !availableToMove(fallingPiece, 'down')) {
       fixxing = false;
+      fastSpeed = true;
       resetSpeed(fallingPiece);
     }
     renderPiece(fallingPiece);
@@ -281,6 +283,7 @@ function rotatePiece(fallingPiece) {
   if (!touchOtherPiece(tempPiece)) {
     if (fixxing) {
       fixxing = false;
+      fastSpeed = true;
       resetSpeed(fallingPiece);
     }
     fallingPiece.direction = (fallingPiece.direction + 1) % 4;
@@ -310,7 +313,7 @@ function fixPiece() {
         clearInterval(intervalId);
         renderFixedPiece(fallingPiece);
       }
-    }, 2000);
+    }, 1000);
   }
 }
 
