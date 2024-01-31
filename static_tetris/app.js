@@ -42,13 +42,6 @@ const pieces = {
     [11, 1, 21, 31],
   ],
 };
-
-let intervalId;
-
-const board = document.getElementById('board');
-const boardWidth = 9;
-const boardHeight = 19;
-
 let fallingPiece = {
   type: null,
   left: 0,
@@ -63,7 +56,6 @@ const initPiece = {
   direction: 0,
   elements: null,
 };
-
 const movements = {
   ArrowLeft: moveLeft,
   ArrowRight: moveRight,
@@ -72,8 +64,14 @@ const movements = {
   ' ': fallSprint,
 };
 
+const board = document.getElementById('board');
+const boardWidth = 9;
+const boardHeight = 19;
+
+let intervalId;
 let fixxing = false;
 let sprint = false;
+let fastSpeed = false;
 
 /* Generate new piece and initialization */
 
@@ -84,6 +82,7 @@ function init() {
     board.appendChild(child);
   }
   document.addEventListener('keydown', e => {
+    console.log('[debug] down');
     if (movements.hasOwnProperty(e.key)) {
       movements[e.key](fallingPiece);
     }
@@ -117,6 +116,7 @@ function stopGame() {
 function newPiece() {
   sprint = false;
   fixxing = false;
+  fastSpeed = false;
   const keys = Object.keys(pieces);
   const randomKey = keys[Math.floor(Math.random() * keys.length)];
   fallingPiece = { ...initPiece };
@@ -218,23 +218,25 @@ function moveRight(fallingPiece) {
 
 /* ArrowDown */
 function fasterSpeed(fallingPiece) {
-  if (fixxing) {
+  if (fastSpeed || fixxing) {
     return;
   }
   clearInterval(intervalId);
   intervalId = setInterval(function () {
     moveDown(fallingPiece);
   }, 50);
+  fastSpeed = true;
 }
 
 function resetSpeed(fallingPiece) {
-  if (fixxing) {
+  if (!fastSpeed || fixxing) {
     return;
   }
   clearInterval(intervalId);
   intervalId = setInterval(function () {
     moveDown(fallingPiece);
   }, 200);
+  fastSpeed = false;
 }
 
 /* SpaceBar */
