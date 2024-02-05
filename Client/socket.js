@@ -1,11 +1,9 @@
 // Socket connection
 
-const socket = io();
+const socket2 = io();
+// const { Manager } = require("socket.io-client");
 
-
-// const manager = new Manager('http://localhost/:3000', {
-//   reconnectionDelayMax: 10000,
-// });
+// const manager = new Manager();
 
 // const socket = manager.socket('/', {
 //   // Principal namespace
