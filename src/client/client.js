@@ -1,6 +1,12 @@
 const socket = io();
 
-// Example: Handle arrow key press and send move event to server
+// Create a 10x20 game board
+for (let i = 0; i < 200; i++) {
+    let child = document.createElement('li');
+    board.appendChild(child);
+}
+
+// Handle arrow key press and send move event to server
 document.addEventListener('keydown', (event) => {
   let direction = null;
   switch (event.key) {

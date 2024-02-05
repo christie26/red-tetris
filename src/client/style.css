@@ -1,0 +1,51 @@
+h1 {
+    margin: 0 auto;
+    text-align: center;
+    margin-top: 80px;
+    margin-bottom: 80px;
+}
+
+#board {
+    list-style-type: none;
+    padding: 0;
+    overflow: hidden;
+    background-color: white;
+    width: 300px;
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    margin: 0 auto;
+}
+
+#board>li {
+    width: 30px;
+    height: 30px;
+    box-shadow: 0 0 0 1px #000 inset;
+}
+
+.oBlock {
+    background-color: lightcoral;
+}
+
+.tBlock {
+    background-color: #f6cefc;
+}
+
+.jBlock {
+    background-color: lightblue;
+}
+
+.lBlock {
+    background-color: pink;
+}
+
+.sBlock {
+    background-color: darkkhaki;
+}
+
+.zBlock {
+    background-color: lightgreen;
+}
+
+.iBlock {
+    background-color: lightgray;
+}
