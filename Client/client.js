@@ -92,6 +92,7 @@ function init() {
     }
   });
 }
+
 function newGame() {
   board.querySelectorAll('li').forEach(element => {
     element.classList.remove(
