@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script defer src="app.js"></script>
+    <script defer src="client.js"></script>
     <link rel="stylesheet" href="style.css" />
     <title>Red Tetris</title>
   </head>
@@ -13,4 +13,24 @@
     <button onclick="newGame()">new game</button>
     <button onclick="stopGame()">stop game</button>
   </body>
+  <script>
+    init();
+function init() {
+  for (let i = 0; i < 200; i++) {
+    let child = document.createElement('li');
+    board.appendChild(child);
+  }
+  document.addEventListener('keydown', e => {
+    console.log('[debug] down');
+    if (movements.hasOwnProperty(e.key)) {
+      movements[e.key](fallingPiece);
+    }
+  });
+  document.addEventListener('keyup', e => {
+    if (e.key === 'ArrowDown') {
+      resetSpeed(fallingPiece);
+    }
+  });
+}
+  </script>
 </html>
