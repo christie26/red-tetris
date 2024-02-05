@@ -1,5 +1,4 @@
 import { createServer } from "http";
-import path from "path";
 import { Server } from "socket.io";
 
 const httpServer = createServer();
