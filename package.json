@@ -1,11 +1,7 @@
 {
-  "name": "new",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
   "scripts": {
-    "start": "node ./src/server.mjs",
-    "dev": "nodemon ./src/server.mjs"
+    "start": "node ./server/server.mjs",
+    "dev": "nodemon ./server/server.mjs"
   },
   "keywords": [],
   "author": "",
