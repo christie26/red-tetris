@@ -43,3 +43,16 @@ socket.on('update', data => {
   console.log('Received game state:', gameState);
   // Update the client-side game interface based on the received game state
 });
+
+function renderPiece(fallingPiece) {
+  const { type, left, top, direction, elements } = fallingPiece;
+
+  board.querySelectorAll('li').forEach(element => {
+    if (element.classList.contains('falling')) {
+      element.classList.remove(type, 'falling');
+    }
+  });
+  elements[direction].forEach(element => {
+    board.children[element + left + 10 * top].classList.add(type, 'falling');
+  });
+}

@@ -317,18 +317,18 @@ function fixPiece() {
   }
 }
 
-function renderPiece(fallingPiece) {
-  const { type, left, top, direction, elements } = fallingPiece;
+// function renderPiece(fallingPiece) {
+//   const { type, left, top, direction, elements } = fallingPiece;
 
-  board.querySelectorAll('li').forEach(element => {
-    if (element.classList.contains('falling')) {
-      element.classList.remove(type, 'falling');
-    }
-  });
-  elements[direction].forEach(element => {
-    board.children[element + left + 10 * top].classList.add(type, 'falling');
-  });
-}
+//   board.querySelectorAll('li').forEach(element => {
+//     if (element.classList.contains('falling')) {
+//       element.classList.remove(type, 'falling');
+//     }
+//   });
+//   elements[direction].forEach(element => {
+//     board.children[element + left + 10 * top].classList.add(type, 'falling');
+//   });
+// }
 
 function renderFixedPiece(fallingPiece) {
   const { type, left, top, direction, elements } = fallingPiece;

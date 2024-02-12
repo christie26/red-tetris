@@ -17,7 +17,6 @@ io.on('connection', function (socket) {
     // io.emit('update', { gameState });
   });
 
-  // Handle disconnection
   socket.on('disconnect', () => {
     console.log('User disconnected');
   });
