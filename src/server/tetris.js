@@ -116,20 +116,13 @@ function newPiece() {
   fallingPiece.top = 0;
   fallingPiece.direction = 0;
   fallingPiece.elements = piecesArray[randomKey];
-  // for (element of fallingPiece.elements[fallingPiece.direction]) {
-  // if (
-  //   board.children[
-  //     element + fallingPiece.left + 10 * fallingPiece.top
-  //   ].classList.contains('fixed')
-  // ) {
-  //   socket.emit('piece', { fallingPiece });
-  //   // renderPiece(fallingPiece);
-  //   setTimeout(function () {
-  //     alert('Game Over');
-  //   }, 1000);
-  //   return;
-  // }
-  // }
+  for (element of fallingPiece.elements[fallingPiece.direction]) {
+    if (boardArray[element + fallingPiece.left] > fixed) {
+      socket.emit('piece', { fallingPiece });
+      alert('Game Over');
+      return;
+    }
+  }
   renderPiece(fallingPiece);
 
   intervalId = setInterval(function () {
@@ -137,6 +130,7 @@ function newPiece() {
   }, 200);
 }
 
+/* Move Down */
 function moveDown(fallingPiece) {
   if (fallingPiece.top < boardHeight) {
     fallingPiece.top++;
@@ -153,7 +147,7 @@ function moveDown(fallingPiece) {
   }
 }
 
-// /* Check before move */
+/* Check before move */
 function availableToMove(fallingPiece, moveDirection) {
   const { left, top, direction, elements } = fallingPiece;
   return elements[direction].some(element => {
@@ -178,7 +172,7 @@ function touchOtherPiece(fallingPiece) {
   });
 }
 
-// /* Moving */
+/* Moving */
 function moveLeft() {
   if (!availableToMove(fallingPiece, 'left')) {
     fallingPiece.left--;
@@ -209,7 +203,7 @@ function moveRight() {
   }
 }
 
-// /* ArrowDown */
+/* ArrowDown */
 function fasterSpeed(fallingPiece) {
   if (fastSpeed || fixxing) {
     return;
@@ -232,7 +226,7 @@ function resetSpeed(fallingPiece) {
   fastSpeed = false;
 }
 
-// /* SpaceBar */
+/* SpaceBar */
 function fallSprint() {
   sprint = true;
   if (fixxing) {
@@ -245,7 +239,7 @@ function fallSprint() {
   }, 5);
 }
 
-// /* Rotation */
+/* Rotation */
 function checkBorderRotate() {
   const nextDirection = (fallingPiece.direction + 1) % 4;
   const center = // position du centre a l'horizontal (en x)
@@ -290,8 +284,7 @@ function rotatePiece() {
   }
 }
 
-// /* Render */
-
+/* Render */
 function fixPiece() {
   if (sprint) {
     clearInterval(intervalId);
@@ -316,7 +309,6 @@ function renderPiece(fallingPiece) {
       boardArray[index] = 0;
     }
   });
-  // console.log('fallingPiece:', fallingPiece);
   socket.emit('piece', { fallingPiece });
 
   elements[direction].forEach(element => {

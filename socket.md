@@ -78,13 +78,11 @@ Current game state (received each time it changes)
 
 ```js
 /* EVENT */
-"board"
-board: {
-    elements: [
-        class: Number,  // second digit = status & first digit = block type
-    ],
+"clearLine"
+clearLine: {
+    line: Number[],
 }
-// update my board
+// clear one or multiple lines
 ```
 
 ```js
