@@ -66,11 +66,22 @@ Current game state (received each time it changes)
 
 ```js
 /* EVENT */
+"fixPiece"
+    piece: {
+        left: Number,
+        top: Number,
+        direction: Number,
+        element: [],
+    },
+// fix this piece
+```
+
+```js
+/* EVENT */
 "board"
-{
+board: {
     elements: [
-        index: Number,  // 200
-        class: String,  // i-block
+        class: Number,  // second digit = status & first digit = block type
     ],
 }
 // update my board

@@ -76,13 +76,13 @@ const initPiece = {
 };
 let socket = null;
 let boardArray = new Array(200).fill(0);
-// const movements = {
-//   ArrowLeft: moveLeft,
-//   ArrowRight: moveRight,
-//   ArrowDown: fasterSpeed,
-//   ArrowUp: rotatePiece,
-//   ' ': fallSprint,
-// };
+const movements = {
+  ArrowLeft: moveLeft,
+  ArrowRight: moveRight,
+  ArrowDown: fasterSpeed,
+  ArrowUp: rotatePiece,
+  ' ': fallSprint,
+};
 
 const boardWidth = 9;
 const boardHeight = 19;
@@ -102,9 +102,9 @@ function newGame(gameSocket) {
   newPiece();
 }
 
-// function stopGame() {
-//   clearInterval(intervalId);
-// }
+function stopGame() {
+  clearInterval(intervalId);
+}
 function newPiece() {
   sprint = false;
   fixxing = false;
@@ -175,122 +175,120 @@ function touchOtherPiece(fallingPiece) {
       return true;
     }
     return boardArray[element + left + 10 * top] > fixed;
-    // const square = board.children[element + left + 10 * top];
-    // return square.classList.contains('fixed');
   });
 }
 
 // /* Moving */
-// function moveLeft(fallingPiece) {
-//   if (!availableToMove(fallingPiece, 'left')) {
-//     fallingPiece.left--;
-//     if (touchOtherPiece(fallingPiece)) {
-//       fallingPiece.left++;
-//     }
-//     if (fixxing && !availableToMove(fallingPiece, 'down')) {
-//       fixxing = false;
-//       fastSpeed = true;
-//       resetSpeed(fallingPiece);
-//     }
-//     renderPiece(fallingPiece);
-//   }
-// }
+function moveLeft() {
+  if (!availableToMove(fallingPiece, 'left')) {
+    fallingPiece.left--;
+    if (touchOtherPiece(fallingPiece)) {
+      fallingPiece.left++;
+    }
+    if (fixxing && !availableToMove(fallingPiece, 'down')) {
+      fixxing = false;
+      fastSpeed = true;
+      resetSpeed(fallingPiece);
+    }
+    renderPiece(fallingPiece);
+  }
+}
 
-// function moveRight(fallingPiece) {
-//   if (!availableToMove(fallingPiece, 'right')) {
-//     fallingPiece.left++;
-//     if (touchOtherPiece(fallingPiece)) {
-//       fallingPiece.left--;
-//     }
-//     if (fixxing && !availableToMove(fallingPiece, 'down')) {
-//       fixxing = false;
-//       fastSpeed = true;
-//       resetSpeed(fallingPiece);
-//     }
-//     renderPiece(fallingPiece);
-//   }
-// }
+function moveRight() {
+  if (!availableToMove(fallingPiece, 'right')) {
+    fallingPiece.left++;
+    if (touchOtherPiece(fallingPiece)) {
+      fallingPiece.left--;
+    }
+    if (fixxing && !availableToMove(fallingPiece, 'down')) {
+      fixxing = false;
+      fastSpeed = true;
+      resetSpeed(fallingPiece);
+    }
+    renderPiece(fallingPiece);
+  }
+}
 
 // /* ArrowDown */
-// function fasterSpeed(fallingPiece) {
-//   if (fastSpeed || fixxing) {
-//     return;
-//   }
-//   clearInterval(intervalId);
-//   intervalId = setInterval(function () {
-//     moveDown(fallingPiece);
-//   }, 50);
-//   fastSpeed = true;
-// }
+function fasterSpeed(fallingPiece) {
+  if (fastSpeed || fixxing) {
+    return;
+  }
+  clearInterval(intervalId);
+  intervalId = setInterval(function () {
+    moveDown(fallingPiece);
+  }, 50);
+  fastSpeed = true;
+}
 
-// function resetSpeed(fallingPiece) {
-//   if (!fastSpeed || fixxing) {
-//     return;
-//   }
-//   clearInterval(intervalId);
-//   intervalId = setInterval(function () {
-//     moveDown(fallingPiece);
-//   }, 200);
-//   fastSpeed = false;
-// }
+function resetSpeed(fallingPiece) {
+  if (!fastSpeed || fixxing) {
+    return;
+  }
+  clearInterval(intervalId);
+  intervalId = setInterval(function () {
+    moveDown(fallingPiece);
+  }, 200);
+  fastSpeed = false;
+}
 
 // /* SpaceBar */
-// function fallSprint(fallingPiece) {
-//   sprint = true;
-//   if (fixxing) {
-//     clearInterval(intervalId);
-//     return;
-//   }
-//   clearInterval(intervalId);
-//   intervalId = setInterval(function () {
-//     moveDown(fallingPiece);
-//   }, 5);
-// }
+function fallSprint() {
+  sprint = true;
+  if (fixxing) {
+    clearInterval(intervalId);
+    return;
+  }
+  clearInterval(intervalId);
+  intervalId = setInterval(function () {
+    moveDown(fallingPiece);
+  }, 5);
+}
 
 // /* Rotation */
-// function checkBorderRotate(fallingPiece) {
-//   const nextDirection = (fallingPiece.direction + 1) % 4;
-//   const center = // position du centre a l'horizontal (en x)
-//     (fallingPiece.elements[nextDirection][0] + fallingPiece.left) % 10;
-//   fallingPiece.elements[nextDirection].forEach(element => {
-//     let col = (element + fallingPiece.left) % 10;
-//     const row = Math.floor(element / 10) + fallingPiece.top;
-//     const boardCenter = 5;
-//     if (center + boardCenter < col) {
-//       fallingPiece.left++;
-//       return 'left';
-//     } else if (center - boardCenter > col) {
-//       fallingPiece.left--;
-//       return 'right';
-//     } else if (row > 19) {
-//       fallingPiece.top--;
-//       return 'up';
-//     }
-//   });
-// }
+function checkBorderRotate() {
+  const nextDirection = (fallingPiece.direction + 1) % 4;
+  const center = // position du centre a l'horizontal (en x)
+    (fallingPiece.elements[nextDirection][0] + fallingPiece.left) % 10;
+  fallingPiece.elements[nextDirection].forEach(element => {
+    let col = (element + fallingPiece.left) % 10;
+    const row = Math.floor(element / 10) + fallingPiece.top;
+    const boardCenter = 5;
+    if (center + boardCenter < col) {
+      fallingPiece.left++;
+      return 'left';
+    } else if (center - boardCenter > col) {
+      fallingPiece.left--;
+      return 'right';
+    } else if (row > 19) {
+      fallingPiece.top--;
+      return 'up';
+    }
+  });
+}
 
-// function rotatePiece(fallingPiece) {
-//   const adjustMove = checkBorderRotate(fallingPiece);
-//   let tempPiece = { ...fallingPiece };
-//   tempPiece.direction = (tempPiece.direction + 1) % 4;
-//   if (!touchOtherPiece(tempPiece)) {
-//     if (fixxing) {
-//       fixxing = false;
-//       fastSpeed = true;
-//       resetSpeed(fallingPiece);
-//     }
-//     fallingPiece.direction = (fallingPiece.direction + 1) % 4;
-//     renderPiece(fallingPiece);
-//   } else {
-//     if (adjustMove === 'left') {
-//       fallingPiece.left--;
-//     } else if (adjustMove === 'right') {
-//       fallingPiece.left++;
-//     } else if (adjustMove === 'up') {
-//       fallingPiece.top++;
-//     }
-//   }
-// }
+function rotatePiece() {
+  const adjustMove = checkBorderRotate(fallingPiece);
+  let tempPiece = { ...fallingPiece };
+  tempPiece.direction = (tempPiece.direction + 1) % 4;
+  if (!touchOtherPiece(tempPiece)) {
+    if (fixxing) {
+      fixxing = false;
+      fastSpeed = true;
+      resetSpeed(fallingPiece);
+    }
+    fallingPiece.direction = (fallingPiece.direction + 1) % 4;
+    renderPiece(fallingPiece);
+  } else {
+    if (adjustMove === 'left') {
+      fallingPiece.left--;
+    } else if (adjustMove === 'right') {
+      fallingPiece.left++;
+    } else if (adjustMove === 'up') {
+      fallingPiece.top++;
+    }
+  }
+}
 
 // /* Render */
 
@@ -318,7 +316,7 @@ function renderPiece(fallingPiece) {
       boardArray[index] = 0;
     }
   });
-  console.log('fallingPiece:', fallingPiece);
+  // console.log('fallingPiece:', fallingPiece);
   socket.emit('piece', { fallingPiece });
 
   elements[direction].forEach(element => {
@@ -333,6 +331,7 @@ function renderFixedPiece(fallingPiece) {
     boardArray[element + left + 10 * top] += 10;
     // lines.push(Math.floor((element + left + 10 * top) / 10));
   });
+  socket.emit('fixPiece', { fallingPiece });
   // lines.forEach(line => {
   //   clearLine(line);
   // });
@@ -359,4 +358,12 @@ function renderFixedPiece(fallingPiece) {
 //   }
 // }
 
-module.exports = newGame;
+module.exports = {
+  newGame,
+  stopGame,
+  moveLeft,
+  moveRight,
+  fasterSpeed,
+  rotatePiece,
+  fallSprint,
+};

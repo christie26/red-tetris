@@ -25,9 +25,13 @@ document.addEventListener('keydown', event => {
     case ' ':
       direction = 'sprint';
       break;
+    case 'Enter':
+      direction = 'stop';
+      break;
   }
 
   if (direction) {
+    console.log('Sending move event:', direction);
     socket.emit('move', { type: 'keydown', direction: direction });
   }
 });
@@ -38,33 +42,31 @@ document.addEventListener('keyup', event => {
   }
 });
 
-socket.on('update', data => {
-  const gameState = data.gameState;
-  console.log('Received game state:', gameState);
-  // Update the client-side game interface based on the received game state
-});
-
 socket.on('piece', data => {
   const fallingPiece = data.fallingPiece;
-  console.log('Received falling piece:', fallingPiece);
+  // console.log('Received falling piece:', fallingPiece);
   renderPiece(fallingPiece);
 });
 
+socket.on('fixPiece', data => {
+  const fallingPiece = data.fallingPiece;
+  renderFixedPiece(fallingPiece);
+});
 function getTypeString(type) {
   switch (type) {
-    case 1:
+    case 0:
       return 'O_BLOCK';
-    case 2:
+    case 1:
       return 'T_BLOCK';
-    case 3:
+    case 2:
       return 'J_BLOCK';
-    case 4:
+    case 3:
       return 'L_BLOCK';
-    case 5:
+    case 4:
       return 'S_BLOCK';
-    case 6:
+    case 5:
       return 'Z_BLOCK';
-    case 7:
+    case 6:
       return 'I_BLOCK';
   }
 }
@@ -81,6 +83,20 @@ function renderPiece(fallingPiece) {
     board.children[element + left + 10 * top].classList.add(
       stringType,
       'falling',
+    );
+  });
+}
+function renderFixedPiece(fallingPiece) {
+  const { type, left, top, direction, elements } = fallingPiece;
+  stringType = getTypeString(type);
+  elements[direction].forEach(element => {
+    board.children[element + left + 10 * top].classList.remove(
+      stringType,
+      'falling',
+    );
+    board.children[element + left + 10 * top].classList.add(
+      stringType,
+      'fixed',
     );
   });
 }

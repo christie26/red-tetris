@@ -3,7 +3,15 @@ let express = require('express');
 let server = require('http').createServer(app);
 let io = require('socket.io')(server);
 let path = require('path');
-const newGame = require('./server/tetris');
+const {
+  newGame,
+  stopGame,
+  moveLeft,
+  moveRight,
+  fasterSpeed,
+  rotatePiece,
+  fallSprint,
+} = require('./server/tetris');
 
 app.get('/socket.io/socket.io.js', (req, res) => {
   res.setHeader('Content-Type', 'application/javascript');
@@ -14,8 +22,26 @@ app.use('/', express.static(path.join(__dirname, 'client')));
 
 io.on('connection', function (socket) {
   socket.on('move', data => {
-    console.log('Received move event:', data);
-    // io.emit('update', { gameState });
+    switch (data.direction) {
+      case 'left':
+        moveLeft();
+        break;
+      case 'right':
+        moveRight();
+        break;
+      case 'stop':
+        stopGame();
+        break;
+      case 'down':
+        fasterSpeed();
+        break;
+      case 'rotate':
+        rotatePiece();
+        break;
+      case 'sprint':
+        fallSprint();
+        break;
+    }
   });
 
   newGame(socket);
