@@ -54,18 +54,34 @@ Current game state (received each time it changes)
 
 ```js
 /* EVENT */
+"piece"
+    piece: {
+        left: Number,
+        top: Number,
+        direction: Number,
+        element: [],
+    },
+// falling piece
+```
+
+```js
+/* EVENT */
+"fixPiece"
+    piece: {
+        left: Number,
+        top: Number,
+        direction: Number,
+        element: [],
+    },
+// fix this piece
+```
+
+```js
+/* EVENT */
 "board"
-{
-    // piece: {
-    //     left: Number,
-    //     top: Number,
-    //     direction: Number,
-    //     element: [],
-    //     isFixed: Boolean
-    // }, 
+board: {
     elements: [
-        index: Number,  // 200
-        class: String,  // i-block
+        class: Number,  // second digit = status & first digit = block type
     ],
 }
 // update my board
@@ -84,7 +100,7 @@ Current game state (received each time it changes)
 "penalty"
 {
     player: String, // who cause penalty -> no penalty to them
-    lines: Number,  // number of penalty lines 
+    lines: Number,  // number of penalty lines
 }
 // when a player complete more than 2 lines
 ```
@@ -110,7 +126,7 @@ true;
 /* EVENT */
 "startGame";
 {
-    player: String, 
+    player: String,
     room: Number,
 }
 // to start game
@@ -120,9 +136,8 @@ true;
 /* EVENT */
 "keyboard";
 {
-    key: String, 
+    key: String,
     type: String,  // keyup, keydown
 }
 // Update key event
 ```
-
