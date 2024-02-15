@@ -3,6 +3,7 @@ let express = require('express');
 let server = require('http').createServer(app);
 let io = require('socket.io')(server);
 let path = require('path');
+const newGame = require('./server/tetris');
 
 app.get('/socket.io/socket.io.js', (req, res) => {
   res.setHeader('Content-Type', 'application/javascript');
@@ -17,6 +18,7 @@ io.on('connection', function (socket) {
     // io.emit('update', { gameState });
   });
 
+  newGame(socket);
   socket.on('disconnect', () => {
     console.log('User disconnected');
   });

@@ -1,143 +1,135 @@
-const pieces = {
-  oBlock: [
+const PieceType = {
+  O_BLOCK: 0,
+  T_BLOCK: 1,
+  J_BLOCK: 2,
+  L_BLOCK: 3,
+  S_BLOCK: 4,
+  Z_BLOCK: 5,
+  I_BLOCK: 6,
+};
+
+const piecesArray = [
+  [
+    // O_BLOCK
     [0, 1, 10, 11], // Direction 0
     [0, 1, 10, 11], // Direction 1
     [0, 1, 10, 11], // Direction 2
     [0, 1, 10, 11], // Direction 3
   ],
-  tBlock: [
-    [11, 0, 1, 2], // The first of each table is the index of the center of the piece (the one common to each rotation).
-    [11, 2, 12, 22],
-    [11, 20, 21, 22],
-    [11, 0, 10, 20],
+  [
+    // T_BLOCK
+    [11, 0, 1, 2], // Direction 0
+    [11, 2, 12, 22], // Direction 1
+    [11, 20, 21, 22], // Direction 2
+    [11, 0, 10, 20], // Direction 3
   ],
-  jBlock: [
-    [11, 0, 10, 12],
-    [11, 1, 2, 21],
-    [11, 10, 12, 22],
-    [11, 20, 21, 1],
+  [
+    // J_BLOCK
+    [11, 0, 10, 12], // Direction 0
+    [11, 1, 2, 21], // Direction 1
+    [11, 10, 12, 22], // Direction 2
+    [11, 20, 21, 1], // Direction 3
   ],
-  lBlock: [
-    [11, 20, 10, 12],
-    [11, 1, 0, 21],
-    [11, 10, 12, 2],
-    [11, 22, 21, 1],
+  [
+    // L_BLOCK
+    [11, 20, 10, 12], // Direction 0
+    [11, 1, 0, 21], // Direction 1
+    [11, 10, 12, 2], // Direction 2
+    [11, 22, 21, 1], // Direction 3
   ],
-  sBlock: [
-    [11, 1, 2, 10],
-    [11, 22, 12, 1],
-    [11, 12, 20, 21],
-    [11, 0, 10, 21],
+  [
+    // S_BLOCK
+    [11, 1, 2, 10], // Direction 0
+    [11, 22, 12, 1], // Direction 1
+    [11, 12, 20, 21], // Direction 2
+    [11, 0, 10, 21], // Direction 3
   ],
-  zBlock: [
-    [11, 1, 0, 12],
-    [11, 2, 12, 21],
-    [11, 10, 21, 22],
-    [11, 1, 10, 20],
+  [
+    // Z_BLOCK
+    [11, 1, 0, 12], // Direction 0
+    [11, 2, 12, 21], // Direction 1
+    [11, 10, 21, 22], // Direction 2
+    [11, 1, 10, 20], // Direction 3
   ],
-  iBlock: [
-    [1, 0, 2, 3],
-    [11, 1, 21, 31],
-    [1, 0, 2, 3],
-    [11, 1, 21, 31],
+  [
+    // I_BLOCK
+    [1, 0, 2, 3], // Direction 0
+    [11, 1, 21, 31], // Direction 1
+    [1, 0, 2, 3], // Direction 2
+    [11, 1, 21, 31], // Direction 3
   ],
-};
+];
+
 let fallingPiece = {
-  type: null,
+  type: 0,
   left: 0,
   top: 0,
   direction: 0,
   elements: null,
 };
 const initPiece = {
-  type: null,
+  type: 0,
   left: 0,
   top: 0,
   direction: 0,
   elements: null,
 };
-const movements = {
-  ArrowLeft: moveLeft,
-  ArrowRight: moveRight,
-  ArrowDown: fasterSpeed,
-  ArrowUp: rotatePiece,
-  ' ': fallSprint,
-};
+let socket = null;
+let boardArray = new Array(200).fill(0);
+// const movements = {
+//   ArrowLeft: moveLeft,
+//   ArrowRight: moveRight,
+//   ArrowDown: fasterSpeed,
+//   ArrowUp: rotatePiece,
+//   ' ': fallSprint,
+// };
 
-const board = document.getElementById('board');
 const boardWidth = 9;
 const boardHeight = 19;
-
+const falling = 10;
+const fixed = 20;
 let intervalId;
 let fixxing = false;
 let sprint = false;
 let fastSpeed = false;
 
-/* Generate new piece and initialization */
-
-init();
-function init() {
-  for (let i = 0; i < 200; i++) {
-    let child = document.createElement('li');
-    board.appendChild(child);
-  }
-  document.addEventListener('keydown', e => {
-    console.log('[debug] down');
-    if (movements.hasOwnProperty(e.key)) {
-      movements[e.key](fallingPiece);
-    }
+function newGame(gameSocket) {
+  boardArray.forEach(index => {
+    boardArray[index] = 0;
   });
-  document.addEventListener('keyup', e => {
-    if (e.key === 'ArrowDown') {
-      resetSpeed(fallingPiece);
-    }
-  });
-}
-function newGame() {
-  board.querySelectorAll('li').forEach(element => {
-    element.classList.remove(
-      'fixed',
-      'falling',
-      'oBlock',
-      'tBlock',
-      'jBlock',
-      'lBlock',
-      'sBlock',
-      'zBlock',
-      'iBlock',
-    );
-  });
+  socket = gameSocket;
   clearInterval(intervalId);
   newPiece();
 }
-function stopGame() {
-  clearInterval(intervalId);
-}
+
+// function stopGame() {
+//   clearInterval(intervalId);
+// }
 function newPiece() {
   sprint = false;
   fixxing = false;
   fastSpeed = false;
-  const keys = Object.keys(pieces);
-  const randomKey = keys[Math.floor(Math.random() * keys.length)];
+  const randomKey = Math.floor(Math.random() * 7);
   fallingPiece = { ...initPiece };
   fallingPiece.type = randomKey;
   fallingPiece.left = 2 + Math.floor(Math.random() * 5);
   fallingPiece.top = 0;
   fallingPiece.direction = 0;
-  fallingPiece.elements = pieces[randomKey];
-  for (element of fallingPiece.elements[fallingPiece.direction]) {
-    if (
-      board.children[
-        element + fallingPiece.left + 10 * fallingPiece.top
-      ].classList.contains('fixed')
-    ) {
-      renderPiece(fallingPiece);
-      setTimeout(function () {
-        alert('Game Over');
-      }, 1000);
-      return;
-    }
-  }
+  fallingPiece.elements = piecesArray[randomKey];
+  // for (element of fallingPiece.elements[fallingPiece.direction]) {
+  // if (
+  //   board.children[
+  //     element + fallingPiece.left + 10 * fallingPiece.top
+  //   ].classList.contains('fixed')
+  // ) {
+  //   socket.emit('piece', { fallingPiece });
+  //   // renderPiece(fallingPiece);
+  //   setTimeout(function () {
+  //     alert('Game Over');
+  //   }, 1000);
+  //   return;
+  // }
+  // }
   renderPiece(fallingPiece);
 
   intervalId = setInterval(function () {
@@ -161,7 +153,7 @@ function moveDown(fallingPiece) {
   }
 }
 
-/* Check before move */
+// /* Check before move */
 function availableToMove(fallingPiece, moveDirection) {
   const { left, top, direction, elements } = fallingPiece;
   return elements[direction].some(element => {
@@ -182,124 +174,125 @@ function touchOtherPiece(fallingPiece) {
     if (element + left + 10 * top > 199) {
       return true;
     }
-    const square = board.children[element + left + 10 * top];
-    return square.classList.contains('fixed');
+    return boardArray[element + left + 10 * top] > fixed;
+    // const square = board.children[element + left + 10 * top];
+    // return square.classList.contains('fixed');
   });
 }
 
-/* Moving */
-function moveLeft(fallingPiece) {
-  if (!availableToMove(fallingPiece, 'left')) {
-    fallingPiece.left--;
-    if (touchOtherPiece(fallingPiece)) {
-      fallingPiece.left++;
-    }
-    if (fixxing && !availableToMove(fallingPiece, 'down')) {
-      fixxing = false;
-      fastSpeed = true;
-      resetSpeed(fallingPiece);
-    }
-    renderPiece(fallingPiece);
-  }
-}
+// /* Moving */
+// function moveLeft(fallingPiece) {
+//   if (!availableToMove(fallingPiece, 'left')) {
+//     fallingPiece.left--;
+//     if (touchOtherPiece(fallingPiece)) {
+//       fallingPiece.left++;
+//     }
+//     if (fixxing && !availableToMove(fallingPiece, 'down')) {
+//       fixxing = false;
+//       fastSpeed = true;
+//       resetSpeed(fallingPiece);
+//     }
+//     renderPiece(fallingPiece);
+//   }
+// }
 
-function moveRight(fallingPiece) {
-  if (!availableToMove(fallingPiece, 'right')) {
-    fallingPiece.left++;
-    if (touchOtherPiece(fallingPiece)) {
-      fallingPiece.left--;
-    }
-    if (fixxing && !availableToMove(fallingPiece, 'down')) {
-      fixxing = false;
-      fastSpeed = true;
-      resetSpeed(fallingPiece);
-    }
-    renderPiece(fallingPiece);
-  }
-}
+// function moveRight(fallingPiece) {
+//   if (!availableToMove(fallingPiece, 'right')) {
+//     fallingPiece.left++;
+//     if (touchOtherPiece(fallingPiece)) {
+//       fallingPiece.left--;
+//     }
+//     if (fixxing && !availableToMove(fallingPiece, 'down')) {
+//       fixxing = false;
+//       fastSpeed = true;
+//       resetSpeed(fallingPiece);
+//     }
+//     renderPiece(fallingPiece);
+//   }
+// }
 
-/* ArrowDown */
-function fasterSpeed(fallingPiece) {
-  if (fastSpeed || fixxing) {
-    return;
-  }
-  clearInterval(intervalId);
-  intervalId = setInterval(function () {
-    moveDown(fallingPiece);
-  }, 50);
-  fastSpeed = true;
-}
+// /* ArrowDown */
+// function fasterSpeed(fallingPiece) {
+//   if (fastSpeed || fixxing) {
+//     return;
+//   }
+//   clearInterval(intervalId);
+//   intervalId = setInterval(function () {
+//     moveDown(fallingPiece);
+//   }, 50);
+//   fastSpeed = true;
+// }
 
-function resetSpeed(fallingPiece) {
-  if (!fastSpeed || fixxing) {
-    return;
-  }
-  clearInterval(intervalId);
-  intervalId = setInterval(function () {
-    moveDown(fallingPiece);
-  }, 200);
-  fastSpeed = false;
-}
+// function resetSpeed(fallingPiece) {
+//   if (!fastSpeed || fixxing) {
+//     return;
+//   }
+//   clearInterval(intervalId);
+//   intervalId = setInterval(function () {
+//     moveDown(fallingPiece);
+//   }, 200);
+//   fastSpeed = false;
+// }
 
-/* SpaceBar */
-function fallSprint(fallingPiece) {
-  sprint = true;
-  if (fixxing) {
-    clearInterval(intervalId);
-    return;
-  }
-  clearInterval(intervalId);
-  intervalId = setInterval(function () {
-    moveDown(fallingPiece);
-  }, 5);
-}
+// /* SpaceBar */
+// function fallSprint(fallingPiece) {
+//   sprint = true;
+//   if (fixxing) {
+//     clearInterval(intervalId);
+//     return;
+//   }
+//   clearInterval(intervalId);
+//   intervalId = setInterval(function () {
+//     moveDown(fallingPiece);
+//   }, 5);
+// }
 
-/* Rotation */
-function checkBorderRotate(fallingPiece) {
-  const nextDirection = (fallingPiece.direction + 1) % 4;
-  const center = // position du centre a l'horizontal (en x)
-    (fallingPiece.elements[nextDirection][0] + fallingPiece.left) % 10;
-  fallingPiece.elements[nextDirection].forEach(element => {
-    let col = (element + fallingPiece.left) % 10;
-    const row = Math.floor(element / 10) + fallingPiece.top;
-    const boardCenter = 5;
-    if (center + boardCenter < col) {
-      fallingPiece.left++;
-      return 'left';
-    } else if (center - boardCenter > col) {
-      fallingPiece.left--;
-      return 'right';
-    } else if (row > 19) {
-      fallingPiece.top--;
-      return 'up';
-    }
-  });
-}
+// /* Rotation */
+// function checkBorderRotate(fallingPiece) {
+//   const nextDirection = (fallingPiece.direction + 1) % 4;
+//   const center = // position du centre a l'horizontal (en x)
+//     (fallingPiece.elements[nextDirection][0] + fallingPiece.left) % 10;
+//   fallingPiece.elements[nextDirection].forEach(element => {
+//     let col = (element + fallingPiece.left) % 10;
+//     const row = Math.floor(element / 10) + fallingPiece.top;
+//     const boardCenter = 5;
+//     if (center + boardCenter < col) {
+//       fallingPiece.left++;
+//       return 'left';
+//     } else if (center - boardCenter > col) {
+//       fallingPiece.left--;
+//       return 'right';
+//     } else if (row > 19) {
+//       fallingPiece.top--;
+//       return 'up';
+//     }
+//   });
+// }
 
-function rotatePiece(fallingPiece) {
-  const adjustMove = checkBorderRotate(fallingPiece);
-  let tempPiece = { ...fallingPiece };
-  tempPiece.direction = (tempPiece.direction + 1) % 4;
-  if (!touchOtherPiece(tempPiece)) {
-    if (fixxing) {
-      fixxing = false;
-      fastSpeed = true;
-      resetSpeed(fallingPiece);
-    }
-    fallingPiece.direction = (fallingPiece.direction + 1) % 4;
-    renderPiece(fallingPiece);
-  } else {
-    if (adjustMove === 'left') {
-      fallingPiece.left--;
-    } else if (adjustMove === 'right') {
-      fallingPiece.left++;
-    } else if (adjustMove === 'up') {
-      fallingPiece.top++;
-    }
-  }
-}
+// function rotatePiece(fallingPiece) {
+//   const adjustMove = checkBorderRotate(fallingPiece);
+//   let tempPiece = { ...fallingPiece };
+//   tempPiece.direction = (tempPiece.direction + 1) % 4;
+//   if (!touchOtherPiece(tempPiece)) {
+//     if (fixxing) {
+//       fixxing = false;
+//       fastSpeed = true;
+//       resetSpeed(fallingPiece);
+//     }
+//     fallingPiece.direction = (fallingPiece.direction + 1) % 4;
+//     renderPiece(fallingPiece);
+//   } else {
+//     if (adjustMove === 'left') {
+//       fallingPiece.left--;
+//     } else if (adjustMove === 'right') {
+//       fallingPiece.left++;
+//     } else if (adjustMove === 'up') {
+//       fallingPiece.top++;
+//     }
+//   }
+// }
 
-/* Render */
+// /* Render */
 
 function fixPiece() {
   if (sprint) {
@@ -317,49 +310,53 @@ function fixPiece() {
   }
 }
 
-// function renderPiece(fallingPiece) {
-//   const { type, left, top, direction, elements } = fallingPiece;
+function renderPiece(fallingPiece) {
+  const { type, left, top, direction, elements } = fallingPiece;
 
-//   board.querySelectorAll('li').forEach(element => {
-//     if (element.classList.contains('falling')) {
-//       element.classList.remove(type, 'falling');
-//     }
-//   });
-//   elements[direction].forEach(element => {
-//     board.children[element + left + 10 * top].classList.add(type, 'falling');
-//   });
-// }
+  boardArray.forEach((element, index) => {
+    if (element > falling && element < fixed) {
+      boardArray[index] = 0;
+    }
+  });
+  console.log('fallingPiece:', fallingPiece);
+  socket.emit('piece', { fallingPiece });
+
+  elements[direction].forEach(element => {
+    boardArray[element + left + 10 * top] = falling + type;
+  });
+}
 
 function renderFixedPiece(fallingPiece) {
   const { type, left, top, direction, elements } = fallingPiece;
-  const lines = [];
+  // const lines = [];
   elements[direction].forEach(element => {
-    board.children[element + left + 10 * top].classList.remove('falling');
-    board.children[element + left + 10 * top].classList.add(type, 'fixed');
-    lines.push(Math.floor((element + left + 10 * top) / 10));
+    boardArray[element + left + 10 * top] += 10;
+    // lines.push(Math.floor((element + left + 10 * top) / 10));
   });
-  lines.forEach(line => {
-    clearLine(line);
-  });
+  // lines.forEach(line => {
+  //   clearLine(line);
+  // });
 
   newPiece();
 }
 
-function clearLine(line) {
-  for (element = line * 10; element < line * 10 + 10; element++) {
-    if (!board.children[element].classList.contains('fixed')) {
-      return;
-    }
-  }
-  for (element = line * 10; element < line * 10 + 10; element++) {
-    const classes = Array.from(board.children[element].classList);
-    board.children[element].classList.remove(...classes);
-  }
-  for (let element = line * 10 - 1; element >= 0; element--) {
-    if (board.children[element].classList.contains('fixed')) {
-      const classes = Array.from(board.children[element].classList);
-      board.children[element].classList.remove(...classes);
-      board.children[element + 10].classList.add(...classes);
-    }
-  }
-}
+// function clearLine(line) {
+//   for (element = line * 10; element < line * 10 + 10; element++) {
+//     if (!board.children[element].classList.contains('fixed')) {
+//       return;
+//     }
+//   }
+//   for (element = line * 10; element < line * 10 + 10; element++) {
+//     const classes = Array.from(board.children[element].classList);
+//     board.children[element].classList.remove(...classes);
+//   }
+//   for (let element = line * 10 - 1; element >= 0; element--) {
+//     if (board.children[element].classList.contains('fixed')) {
+//       const classes = Array.from(board.children[element].classList);
+//       board.children[element].classList.remove(...classes);
+//       board.children[element + 10].classList.add(...classes);
+//     }
+//   }
+// }
+
+module.exports = newGame;

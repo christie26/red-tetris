@@ -22,30 +22,30 @@ h1 {
     box-shadow: 0 0 0 1px #000 inset;
 }
 
-.oBlock {
+.O_BLOCK {
     background-color: lightcoral;
 }
 
-.tBlock {
+.T_BLOCK {
     background-color: #f6cefc;
 }
 
-.jBlock {
+.J_BLOCK {
     background-color: lightblue;
 }
 
-.lBlock {
+.L_BLOCK {
     background-color: pink;
 }
 
-.sBlock {
+.S_BLOCK {
     background-color: darkkhaki;
 }
 
-.zBlock {
+.Z_BLOCK {
     background-color: lightgreen;
 }
 
-.iBlock {
+.I_BLOCK {
     background-color: lightgray;
 }
