@@ -204,7 +204,7 @@ function moveRight() {
 }
 
 /* ArrowDown */
-function fasterSpeed(fallingPiece) {
+function fasterSpeed() {
   if (fastSpeed || fixxing) {
     return;
   }
@@ -215,7 +215,7 @@ function fasterSpeed(fallingPiece) {
   fastSpeed = true;
 }
 
-function resetSpeed(fallingPiece) {
+function resetSpeed() {
   if (!fastSpeed || fixxing) {
     return;
   }

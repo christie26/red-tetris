@@ -32,13 +32,13 @@ document.addEventListener('keydown', event => {
 
   if (direction) {
     console.log('Sending move event:', direction);
-    socket.emit('move', { type: 'keydown', direction: direction });
+    socket.emit('keyboard', { type: 'keydown', direction: direction });
   }
 });
 
 document.addEventListener('keyup', event => {
   if (event.key === 'ArrowDown') {
-    socket.emit('move', { type: 'keyup', direction: 'down' });
+    socket.emit('keyboard', { type: 'keyup', direction: 'down' });
   }
 });
 

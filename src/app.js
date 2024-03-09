@@ -1,5 +1,5 @@
-let app = require('express')();
 let express = require('express');
+let app = express();
 let server = require('http').createServer(app);
 let io = require('socket.io')(server);
 let path = require('path');
@@ -21,7 +21,7 @@ app.get('/socket.io/socket.io.js', (req, res) => {
 app.use('/', express.static(path.join(__dirname, 'client')));
 
 io.on('connection', function (socket) {
-  socket.on('move', data => {
+  socket.on('keyboard', data => {
     switch (data.direction) {
       case 'left':
         moveLeft();

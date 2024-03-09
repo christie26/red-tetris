@@ -136,8 +136,8 @@ true;
 /* EVENT */
 "keyboard";
 {
-    key: String,
-    type: String,  // keyup, keydown
+    type: String,      // keyup, keydown
+    direction: String,  
 }
 // Update key event
 ```
