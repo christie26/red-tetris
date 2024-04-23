@@ -84,8 +84,8 @@ const movements = {
   ' ': fallSprint,
 };
 
-const boardWidth = 9;
-const boardHeight = 19;
+const boardWidth = 10;
+const boardHeight = 20;
 const falling = 10;
 const fixed = 20;
 let intervalId;
@@ -132,7 +132,7 @@ function newPiece() {
 
 /* Move Down */
 function moveDown(fallingPiece) {
-  if (fallingPiece.top < boardHeight) {
+  if (fallingPiece.top <= boardHeight) {
     fallingPiece.top++;
     if (touchOtherPiece(fallingPiece)) {
       fallingPiece.top--;
@@ -155,8 +155,8 @@ function availableToMove(fallingPiece, moveDirection) {
     const y = Math.floor(element / 10) + top;
     const checks = {
       left: x < 1,
-      right: x >= boardWidth,
-      down: y >= boardHeight,
+      right: x >= boardWidth - 1,
+      down: y >= boardHeight - 1,
     };
     return checks[moveDirection];
   });
