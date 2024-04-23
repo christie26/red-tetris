@@ -76,13 +76,6 @@ const initPiece = {
 };
 let socket = null;
 let boardArray = new Array(200).fill(0);
-const movements = {
-  ArrowLeft: moveLeft,
-  ArrowRight: moveRight,
-  ArrowDown: fasterSpeed,
-  ArrowUp: rotatePiece,
-  ' ': fallSprint,
-};
 
 const boardWidth = 10;
 const boardHeight = 20;
