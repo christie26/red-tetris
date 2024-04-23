@@ -175,7 +175,7 @@ function moveLeft() {
     if (fixxing && !availableToMove(fallingPiece, 'down')) {
       fixxing = false;
       fastSpeed = true;
-      resetSpeed(fallingPiece);
+      resetSpeed();
     }
     renderPiece(fallingPiece);
   }
@@ -190,7 +190,7 @@ function moveRight() {
     if (fixxing && !availableToMove(fallingPiece, 'down')) {
       fixxing = false;
       fastSpeed = true;
-      resetSpeed(fallingPiece);
+      resetSpeed();
     }
     renderPiece(fallingPiece);
   }
@@ -262,7 +262,7 @@ function rotatePiece() {
     if (fixxing) {
       fixxing = false;
       fastSpeed = true;
-      resetSpeed(fallingPiece);
+      resetSpeed();
     }
     fallingPiece.direction = (fallingPiece.direction + 1) % 4;
     renderPiece(fallingPiece);
