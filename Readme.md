@@ -19,6 +19,13 @@ firefox static_tetris/index.html
 ```
 or whatever! 
 
+### server-client 
+
+```
+npm i
+npm run start
+npm run dev
+```
 
 ## Authors 👩‍💻
 Names of contributors :
