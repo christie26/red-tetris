@@ -1,9 +1,10 @@
-let express = require('express');
-let app = express();
-let server = require('http').createServer(app);
-let io = require('socket.io')(server);
-let path = require('path');
-const {
+import express from 'express';
+import http from 'http';
+import Server from 'socket.io';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+import {
   newGame,
   stopGame,
   moveLeft,
@@ -11,11 +12,18 @@ const {
   fasterSpeed,
   rotatePiece,
   fallSprint,
-} = require('./server/tetris');
+} from './server/tetris.mjs';
+
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 app.get('/socket.io/socket.io.js', (req, res) => {
   res.setHeader('Content-Type', 'application/javascript');
-  res.sendFile(__dirname + '/node_modules/socket.io-client/dist/socket.io.js');
+  res.sendFile(path.join(__dirname, '/node_modules/socket.io-client/dist/socket.io.js'));
 });
 
 app.use('/', express.static(path.join(__dirname, 'client')));
