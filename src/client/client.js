@@ -5,7 +5,6 @@ for (let i = 0; i < 200; i++) {
   let child = document.createElement('li');
   board.appendChild(child);
 }
-
 // Handle arrow key press and send move event to server
 document.addEventListener('keydown', event => {
   let direction = null;
@@ -29,13 +28,11 @@ document.addEventListener('keydown', event => {
       direction = 'stop';
       break;
   }
-
   if (direction) {
     console.log('Sending move event:', direction);
     socket.emit('keyboard', { type: 'keydown', direction: direction });
   }
 });
-
 document.addEventListener('keyup', event => {
   if (event.key === 'ArrowDown') {
     socket.emit('keyboard', { type: 'keyup', direction: 'down' });
@@ -43,11 +40,9 @@ document.addEventListener('keyup', event => {
 });
 
 socket.on('piece', data => {
-  const fallingPiece = data.fallingPiece;
-  // console.log('Received falling piece:', fallingPiece);
+  const fallingPiece = data.data;
   renderPiece(fallingPiece);
 });
-
 socket.on('fixPiece', data => {
   const fallingPiece = data.fallingPiece;
   renderFixedPiece(fallingPiece);
@@ -73,6 +68,7 @@ function getTypeString(type) {
 function renderPiece(fallingPiece) {
   const { type, left, top, direction, elements } = fallingPiece;
 
+  console.log('Rendering piece:', fallingPiece);
   stringType = getTypeString(type);
   board.querySelectorAll('li').forEach(element => {
     if (element.classList.contains('falling')) {

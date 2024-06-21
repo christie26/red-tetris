@@ -3,16 +3,7 @@ import http from 'http';
 import Server from 'socket.io';
 import path from 'path';
 import { fileURLToPath } from 'url';
-
-import {
-  newGame,
-  stopGame,
-  moveLeft,
-  moveRight,
-  fasterSpeed,
-  rotatePiece,
-  fallSprint,
-} from './server/tetris.mjs';
+import Player from './server/Player.mjs';
 
 const app = express();
 const server = http.createServer(app);
@@ -29,30 +20,32 @@ app.get('/socket.io/socket.io.js', (req, res) => {
 app.use('/', express.static(path.join(__dirname, 'client')));
 
 io.on('connection', function (socket) {
+  let player = new Player('player', socket);
+
   socket.on('keyboard', data => {
     switch (data.direction) {
       case 'left':
-        moveLeft();
+        player.Board.fallingPiece.moveLeft();
         break;
       case 'right':
-        moveRight();
+        player.Board.fallingPiece.moveRight();
         break;
       case 'stop':
-        stopGame();
+        player.Board.stopGame();
         break;
       case 'down':
-        fasterSpeed();
+        player.Board.fasterSpeed();
         break;
       case 'rotate':
-        rotatePiece();
+        player.Board.rotatePiece();
         break;
       case 'sprint':
-        fallSprint();
+        player.Board.fallSprint();
         break;
     }
   });
 
-  newGame(socket);
+  player.startGame();
   socket.on('disconnect', () => {
     console.log('User disconnected');
   });

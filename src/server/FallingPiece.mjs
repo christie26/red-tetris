@@ -1,3 +1,5 @@
+import Pieces from './Pieces.mjs';
+
 class FallingPiece {
     constructor(type, left, direction) {
         this.type = type; // 0-6
@@ -23,3 +25,5 @@ class FallingPiece {
         this.left++;
     }
 }
+
+export default FallingPiece;
