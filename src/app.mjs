@@ -25,10 +25,10 @@ io.on('connection', function (socket) {
   socket.on('keyboard', data => {
     switch (data.direction) {
       case 'left':
-        player.Board.fallingPiece.moveLeft();
+        player.Board.moveLeft();
         break;
       case 'right':
-        player.Board.fallingPiece.moveRight();
+        player.Board.moveRight();
         break;
       case 'stop':
         player.Board.stopGame();

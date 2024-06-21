@@ -44,7 +44,7 @@ socket.on('piece', data => {
   renderPiece(fallingPiece);
 });
 socket.on('fixPiece', data => {
-  const fallingPiece = data.fallingPiece;
+  const fallingPiece = data.data;
   renderFixedPiece(fallingPiece);
 });
 function getTypeString(type) {
@@ -68,7 +68,6 @@ function getTypeString(type) {
 function renderPiece(fallingPiece) {
   const { type, left, top, direction, elements } = fallingPiece;
 
-  console.log('Rendering piece:', fallingPiece);
   stringType = getTypeString(type);
   board.querySelectorAll('li').forEach(element => {
     if (element.classList.contains('falling')) {

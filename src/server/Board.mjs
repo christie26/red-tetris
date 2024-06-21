@@ -23,7 +23,7 @@ class Board {
       return;
     }
     this.renderPiece();
-    this.intervalId = setInterval(() => this.moveDown(), 200);
+    this.intervalId = setInterval(() => this.moveDown(), 2000);
   }
   moveDown() {
     if (this.fallingPiece.top <= this.boardHeight) {
@@ -46,7 +46,7 @@ class Board {
     return elements[direction].some(element => {
       const x = (element + left) % 10;
       const y = Math.floor(element / 10) + top;
-      const checks = {
+       const checks = {
         left: x < 1,
         right: x >= this.boardWidth - 1,
         down: y >= this.boardHeight - 1,
@@ -66,12 +66,12 @@ class Board {
   }
   // Move the falling piece left
   moveLeft() {
-    if (!touchBorder(this.fallingPiece, 'left')) {
+    if (!this.touchBorder('left')) {
       this.fallingPiece.moveLeft();
-      if (touchOtherPiece(this.fallingPiece)) {
+      if (this.touchOtherPiece(this.fallingPiece)) {
         this.fallingPiece.moveRight();
       }
-      if (this.fallingPiece.fixxing && !touchBorder(this.fallingPiece, 'down')) {
+      if (this.fallingPiece.fixxing && !this.touchBorder(this.fallingPiece, 'down')) {
         this.fallingPiece.fixxing = false;
         this.fallingPiece.fastSpeed = true;
         this.resetSpeed();
@@ -81,12 +81,12 @@ class Board {
   }
   // Move the falling piece right
   moveRight() {
-    if (!touchBorder(this.fallingPiece, 'right')) {
+    if (!this.touchBorder('right')) {
         this.fallingPiece.moveRight();
-      if (touchOtherPiece(this.fallingPiece)) {
+      if (this.touchOtherPiece(this.fallingPiece)) {
         this.fallingPiece.moveLeft();
       }
-      if (fixxing && !touchBorder(this.fallingPiece, 'down')) {
+      if (this.fixxing && !this.touchBorder(this.fallingPiece, 'down')) {
         this.fallingPiece.fixxing = false;
         this.fallingPiece.fastSpeed = true;
         this.resetSpeed();
@@ -94,7 +94,7 @@ class Board {
       this.renderPiece();
     }
   }
-  // Increase the falling speed
+  // Increase the speed
   fasterSpeed() {
     if (this.fallingPiece.fastSpeed || this.fallingPiece.fixxing) {
       return;
@@ -105,13 +105,13 @@ class Board {
     }, 50);
     this.fallingPiece.fastSpeed = true;
   }
-  // Reset the falling speed
+  // Reset the speed
   resetSpeed() {
     if (this.fallingPiece.fastSpeed || this.fallingPiece.fixxing) {
       return;
     }
     clearInterval(this.intervalId);
-    this.intervalId = setInterval(function () {
+    this.intervalId = setInterval(() =>{
       this.moveDown();
     }, 200);
     this.fallingPiece.fastSpeed = false;
@@ -124,12 +124,12 @@ class Board {
       return;
     }
     clearInterval(this.intervalId);
-    this.intervalId = setInterval(function () {
-      this.moveDown();
+    this.intervalId = setInterval(() => {
+        this.moveDown();
     }, 5);
   }
   // Check if the falling piece touch border when rotate
-  checkBorderRotate() {
+  rotateTouchBorder() {
     const nextDirection = (this.fallingPiece.direction + 1) % 4;
     const center =
       (this.fallingPiece.elements[nextDirection][0] + this.fallingPiece.left) % 10;
@@ -140,6 +140,7 @@ class Board {
       if (center + boardCenter < col) {
         return 'left';
       } else if (center - boardCenter > col) {
+        console.log('right');
         return 'right';
       } else if (row > 19) {
         return 'up';
@@ -148,24 +149,24 @@ class Board {
   }
   // Rotate the falling piece
   rotatePiece() {
-    const adjustMove = this.checkBorderRotate();
-    let tempPiece = { ...fallingPiece };
+    const adjustMove = this.rotateTouchBorder();
+    let tempPiece = { ...this.fallingPiece };
     tempPiece.direction = (tempPiece.direction + 1) % 4;
-    if (!touchOtherPiece(tempPiece)) {
+    if (!this.touchOtherPiece(tempPiece)) {
       if (this.fallingPiece.fixxing) {
         this.fallingPiece.fixxing = false;
         this.fallingPiece.fastSpeed = true;
         this.resetSpeed();
       }
       this.fallingPiece.direction = (this.fallingPiece.direction + 1) % 4;
-      this.renderPiece(fallingPiece);
+      this.renderPiece(this.fallingPiece);
     } else {
       if (adjustMove === 'left') {
-        this.fallingPiece.left--;
+        this.fallingPiece.moveRight();
       } else if (adjustMove === 'right') {
-        this.fallingPiece.left++;
+        this.fallingPiece.moveLeft();
       } else if (adjustMove === 'up') {
-        this.fallingPiece.top++;
+        this.fallingPiece.moveUp();
       }
     }
   }
