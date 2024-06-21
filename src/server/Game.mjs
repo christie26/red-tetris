@@ -4,7 +4,7 @@ class Game {
     this.players = [];
     this.players.push(leader);
     this.isActive = false;
-    this.key = Math.random().toString(36).substr(2, 5);// TODO: change the logic later
+    this.key = Math.random(); // TODO: change the logic later
     leader.waitingGame(this.key);
   }
 
@@ -19,6 +19,9 @@ class Game {
 
   startGame() {
     this.isActive = true;
+    this.players.forEach(player => {
+      player.startGame();
+    });
     // have to send key to each player
   }
 

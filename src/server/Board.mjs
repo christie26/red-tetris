@@ -1,3 +1,6 @@
+/*
+
+*/
 class Board {
   constructor(socket) {
     this.socket = socket;
@@ -6,10 +9,7 @@ class Board {
     this.fallingStatus = 10;
     this.fixedStatus = 20;
     this.intervalId = null;
-  
-    this.fixing = false;
-    this.sprint = false;
-    this.fastSpeed = false;
+
     this.initGame();
   }
 
@@ -20,16 +20,8 @@ class Board {
   }
 
   newPiece() {
-    this.sprint = false;
-    this.fixing = false;
-    this.fastSpeed = false;
-    const randomKey = Math.floor(Math.random() * 7);
-    this.fallingPiece = { ...this.initPiece };
-    this.fallingPiece.type = randomKey;
-    this.fallingPiece.left = 2 + Math.floor(Math.random() * 5);
-    this.fallingPiece.top = 0;
-    this.fallingPiece.direction = 0;
-    this.fallingPiece.elements = this.piecesArray[randomKey];
+    // TODO: logic to create random value
+    this.fallingPiece = new this.fallingPiece(type, left, direction);
 
     if (this.touchOtherPiece(this.fallingPiece)) {
       this.socket.emit('piece', { fallingPiece: this.fallingPiece });

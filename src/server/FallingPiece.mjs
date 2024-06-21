@@ -5,8 +5,21 @@ class FallingPiece {
         this.top = 0;
         this.direction = direction;
         this.elements = Pieces[type];
+        this.sprint = false;
+        this.fixxing = false;
+        this.fastSpeed = false;
     }
-    // sprint = false;
-    // fixxing = false;
-    // fastSpeed = false;
+
+    moveDown() {
+        this.top++;
+    }
+    moveUp() {
+        this.top--;
+    }
+    moveLeft() {
+        this.left--;
+    }
+    moveRight() {
+        this.left++;
+    }
 }
