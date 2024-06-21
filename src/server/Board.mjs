@@ -100,7 +100,7 @@ class Board {
       return;
     }
     clearInterval(this.intervalId);
-    this.intervalId = setInterval(function () {
+    this.intervalId = setInterval(() => {
       this.moveDown();
     }, 50);
     this.fallingPiece.fastSpeed = true;
@@ -130,26 +130,37 @@ class Board {
   }
   // Check if the falling piece touch border when rotate
   rotateTouchBorder() {
+    const elements = this.fallingPiece.elements;
     const nextDirection = (this.fallingPiece.direction + 1) % 4;
-    const center =
-      (this.fallingPiece.elements[nextDirection][0] + this.fallingPiece.left) % 10;
-    this.fallingPiece.elements[nextDirection].forEach(element => {
-      let col = (element + this.fallingPiece.left) % 10;
-      const row = Math.floor(element / 10) + this.fallingPiece.top;
-      const boardCenter = 5;
-      if (center + boardCenter < col) {
-        return 'left';
-      } else if (center - boardCenter > col) {
-        console.log('right');
-        return 'right';
-      } else if (row > 19) {
-        return 'up';
-      }
-    });
+    const center = (elements[nextDirection][0] + this.fallingPiece.left) % 10;
+    const boardCenter = 5;
+
+    for (const element of elements[nextDirection]) {
+        const col = (element + this.fallingPiece.left) % 10;
+        const row = Math.floor(element / 10) + this.fallingPiece.top;
+
+        if (center + boardCenter < col) {
+            return 'left';
+        } else if (center - boardCenter > col) {
+            return 'right';
+        } else if (row > 19) {
+            return 'up';
+        }
+    }
+
+    return null;
   }
   // Rotate the falling piece
   rotatePiece() {
     const adjustMove = this.rotateTouchBorder();
+    // console.log(adjustMove);
+    if (adjustMove === 'left') {
+      this.fallingPiece.moveRight();
+    } else if (adjustMove === 'right') {
+      this.fallingPiece.moveLeft();
+    } else if (adjustMove === 'up') {
+      this.fallingPiece.moveUp();
+    }
     let tempPiece = { ...this.fallingPiece };
     tempPiece.direction = (tempPiece.direction + 1) % 4;
     if (!this.touchOtherPiece(tempPiece)) {
@@ -161,13 +172,6 @@ class Board {
       this.fallingPiece.direction = (this.fallingPiece.direction + 1) % 4;
       this.renderPiece(this.fallingPiece);
     } else {
-      if (adjustMove === 'left') {
-        this.fallingPiece.moveRight();
-      } else if (adjustMove === 'right') {
-        this.fallingPiece.moveLeft();
-      } else if (adjustMove === 'up') {
-        this.fallingPiece.moveUp();
-      }
     }
   }
   // Fix the falling piece to the board
@@ -205,6 +209,8 @@ class Board {
       this.boardArray[element + left + 10 * top] += 10;
       // lines.push(Math.floor((element + left + 10 * top) / 10));
     });
+
+    // console.log({piece: this.fallingPiece, board:this.boardArray});
     this.socket.emit('fixPiece', { data: this.fallingPiece });
     // lines.forEach(line => {
     //   clearLine(line);
