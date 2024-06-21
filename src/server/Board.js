@@ -6,71 +6,7 @@ class Board {
     this.fallingStatus = 10;
     this.fixedStatus = 20;
     this.intervalId = null;
-    this.piecesArray = [
-      [
-        // O_BLOCK
-        [0, 1, 10, 11], // Direction 0
-        [0, 1, 10, 11], // Direction 1
-        [0, 1, 10, 11], // Direction 2
-        [0, 1, 10, 11], // Direction 3
-      ],
-      [
-        // T_BLOCK
-        [11, 0, 1, 2], // Direction 0
-        [11, 2, 12, 22], // Direction 1
-        [11, 20, 21, 22], // Direction 2
-        [11, 0, 10, 20], // Direction 3
-      ],
-      [
-        // J_BLOCK
-        [11, 0, 10, 12], // Direction 0
-        [11, 1, 2, 21], // Direction 1
-        [11, 10, 12, 22], // Direction 2
-        [11, 20, 21, 1], // Direction 3
-      ],
-      [
-        // L_BLOCK
-        [11, 20, 10, 12], // Direction 0
-        [11, 1, 0, 21], // Direction 1
-        [11, 10, 12, 2], // Direction 2
-        [11, 22, 21, 1], // Direction 3
-      ],
-      [
-        // S_BLOCK
-        [11, 1, 2, 10], // Direction 0
-        [11, 22, 12, 1], // Direction 1
-        [11, 12, 20, 21], // Direction 2
-        [11, 0, 10, 21], // Direction 3
-      ],
-      [
-        // Z_BLOCK
-        [11, 1, 0, 12], // Direction 0
-        [11, 2, 12, 21], // Direction 1
-        [11, 10, 21, 22], // Direction 2
-        [11, 1, 10, 20], // Direction 3
-      ],
-      [
-        // I_BLOCK
-        [1, 0, 2, 3], // Direction 0
-        [11, 1, 21, 31], // Direction 1
-        [1, 0, 2, 3], // Direction 2
-        [11, 1, 21, 31], // Direction 3
-      ],
-    ];
-    this.fallingPiece = {
-      type: 0,
-      left: 0,
-      top: 0,
-      direction: 0,
-      elements: null,
-    };
-    this.initPiece = {
-      type: 0,
-      left: 0,
-      top: 0,
-      direction: 0,
-      elements: null,
-    };
+  
     this.fixing = false;
     this.sprint = false;
     this.fastSpeed = false;
