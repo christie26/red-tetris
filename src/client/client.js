@@ -40,8 +40,7 @@ document.addEventListener('keyup', event => {
 });
 
 socket.on('piece', data => {
-  const fallingPiece = data.data;
-  renderPiece(fallingPiece);
+  renderPiece(data.data);
 });
 socket.on('fixPiece', data => {
   const fixedPiece = data.data;
@@ -86,8 +85,9 @@ function renderPiece(fallingPiece) {
     );
   });
 }
-function renderFixedPiece(fallingPiece) {
-  const { type, left, top, direction, elements } = fallingPiece;
+function renderFixedPiece(fixedPiece) {
+  console.log('renderFixedPiece'. fixedPiece);
+  const { type, left, top, direction, elements } = fixedPiece;
   stringType = getTypeString(type);
   elements[direction].forEach(element => {
     board.children[element + left + 10 * top].classList.remove(

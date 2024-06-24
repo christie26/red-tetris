@@ -15,7 +15,7 @@ class Player {
     this.key = key;
   }
   startGame() {
-    this.Board.newPiece();
+    this.Board.startGame();
   }
 }
 

@@ -25,22 +25,19 @@ io.on('connection', function (socket) {
   socket.on('keyboard', data => {
     switch (data.direction) {
       case 'left':
-        player.Board.moveLeft();
+        player.Board.fallingPiece.moveLeft();
         break;
       case 'right':
-        player.Board.moveRight();
-        break;
-      case 'stop':
-        player.Board.stopGame();
+        player.Board.fallingPiece.moveRight();
         break;
       case 'down':
-        player.Board.fasterSpeed();
+        player.Board.fallingPiece.fasterSpeed();
         break;
       case 'rotate':
-        player.Board.rotatePiece();
+        player.Board.fallingPiece.rotatePiece();
         break;
       case 'sprint':
-        player.Board.fallSprint();
+        player.Board.fallingPiece.fallSprint();
         break;
     }
   });
