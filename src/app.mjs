@@ -45,6 +45,13 @@ io.on('connection', function (socket) {
     }
   });
 
+  socket.on('pause', (data) => {
+    if (data.data === 'pause') {
+      player.Board.pauseGame();
+    } else {
+      player.Board.restartGame();
+    }
+  });
   player.startGame();
   socket.on('disconnect', () => {
     console.log('User disconnected');

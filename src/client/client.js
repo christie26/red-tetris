@@ -44,8 +44,13 @@ socket.on('piece', data => {
   renderPiece(fallingPiece);
 });
 socket.on('fixPiece', data => {
-  const fallingPiece = data.data;
-  renderFixedPiece(fallingPiece);
+  const fixedPiece = data.data;
+  console.log('fixPiece', fixedPiece.elements[fixedPiece.direction]);
+  renderFixedPiece(fixedPiece);
+});
+
+socket.on('gameOver', data => {
+  alert('Game Over');
 });
 function getTypeString(type) {
   switch (type) {
@@ -94,4 +99,13 @@ function renderFixedPiece(fallingPiece) {
       'fixed',
     );
   });
+}
+
+function pauseGame() {
+  console.log('pause');
+  socket.emit('pause', { data: 'pause' });
+}
+function playGame() {
+  console.log('pause');
+  socket.emit('pause', { data: 'play' });
 }

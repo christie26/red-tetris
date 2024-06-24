@@ -19,11 +19,11 @@ class Board {
     this.fallingPiece = new FallingPiece(type, left, direction);
     if (this.touchOtherPiece(this.fallingPiece)) {
       this.socket.emit('piece', { fallingPiece: this.fallingPiece });
-      alert('Game Over');
+      this.socket.emit('gameOver', { gameOver: true });
       return;
     }
     this.renderPiece();
-    this.intervalId = setInterval(() => this.moveDown(), 2000);
+    this.intervalId = setInterval(() => this.moveDown(), 200);
   }
   moveDown() {
     if (this.fallingPiece.top <= this.boardHeight) {
@@ -210,13 +210,23 @@ class Board {
       // lines.push(Math.floor((element + left + 10 * top) / 10));
     });
 
-    // console.log({piece: this.fallingPiece, board:this.boardArray});
+    // console.log({piece: this.fallingPiece});
+    // console.log(this.boardArray.slice(0,100));
+    // console.log(this.boardArray.slice(101,100));
     this.socket.emit('fixPiece', { data: this.fallingPiece });
     // lines.forEach(line => {
     //   clearLine(line);
     // });
 
     this.newPiece();
+  }
+  pauseGame() {
+    // console.log('pause');
+    clearInterval(this.intervalId);
+  }
+  restartGame() {
+    // console.log('play');
+    this.intervalId = setInterval(() => this.moveDown(), 200);
   }
 }
 
