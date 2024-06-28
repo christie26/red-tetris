@@ -3,7 +3,7 @@ import http from 'http';
 import Server from 'socket.io';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import Player from './server/Player.mjs';
+import Player from './server/classes/Player.mjs';
 
 const app = express();
 const server = http.createServer(app);
@@ -33,9 +33,9 @@ io.on('connection', function (socket) {
       case 'down':
         player.Board.fallingPiece.fasterSpeed();
         break;
-      case 'rotate':
-        player.Board.fallingPiece.rotatePiece();
-        break;
+      // case 'rotate':
+      //   player.Board.fallingPiece.rotatePiece();
+      //   break;
       case 'sprint':
         player.Board.fallingPiece.fallSprint();
         break;
