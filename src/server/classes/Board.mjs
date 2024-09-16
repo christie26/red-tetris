@@ -1,4 +1,7 @@
 import Piece from './Piece.mjs';
+/*
+Board class represent each board.
+*/
 class Board {
   constructor(socket) {
     this.socket = socket;
@@ -9,7 +12,7 @@ class Board {
     this.fallingPiece = null;
     this.piecesArray = [];
   }
-/* start game */
+  /* start game */
   startGame() {
     // TODO: change random generate logic
     let type = Math.floor(Math.random() * 7);
@@ -17,13 +20,14 @@ class Board {
     let direction = Math.floor(Math.random() * 4);
     this.fallingPiece = new Piece(this, type, left, direction);
   }
-/* tile valid check */
+  /* tile valid check */
   touchBorder(tempTiles) {
     for (const tile of tempTiles) {
-      if (tile.x < 0 || tile.x >= this.width || tile.y >= this.height) {
+      if (tile.x < 0 || tile.x >= this.width || tile.y >= this.height || tile.y < 0) {
         return true;
       }
     }
+    return false;
   }
   touchOtherPiece(tempTiles) {
     for (const tile of tempTiles) {
@@ -32,16 +36,19 @@ class Board {
           if (tile.x === pieceTile.x && tile.y === pieceTile.y) {
             return true;
           }
+          else {
+            // console.log("no piece")
+            return false;
+          }
         }
       }
     }
   }
 
-/* render piece */
+  /* render piece */
   renderPiece() {
-    console.log('in renderPiece', this.fallingPiece.tilesArray);
+    // console.log('in renderPiece', this.fallingPiece.tilesArray);
     this.socket.emit('piece', { data: this.fallingPiece.tilesArray });
-    // console.log('renderPiece');
   }
   renderFixedPiece() {
     console.log('in renderFixedPiece', this.fallingPiece.tilesArray)
@@ -56,7 +63,7 @@ class Board {
     this.fallingPiece = new Piece(this, newType, newLeft, newDirection);
   }
 
-/* pause,restart game */
+  /* pause,restart game */
   pauseGame() {
     clearInterval(this.intervalId);
   }

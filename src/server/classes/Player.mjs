@@ -5,7 +5,7 @@ In case they restart the game, they will get a new key.
 import Board from './Board.mjs';
 
 class Player {
-  constructor (playername, socket) {
+  constructor(playername, socket) {
     this.playername = playername;
     this.socket = socket;
     this.Board = new Board(this.socket);

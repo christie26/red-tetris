@@ -43,9 +43,7 @@ socket.on('piece', data => {
   renderPiece(data.data);
 });
 socket.on('fixPiece', data => {
-  const fixedPiece = data.data;
-  console.log('fixPiece', fixedPiece.elements[fixedPiece.direction]);
-  renderFixedPiece(fixedPiece);
+  renderFixedPiece(data.data);
 });
 
 socket.on('gameOver', data => {
@@ -69,32 +67,36 @@ function getTypeString(type) {
       return 'I_BLOCK';
   }
 }
-function renderPiece(fallingPiece) {
-  const { type, left, top, direction, elements } = fallingPiece;
+function renderPiece(data) {
+  const tilesArray = data;
+  const stringType = getTypeString(tilesArray[0].type);
 
-  stringType = getTypeString(type);
   board.querySelectorAll('li').forEach(element => {
     if (element.classList.contains('falling')) {
       element.classList.remove(stringType, 'falling');
     }
   });
-  elements[direction].forEach(element => {
-    board.children[element + left + 10 * top].classList.add(
+  tilesArray.forEach(element => {
+    // console.log(element);
+    board.children[element.x + (19 - element.y) * 10].classList.add(
       stringType,
       'falling',
     );
   });
 }
-function renderFixedPiece(fixedPiece) {
-  console.log('renderFixedPiece'. fixedPiece);
-  const { type, left, top, direction, elements } = fixedPiece;
-  stringType = getTypeString(type);
-  elements[direction].forEach(element => {
-    board.children[element + left + 10 * top].classList.remove(
-      stringType,
-      'falling',
-    );
-    board.children[element + left + 10 * top].classList.add(
+function renderFixedPiece(data) {
+  const tilesArray = data;
+  const stringType = getTypeString(tilesArray[0].type);
+
+  console.log(tilesArray)
+  board.querySelectorAll('li').forEach(element => {
+    if (element.classList.contains('falling')) {
+      element.classList.remove(stringType, 'falling');
+    }
+  });
+  tilesArray.forEach(element => {
+    console.log(element);
+    board.children[element.x + (19 - element.y) * 10].classList.add(
       stringType,
       'fixed',
     );

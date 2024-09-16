@@ -21,6 +21,7 @@ app.use('/', express.static(path.join(__dirname, 'client')));
 
 io.on('connection', function (socket) {
   let player = new Player('player', socket);
+  player.startGame();
 
   socket.on('keyboard', data => {
     switch (data.direction) {
@@ -49,7 +50,6 @@ io.on('connection', function (socket) {
       player.Board.restartGame();
     }
   });
-  player.startGame();
   socket.on('disconnect', () => {
     console.log('User disconnected');
   });

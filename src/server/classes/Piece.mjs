@@ -1,5 +1,6 @@
 import Pieces from '../Pieces.mjs';
 import Tile from './Tile.mjs';
+import Board from './Board.mjs'
 class Piece {
   constructor(board, type, left, direction) {
     this.board = board;
@@ -18,7 +19,7 @@ class Piece {
     if (this.checkGameOver())
       return;
     this.board.renderPiece();
-    this.intervalId = setInterval(() => this.moveDown(), 200);
+    this.intervalId = setInterval(() => this.moveDown(), 500);
   }
 
   addTile(x, y) {
@@ -41,7 +42,7 @@ class Piece {
     });
   }
   rotateTiles() {
-      // TODO: add rotate logic with x,y coordinates
+    // TODO: add rotate logic with x,y coordinates
   }
 
   checkGameOver() {
@@ -53,7 +54,9 @@ class Piece {
   }
 
   moveDown() {
-    let tempTiles = [... this.tilesArray];
+    let tempTiles = this.tilesArray.map(tile =>
+      new Tile(tile.x, tile.y, tile.type, tile.center)
+    );
     for (const tile of tempTiles) {
       tile.y--;
     }
@@ -105,7 +108,7 @@ class Piece {
     } else if (adjustMove === 'up') {
       this.moveUp();
     }
-    let tempPiece = {... this};
+    let tempPiece = { ... this };
     tempPiece.direction = (this.direction + 1) % 4;
     if (!this.board.touchOtherPiece(tempPiece)) {
       if (this.fixxing) {
@@ -121,17 +124,15 @@ class Piece {
   /* fix piece */
   fixPiece() {
     if (this.sprint) {
-      // clearInterval(this.intervalId); // maybe we need it?
-      this.renderFixedPiece();
+      this.board.renderFixedPiece();
     } else {
       this.fixxing = true;
       clearInterval(this.intervalId);
       setTimeout(function () {
         if (this.fixxing) {
-            // clearInterval(this.intervalId);// maybe we need it?
-            this.board.renderFixedPiece();
+          this.board.renderFixedPiece();
         }
-    }.bind(this), 1000);
+      }.bind(this), 1000);
     }
   }
   fasterSpeed() {
@@ -149,7 +150,7 @@ class Piece {
       return;
     }
     clearInterval(this.intervalId);
-    this.intervalId = setInterval(() =>{
+    this.intervalId = setInterval(() => {
       this.moveDown();
     }, 200);
     this.fastSpeed = false;
@@ -162,7 +163,7 @@ class Piece {
     }
     clearInterval(this.intervalId);
     this.intervalId = setInterval(() => {
-        this.moveDown();
+      this.moveDown();
     }, 5);
   }
 }
