@@ -41,8 +41,15 @@ class Piece {
       }
     });
   }
-  rotateTiles() {
-    // TODO: add rotate logic with x,y coordinates
+  rotateTiles(tilesArray) {
+    const center = tilesArray[0];
+    for (let index = 1; index < tilesArray.length; index++) {
+      let tile = tilesArray[index];
+      const tmp_x = tile.x
+      const tmp_y = tile.y
+      tile.x = center.x - center.y + tmp_y;
+      tile.y = center.y + center.x - tmp_x;
+    }
   }
 
   checkGameOver() {
@@ -53,20 +60,6 @@ class Piece {
     }
   }
 
-  moveDown() {
-    let tempTiles = this.tilesArray.map(tile =>
-      new Tile(tile.x, tile.y, tile.type, tile.center)
-    );
-    for (const tile of tempTiles) {
-      tile.y--;
-    }
-    if (!this.board.touchOtherPiece(tempTiles) && !this.board.touchBorder(tempTiles)) {
-      this.moveTiles('down');
-      this.board.renderPiece();
-    } else {
-      this.fixPiece();
-    }
-  }
   moveLeft() {
     let tempTiles = this.tilesArray.map(tile =>
       new Tile(tile.x, tile.y, tile.type, tile.center)
@@ -107,31 +100,41 @@ class Piece {
       }
     }
   }
-  rotatePiece() {
-    const adjustMove = this.board.rotateTouchBorder();
-    if (adjustMove === 'left') {
-      this.moveRight();
-    } else if (adjustMove === 'right') {
-      this.moveLeft();
-    } else if (adjustMove === 'up') {
-      this.moveUp();
+  moveDown() {
+    let tempTiles = this.tilesArray.map(tile =>
+      new Tile(tile.x, tile.y, tile.type, tile.center)
+    );
+    for (const tile of tempTiles) {
+      tile.y--;
     }
-    let tempPiece = { ... this };
-    tempPiece.direction = (this.direction + 1) % 4;
-    if (!this.board.touchOtherPiece(tempPiece)) {
-      if (this.fixxing) {
-        this.fixxing = false;
-        this.fastSpeed = true;
-        this.resetSpeed();
-      }
-      this.direction = (this.direction + 1) % 4;
+    if (!this.board.touchOtherPiece(tempTiles) && !this.board.touchBorder(tempTiles)) {
+      this.moveTiles('down');
+      this.board.renderPiece();
+    } else {
+      this.fixPiece();
+    }
+  }
+  rotatePiece() {
+    // const adjustMove = this.board.rotateTouchBorder();
+    // if (adjustMove === 'left') {
+    //   this.moveRight();
+    // } else if (adjustMove === 'right') {
+    //   this.moveLeft();
+    // } else if (adjustMove === 'up') {
+    //   this.moveUp();
+    // }
+    let tempTiles = this.tilesArray.map(tile =>
+      new Tile(tile.x, tile.y, tile.type, tile.center)
+    );
+    this.rotateTiles(tempTiles)
+    if (!this.board.touchOtherPiece(tempTiles) && !this.board.touchBorder(tempTiles)) {
+      this.rotateTiles(this.tilesArray)
       this.board.renderPiece();
     }
   }
 
   fixPiece() {
     if (this.sprint) {
-      console.log("with sprint")
       clearInterval(this.intervalId);
       this.board.renderFixedPiece();
     } else {
@@ -139,7 +142,6 @@ class Piece {
       clearInterval(this.intervalId);
       setTimeout(function () {
         if (this.fixxing) {
-          console.log("without sprint")
           this.board.renderFixedPiece();
         }
       }.bind(this), 1000);

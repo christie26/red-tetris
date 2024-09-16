@@ -34,9 +34,9 @@ io.on('connection', function (socket) {
       case 'down':
         player.Board.fallingPiece.fasterSpeed();
         break;
-      // case 'rotate':
-      //   player.Board.fallingPiece.rotatePiece();
-      //   break;
+      case 'rotate':
+        player.Board.fallingPiece.rotatePiece();
+        break;
       case 'sprint':
         player.Board.fallingPiece.fallSprint();
         break;

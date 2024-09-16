@@ -15,7 +15,8 @@ class Board {
   /* start game */
   startGame() {
     // TODO: change random generate logic
-    let type = Math.floor(Math.random() * 7);
+    let type = 1;
+    // let type = Math.floor(Math.random() * 7);
     let left = 3 + Math.floor(Math.random() * 4);
     let direction = Math.floor(Math.random() * 4);
     this.fallingPiece = new Piece(this, type, left, direction);
@@ -44,12 +45,13 @@ class Board {
     this.socket.emit('piece', { data: this.fallingPiece.tilesArray });
   }
   renderFixedPiece() {
-    console.log('in renderFixedPiece', this.fallingPiece.tilesArray)
+    // console.log('in renderFixedPiece', this.fallingPiece.tilesArray)
     this.socket.emit('fixPiece', { data: this.fallingPiece.tilesArray });
 
     this.piecesArray.push(this.fallingPiece.tilesArray);
     this.fallingPiece = null;
-    let newType = Math.floor(Math.random() * 7);
+    let newType = 1;
+    // let newType = Math.floor(Math.random() * 7);
     let newLeft = 3 + Math.floor(Math.random() * 4);
     let newDirection = Math.floor(Math.random() * 4);
     this.fallingPiece = new Piece(this, newType, newLeft, newDirection);
