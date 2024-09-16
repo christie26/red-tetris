@@ -68,14 +68,18 @@ class Piece {
     }
   }
   moveLeft() {
-    let tempTiles = [... this.tilesArray];
+    let tempTiles = this.tilesArray.map(tile =>
+      new Tile(tile.x, tile.y, tile.type, tile.center)
+    );
     for (const tile of tempTiles) {
       tile.x--;
     }
     if (!this.board.touchOtherPiece(tempTiles) && !this.board.touchBorder(tempTiles)) {
       this.moveTiles('left');
       this.board.renderPiece();
-      tempTiles.moveTiles('down');
+      for (const tile of tempTiles) {
+        tile.y--;
+      }
       if (this.fixxing && !this.board.touchBorder(tempTiles)) {
         this.fixxing = false;
         this.fastSpeed = true;
@@ -84,14 +88,18 @@ class Piece {
     }
   }
   moveRight() {
-    let tempTiles = [... this.tilesArray];
+    let tempTiles = this.tilesArray.map(tile =>
+      new Tile(tile.x, tile.y, tile.type, tile.center)
+    );
     for (const tile of tempTiles) {
       tile.x++;
     }
     if (!this.board.touchOtherPiece(tempTiles) && !this.board.touchBorder(tempTiles)) {
       this.moveTiles('right');
       this.board.renderPiece();
-      tempTiles.moveTiles('down');
+      for (const tile of tempTiles) {
+        tile.y--;
+      }
       if (this.fixxing && !this.board.touchBorder(tempTiles)) {
         this.fixxing = false;
         this.fastSpeed = true;
@@ -121,19 +129,32 @@ class Piece {
     }
   }
 
-  /* fix piece */
   fixPiece() {
     if (this.sprint) {
+      console.log("with sprint")
+      clearInterval(this.intervalId);
       this.board.renderFixedPiece();
     } else {
       this.fixxing = true;
       clearInterval(this.intervalId);
       setTimeout(function () {
         if (this.fixxing) {
+          console.log("without sprint")
           this.board.renderFixedPiece();
         }
       }.bind(this), 1000);
     }
+  }
+  fallSprint() {
+    this.sprint = true;
+    if (this.fixxing) {
+      clearInterval(this.intervalId);
+      return;
+    }
+    clearInterval(this.intervalId);
+    this.intervalId = setInterval(() => {
+      this.moveDown();
+    }, 5);
   }
   fasterSpeed() {
     if (this.fastSpeed || this.fixxing) {
@@ -154,17 +175,6 @@ class Piece {
       this.moveDown();
     }, 200);
     this.fastSpeed = false;
-  }
-  fallSprint() {
-    this.sprint = true;
-    if (this.fixxing) {
-      clearInterval(this.intervalId);
-      return;
-    }
-    clearInterval(this.intervalId);
-    this.intervalId = setInterval(() => {
-      this.moveDown();
-    }, 5);
   }
 }
 
