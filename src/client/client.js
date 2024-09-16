@@ -1,11 +1,9 @@
 const socket = io();
 
-// Create a 10x20 game board
 for (let i = 0; i < 200; i++) {
   let child = document.createElement('li');
   board.appendChild(child);
 }
-// Handle arrow key press and send move event to server
 document.addEventListener('keydown', event => {
   let direction = null;
   switch (event.key) {
@@ -39,7 +37,7 @@ document.addEventListener('keyup', event => {
   }
 });
 
-socket.on('piece', data => {
+socket.on('fallingPiece', data => {
   renderPiece(data.data);
 });
 socket.on('fixPiece', data => {
@@ -77,7 +75,6 @@ function renderPiece(data) {
     }
   });
   tilesArray.forEach(element => {
-    // console.log(element);
     board.children[element.x + (19 - element.y) * 10].classList.add(
       stringType,
       'falling',

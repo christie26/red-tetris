@@ -42,6 +42,7 @@ class Piece {
     });
   }
   rotateTiles(tilesArray) {
+
     const center = tilesArray[0];
     for (let index = 1; index < tilesArray.length; index++) {
       let tile = tilesArray[index];

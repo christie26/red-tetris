@@ -12,8 +12,11 @@ class Board {
     this.fallingPiece = null;
     this.piecesArray = [];
   }
-  /* start game */
   startGame() {
+    //TODO: wait for start
+    this.newPiece();
+  }
+  newPiece() {
     // TODO: change random generate logic
     let type = 1;
     // let type = Math.floor(Math.random() * 7);
@@ -21,6 +24,7 @@ class Board {
     let direction = Math.floor(Math.random() * 4);
     this.fallingPiece = new Piece(this, type, left, direction);
   }
+
   touchBorder(tempTiles) {
     for (const tile of tempTiles) {
       if (tile.x < 0 || tile.x >= this.width || tile.y >= this.height || tile.y < 0) {
@@ -39,25 +43,20 @@ class Board {
         }
       }
     }
+    return false;
   }
 
   renderPiece() {
-    this.socket.emit('piece', { data: this.fallingPiece.tilesArray });
+    this.socket.emit('fallingPiece', { data: this.fallingPiece.tilesArray });
   }
   renderFixedPiece() {
-    // console.log('in renderFixedPiece', this.fallingPiece.tilesArray)
     this.socket.emit('fixPiece', { data: this.fallingPiece.tilesArray });
 
     this.piecesArray.push(this.fallingPiece.tilesArray);
     this.fallingPiece = null;
-    let newType = 1;
-    // let newType = Math.floor(Math.random() * 7);
-    let newLeft = 3 + Math.floor(Math.random() * 4);
-    let newDirection = Math.floor(Math.random() * 4);
-    this.fallingPiece = new Piece(this, newType, newLeft, newDirection);
+    this.newPiece()
   }
 
-  /* pause,restart game */
   pauseGame() {
     clearInterval(this.intervalId);
   }
