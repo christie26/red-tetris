@@ -8,6 +8,7 @@ import Player from './server/classes/Player.mjs';
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
+let rooms = [];
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -19,9 +20,26 @@ app.get('/socket.io/socket.io.js', (req, res) => {
   res.sendFile(path.join(__dirname, '/node_modules/socket.io-client/dist/socket.io.js'));
 });
 
-app.use('/', express.static(path.join(__dirname, 'client')));
+//app.use('/', express.static(path.join(__dirname, 'client')));
+app.use(express.static(path.join(__dirname, 'client')));
 
-//
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client', 'index.html'));
+});
+
+// API endpoint to check if username exists
+app.get('/checkUser/:username', (req, res) => {
+  const username = req.params.username;
+  const userExists = rooms.some(room => 
+    room.players.some(player => player.playerName === myPlayerName))
+  
+  if (userExists) {
+      return res.json({ exists: true });
+  } else {
+      return res.json({ exists: false });
+  }
+});
+
 io.on('connection', function (socket) {
   let player = new Player('player', socket, "temp", true);
   player.Board.newPiece();

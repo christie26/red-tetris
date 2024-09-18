@@ -109,12 +109,39 @@ function playGame() {
   socket.emit('pause', { data: 'play' });
 }
 
-// Parising Url 
-// receive URL
-console
-document.addEventListener('DOMContentLoaded', () => {
-  const urlString = window.location.href;
-  const url = new URL(urlString);
-  console.log("url is -> ", url)
-  // Your parsing logic here
+function checkUser() {
+  const pathParts = window.location.pathname.split('/');
+  const username = pathParts[pathParts.length - 1]; // username is the last part of the path
+
+  console.log("pathParts is ", pathParts);
+  if ( username == "") {
+    //alert("The right Path should be http://<server_name_or_ip>:<port>/<room>/<player_name>")
+  } else {
+    console.log("username isssss ", username)
+  }
+    /*
+  fetch(`/checkUser/${username}`)
+      .then(response => response.json())
+      .then(data => {
+          if (data.exists) {
+              alert(`User "${username}" already exists!`);
+          } else {
+              console.log(`User "${username}" does not exist.`);
+              console.log("Player have to be added to the room")
+          }
+      })
+      .catch(error => console.error('Error checking user:', error));
+*/
+  }
+
+function addRoom(){
+  const pathParts = window.location.pathname.split('/');
+  const roomName= pathParts[pathParts.length - 2]; // room is the second last part of the path
+
+  console.log("the room name is ", roomName)
+}
+
+// Call the checkUser function on page load
+window.addEventListener('DOMContentLoaded', () => {
+  checkUser();
 });
