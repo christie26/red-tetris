@@ -57,6 +57,9 @@ class Room {
       this.endGame();
     }
   }
+  sendPenalty(player, lines) {
+    // TODO : send penalty to all player except the player.
+  }
 }
 
 export default Room;

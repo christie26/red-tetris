@@ -111,6 +111,7 @@ class Piece {
     }
   }
   rotatePiece() {
+    // TODO : implement adust moving of piece
     // const adjustMove = this.board.rotateTouchBorder();
     // if (adjustMove === 'left') {
     //   this.moveRight();

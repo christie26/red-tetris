@@ -53,11 +53,19 @@ class Board {
     this.socket.emit('fallingPiece', { data: this.fallingPiece.tilesArray });
   }
   renderFixedPiece() {
+    //TODO : check if we have to clear line or not
     this.socket.emit('fixPiece', { data: this.fallingPiece.tilesArray });
 
     this.piecesArray.push(this.fallingPiece.tilesArray);
     this.fallingPiece = null;
     this.newPiece()
+  }
+  clearLine() {
+    // TODO : remove pieces from piecesArray
+    this.sendPenalty(0)
+  }
+  sendPenalty(lines) {
+    this.Player.Room.sendPenalty(this.Player, lines)
   }
 }
 
