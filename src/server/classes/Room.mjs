@@ -52,6 +52,7 @@ class Room {
     });
   }
   onePlayerGameover() {
+    console.log('game over!!!')
     this.diePlayer++;
     if (this.diePlayer == this.players.length - 1) {
       this.winner = players.some(player => !player.Board.gameover);

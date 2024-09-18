@@ -1,5 +1,4 @@
 import Piece from './Piece.mjs';
-import Room from './Room.mjs'
 import seedrandom from 'seedrandom';
 /*
 Board class represents each board.
@@ -25,6 +24,7 @@ class Board {
     this.fallingPiece = new Piece(this, type, left, direction);
     if (this.gameover == true) {
       this.socket.emit('fallingPiece', { data: this.fallingPiece.tiles });
+      //TODO : announce the player that they just died
       this.Player.Room.onePlayerGameover();
     }
   }
@@ -60,7 +60,7 @@ class Board {
     this.clearLines();
     this.fallingPiece = null;
     this.newPiece()
-    this.printBoard()
+    // this.printBoard()
   }
   isLineFull(y) {
     for (let x = 0; x < 10; x++) {
@@ -101,7 +101,6 @@ class Board {
     }
     console.log('----')
   }
-
 }
 
 export default Board;

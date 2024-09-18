@@ -1,6 +1,5 @@
 import Pieces from '../Pieces.mjs';
 import Tile from './Tile.mjs';
-import Board from './Board.mjs'
 class Piece {
   constructor(board, type, left, direction) {
     this.board = board;
@@ -29,7 +28,7 @@ class Piece {
   }
   dupTiles(tiles) {
     let tempTiles = tiles.map(tile =>
-      new Tile(tile.x, tile.y, tile.type, tile.center)
+      new Tile(tile.x, tile.y, tile.type)
     );
     return tempTiles
   }
@@ -96,7 +95,6 @@ class Piece {
     this.rotateTiles(this.tiles);
     this.board.renderPiece();
   }
-
   tryMoveInDirections(tempTiles, directions) {
     for (const direction of directions) {
       let doubleTemp = this.dupTiles(tempTiles)
@@ -117,6 +115,7 @@ class Piece {
       clearInterval(this.intervalId);
       setTimeout(function () {
         if (this.fixxing) {
+          // TODO : make sure it's not floating
           this.board.renderFixedPiece();
         }
       }.bind(this), 1000);
