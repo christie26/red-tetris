@@ -4,6 +4,7 @@ import Server from 'socket.io';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import Player from './server/classes/Player.mjs';
+import Room from './server/classes/Room.mjs'
 
 const app = express();
 const server = http.createServer(app);
@@ -19,13 +20,13 @@ app.get('/socket.io/socket.io.js', (req, res) => {
 
 app.use('/', express.static(path.join(__dirname, 'client')));
 
-//
 io.on('connection', function (socket) {
-  let player = new Player('player', socket, "temp", true);
+  const testRoom = new Room("testRoom")
+  let player = new Player('player', socket, "temp", true, testRoom);
   player.Board.newPiece();
 
   socket.on('keyboard', data => {
-    switch (data.direction) {
+    switch (data.key) {
       case 'left':
         player.Board.fallingPiece.moveLeft();
         break;

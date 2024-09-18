@@ -10,13 +10,13 @@ class Piece {
     this.fixxing = false;
     this.fastSpeed = false;
     this.intervalId = null;
-    this.tilesArray = [];
+    this.tiles = [];
     for (let i = 0; i < 4; i++) {
       const index = this.elements[direction][i]
       this.addTile(index % 10 + left, 19 - Math.floor(index / 10), i === 0);
     }
     this.board.fallingPiece = this;
-    if (this.board.touchOtherPiece(this.tilesArray)) {
+    if (this.board.touchOtherPiece(this.tiles)) {
       this.board.gameover = true;
       return;
     }
@@ -25,14 +25,10 @@ class Piece {
   }
   /* manage tiles */
   addTile(x, y) {
-    this.tilesArray.push(new Tile(x, y, this.type));
-  }
-  removeTile(tile) {
-    //call it when we empty the line
-    this.tilesArray = this.tilesArray.filter(t => t !== tile);
+    this.tiles.push(new Tile(x, y, this.type));
   }
   moveTiles(direction) {
-    this.tilesArray.forEach(tile => {
+    this.tiles.forEach(tile => {
       if (direction === 'left') {
         tile.x--;
       } else if (direction === 'right') {
@@ -57,7 +53,7 @@ class Piece {
   }
   /* manage a piece */
   moveLeft() {
-    let tempTiles = this.tilesArray.map(tile =>
+    let tempTiles = this.tiles.map(tile =>
       new Tile(tile.x, tile.y, tile.type, tile.center)
     );
     for (const tile of tempTiles) {
@@ -77,7 +73,7 @@ class Piece {
     }
   }
   moveRight() {
-    let tempTiles = this.tilesArray.map(tile =>
+    let tempTiles = this.tiles.map(tile =>
       new Tile(tile.x, tile.y, tile.type, tile.center)
     );
     for (const tile of tempTiles) {
@@ -97,7 +93,7 @@ class Piece {
     }
   }
   moveDown() {
-    let tempTiles = this.tilesArray.map(tile =>
+    let tempTiles = this.tiles.map(tile =>
       new Tile(tile.x, tile.y, tile.type, tile.center)
     );
     for (const tile of tempTiles) {
@@ -120,14 +116,14 @@ class Piece {
     // } else if (adjustMove === 'up') {
     //   this.moveUp();
     // }
-    if (this.tilesArray[0].type === 0)
+    if (this.tiles[0].type === 0)
       return;
-    let tempTiles = this.tilesArray.map(tile =>
+    let tempTiles = this.tiles.map(tile =>
       new Tile(tile.x, tile.y, tile.type, tile.center)
     );
     this.rotateTiles(tempTiles)
     if (!this.board.touchOtherPiece(tempTiles) && !this.board.touchBorder(tempTiles)) {
-      this.rotateTiles(this.tilesArray)
+      this.rotateTiles(this.tiles)
       this.board.renderPiece();
     }
   }

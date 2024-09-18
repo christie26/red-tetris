@@ -1,4 +1,5 @@
 import Player from './Player.mjs';
+import { v4 as uuidv4 } from 'uuid';
 /*
 Room class represents each room.
 It has all players.
@@ -26,7 +27,7 @@ class Room {
   }
   removePlayer(targetPlayer) {
     // TODO : if everyone leave, what do we do?
-    if (targetPlayer.isLeader == true && this.players.length() > 1) {
+    if (targetPlayer.isLeader == true && this.players.length > 1) {
       players[1].isLeader = true;
     }
     this.players = this.players.filter(p => p !== targetPlayer);
@@ -52,12 +53,13 @@ class Room {
   }
   onePlayerGameover() {
     this.diePlayer++;
-    if (this.diePlayer == this.players.length() - 1) {
+    if (this.diePlayer == this.players.length - 1) {
       this.winner = players.some(player => !player.Board.gameover);
       this.endGame();
     }
   }
   sendPenalty(player, lines) {
+    console.log(`In ${this.roomName}, ${player} sent ${lines} lines penalty`);
     // TODO : send penalty to all player except the player.
   }
 }
