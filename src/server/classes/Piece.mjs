@@ -27,8 +27,14 @@ class Piece {
   addTile(x, y) {
     this.tiles.push(new Tile(x, y, this.type));
   }
-  moveTiles(direction) {
-    this.tiles.forEach(tile => {
+  dupTiles(tiles) {
+    let tempTiles = tiles.map(tile =>
+      new Tile(tile.x, tile.y, tile.type, tile.center)
+    );
+    return tempTiles
+  }
+  moveTiles(tiles, direction) {
+    tiles.forEach(tile => {
       if (direction === 'left') {
         tile.x--;
       } else if (direction === 'right') {
@@ -38,13 +44,12 @@ class Piece {
       }
     });
   }
-  rotateTiles(tilesArray) {
-    //oBlock
-    if (tilesArray[0].type == 0)
+  rotateTiles(tiles) {
+    if (tiles[0].type == 0)
       return;
-    const center = tilesArray[0];
-    for (let index = 1; index < tilesArray.length; index++) {
-      let tile = tilesArray[index];
+    const center = tiles[0];
+    for (let index = 1; index < tiles.length; index++) {
+      let tile = tiles[index];
       const tmp_x = tile.x
       const tmp_y = tile.y
       tile.x = center.x - center.y + tmp_y;
@@ -52,39 +57,13 @@ class Piece {
     }
   }
   /* manage a piece */
-  moveLeft() {
-    let tempTiles = this.tiles.map(tile =>
-      new Tile(tile.x, tile.y, tile.type, tile.center)
-    );
-    for (const tile of tempTiles) {
-      tile.x--;
-    }
-    if (!this.board.touchOtherPiece(tempTiles) && !this.board.touchBorder(tempTiles)) {
-      this.moveTiles('left');
+  moveSide(direction) {
+    let tempTiles = this.dupTiles(this.tiles)
+    this.moveTiles(tempTiles, direction);
+    if (this.board.isFree(tempTiles)) {
+      this.moveTiles(this.tiles, direction);
       this.board.renderPiece();
-      for (const tile of tempTiles) {
-        tile.y--;
-      }
-      if (this.fixxing && !this.board.touchBorder(tempTiles)) {
-        this.fixxing = false;
-        this.fastSpeed = true;
-        this.resetSpeed();
-      }
-    }
-  }
-  moveRight() {
-    let tempTiles = this.tiles.map(tile =>
-      new Tile(tile.x, tile.y, tile.type, tile.center)
-    );
-    for (const tile of tempTiles) {
-      tile.x++;
-    }
-    if (!this.board.touchOtherPiece(tempTiles) && !this.board.touchBorder(tempTiles)) {
-      this.moveTiles('right');
-      this.board.renderPiece();
-      for (const tile of tempTiles) {
-        tile.y--;
-      }
+      this.moveTiles(tempTiles, 'down')
       if (this.fixxing && !this.board.touchBorder(tempTiles)) {
         this.fixxing = false;
         this.fastSpeed = true;
@@ -93,39 +72,41 @@ class Piece {
     }
   }
   moveDown() {
-    let tempTiles = this.tiles.map(tile =>
-      new Tile(tile.x, tile.y, tile.type, tile.center)
-    );
-    for (const tile of tempTiles) {
-      tile.y--;
-    }
-    if (!this.board.touchOtherPiece(tempTiles) && !this.board.touchBorder(tempTiles)) {
-      this.moveTiles('down');
+    let tempTiles = this.dupTiles(this.tiles)
+    this.moveTiles(tempTiles, 'down')
+    if (this.board.isFree(tempTiles)) {
+      this.moveTiles(this.tiles, 'down');
       this.board.renderPiece();
     } else {
       this.fixPiece();
     }
   }
   rotatePiece() {
-    // TODO : implement adust moving of piece
-    // const adjustMove = this.board.rotateTouchBorder();
-    // if (adjustMove === 'left') {
-    //   this.moveRight();
-    // } else if (adjustMove === 'right') {
-    //   this.moveLeft();
-    // } else if (adjustMove === 'up') {
-    //   this.moveUp();
-    // }
-    if (this.tiles[0].type === 0)
-      return;
-    let tempTiles = this.tiles.map(tile =>
-      new Tile(tile.x, tile.y, tile.type, tile.center)
-    );
-    this.rotateTiles(tempTiles)
-    if (!this.board.touchOtherPiece(tempTiles) && !this.board.touchBorder(tempTiles)) {
-      this.rotateTiles(this.tiles)
-      this.board.renderPiece();
+    if (this.tiles[0].type === 0) return;
+
+    let tempTiles = this.dupTiles(this.tiles);
+    this.rotateTiles(tempTiles);
+
+    if (!this.board.isFree(tempTiles)) {
+      const directions = ['left', 'right', 'up'];
+      const successfulMove = this.tryMoveInDirections(tempTiles, directions);
+      if (!successfulMove) return;
     }
+
+    this.rotateTiles(this.tiles);
+    this.board.renderPiece();
+  }
+
+  tryMoveInDirections(tempTiles, directions) {
+    for (const direction of directions) {
+      let doubleTemp = this.dupTiles(tempTiles)
+      this.moveTiles(doubleTemp, direction);
+      if (this.board.isFree(doubleTemp)) {
+        this.moveTiles(this.tiles, direction);
+        return true;
+      }
+    }
+    return false;
   }
   fixPiece() {
     if (this.sprint) {

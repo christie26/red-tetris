@@ -29,6 +29,9 @@ class Board {
     }
   }
   /*check board*/
+  isFree(tiles) {
+    return (!this.touchOtherPiece(tiles) && !this.touchBorder(tiles))
+  }
   touchBorder(tempTiles) {
     for (const tile of tempTiles) {
       if (tile.x < 0 || tile.x >= this.width || tile.y >= this.height || tile.y < 0) {
@@ -76,6 +79,7 @@ class Board {
             this.fixedTiles[x + this.width * (row - 1)] = this.fixedTiles[x + this.width * row];
           }
         }
+        // TODO: make it double array
         for (let x = 0; x < this.width; x++) {
           this.fixedTiles[x + 190] = 0;
         }
