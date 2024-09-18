@@ -13,7 +13,7 @@ class Board {
     this.fallingStatus = 10;
     this.fixedStatus = 20;
     this.fallingPiece = null;
-    this.fixedTiles = new Array(200).fill(0);
+    this.fixedTiles = Array.from({ length: 20 }, () => new Array(10).fill(0));
     this.createRandom = seedrandom(key);
     this.gameover = false;
     this.Player = Player;
@@ -30,7 +30,7 @@ class Board {
   }
   /*check board*/
   isFree(tiles) {
-    return (!this.touchOtherPiece(tiles) && !this.touchBorder(tiles))
+    return (!this.touchBorder(tiles) && !this.touchOtherPiece(tiles))
   }
   touchBorder(tempTiles) {
     for (const tile of tempTiles) {
@@ -42,7 +42,7 @@ class Board {
   }
   touchOtherPiece(tempTiles) {
     for (const tile of tempTiles) {
-      if (this.fixedTiles[tile.x + 10 * tile.y]) {
+      if (this.fixedTiles[tile.y][tile.x]) {
         return true;
       }
     }
@@ -55,15 +55,16 @@ class Board {
   renderFixedPiece() {
     this.socket.emit('fixPiece', { data: this.fallingPiece.tiles });
     for (const tile of this.fallingPiece.tiles) {
-      this.fixedTiles[tile.x + 10 * tile.y] = 1;
+      this.fixedTiles[tile.y][tile.x] = 1;
     }
     this.clearLines();
     this.fallingPiece = null;
     this.newPiece()
+    this.printBoard()
   }
   isLineFull(y) {
     for (let x = 0; x < 10; x++) {
-      if (!this.fixedTiles[x + 10 * y]) {
+      if (!this.fixedTiles[y][x]) {
         return false;
       }
     }
@@ -76,12 +77,11 @@ class Board {
       if (this.isLineFull(y)) {
         for (let row = y; row < this.height; row++) {
           for (let x = 0; x < this.width; x++) {
-            this.fixedTiles[x + this.width * (row - 1)] = this.fixedTiles[x + this.width * row];
+            this.fixedTiles[row - 1][x] = this.fixedTiles[row][x];
           }
         }
-        // TODO: make it double array
         for (let x = 0; x < this.width; x++) {
-          this.fixedTiles[x + 190] = 0;
+          this.fixedTiles[19][x] = 0;
         }
         this.socket.emit('clearLine', { y: y });
         lineNumber++;
@@ -91,6 +91,17 @@ class Board {
       this.Player.Room.sendPenalty(this.Player, lineNumber - 1)
     }
   }
+  printBoard() {
+    for (let row = 19; row >= 0; row--) {
+      let rowString = '';
+      for (let col = 0; col < this.width; col++) {
+        rowString += this.fixedTiles[row][col] === 1 ? 'x' : '.';
+      }
+      console.log(rowString);
+    }
+    console.log('----')
+  }
+
 }
 
 export default Board;
