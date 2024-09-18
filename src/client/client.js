@@ -108,3 +108,13 @@ function playGame() {
   console.log('pause');
   socket.emit('pause', { data: 'play' });
 }
+
+// Parising Url 
+// receive URL
+console
+document.addEventListener('DOMContentLoaded', () => {
+  const urlString = window.location.href;
+  const url = new URL(urlString);
+  console.log("url is -> ", url)
+  // Your parsing logic here
+});
