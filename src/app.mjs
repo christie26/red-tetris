@@ -19,9 +19,10 @@ app.get('/socket.io/socket.io.js', (req, res) => {
 
 app.use('/', express.static(path.join(__dirname, 'client')));
 
+//
 io.on('connection', function (socket) {
-  let player = new Player('player', socket);
-  player.startGame();
+  let player = new Player('player', socket, "temp", true);
+  player.Board.newPiece();
 
   socket.on('keyboard', data => {
     switch (data.direction) {

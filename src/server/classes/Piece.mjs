@@ -16,12 +16,14 @@ class Piece {
       this.addTile(index % 10 + left, 19 - Math.floor(index / 10), i === 0);
     }
     this.board.fallingPiece = this;
-    if (this.checkGameOver())
+    if (this.board.touchOtherPiece(this.tilesArray)) {
+      this.board.gameover = true;
       return;
+    }
     this.board.renderPiece();
     this.intervalId = setInterval(() => this.moveDown(), 500);
   }
-
+  /* manage tiles */
   addTile(x, y) {
     this.tilesArray.push(new Tile(x, y, this.type));
   }
@@ -29,7 +31,6 @@ class Piece {
     //call it when we empty the line
     this.tilesArray = this.tilesArray.filter(t => t !== tile);
   }
-
   moveTiles(direction) {
     this.tilesArray.forEach(tile => {
       if (direction === 'left') {
@@ -42,7 +43,9 @@ class Piece {
     });
   }
   rotateTiles(tilesArray) {
-
+    //oBlock
+    if (tilesArray[0].type == 0)
+      return;
     const center = tilesArray[0];
     for (let index = 1; index < tilesArray.length; index++) {
       let tile = tilesArray[index];
@@ -52,15 +55,7 @@ class Piece {
       tile.y = center.y + center.x - tmp_x;
     }
   }
-
-  checkGameOver() {
-    if (this.board.touchOtherPiece(this.tilesArray)) {
-      this.board.socket.emit('piece', { fallingPiece: this.board.fallingPiece });
-      this.board.socket.emit('gameOver', { gameOver: true });
-      return true;
-    }
-  }
-
+  /* manage a piece */
   moveLeft() {
     let tempTiles = this.tilesArray.map(tile =>
       new Tile(tile.x, tile.y, tile.type, tile.center)
@@ -124,6 +119,8 @@ class Piece {
     // } else if (adjustMove === 'up') {
     //   this.moveUp();
     // }
+    if (this.tilesArray[0].type === 0)
+      return;
     let tempTiles = this.tilesArray.map(tile =>
       new Tile(tile.x, tile.y, tile.type, tile.center)
     );
@@ -133,7 +130,6 @@ class Piece {
       this.board.renderPiece();
     }
   }
-
   fixPiece() {
     if (this.sprint) {
       clearInterval(this.intervalId);
@@ -148,6 +144,7 @@ class Piece {
       }.bind(this), 1000);
     }
   }
+  /* manage a speed */
   fallSprint() {
     this.sprint = true;
     if (this.fixxing) {

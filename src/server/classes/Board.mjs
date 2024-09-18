@@ -1,9 +1,11 @@
 import Piece from './Piece.mjs';
+import seedrandom from 'seedrandom';
 /*
-Board class represent each board.
+Board class represents each board.
+It only last for one game.
 */
 class Board {
-  constructor(socket) {
+  constructor(socket, key, Player) {
     this.socket = socket;
     this.width = 10;
     this.height = 20;
@@ -11,20 +13,21 @@ class Board {
     this.fixedStatus = 20;
     this.fallingPiece = null;
     this.piecesArray = [];
-  }
-  startGame() {
-    //TODO: wait for start
-    this.newPiece();
+    this.createRandom = seedrandom(key);
+    this.gameover = false;
+    this.Player = Player;
   }
   newPiece() {
-    // TODO: change random generate logic
-    let type = 1;
-    // let type = Math.floor(Math.random() * 7);
-    let left = 3 + Math.floor(Math.random() * 4);
-    let direction = Math.floor(Math.random() * 4);
+    let type = Math.floor(this.createRandom() * 7);
+    let left = 3 + Math.floor(this.createRandom() * 4);
+    let direction = Math.floor(this.createRandom() * 4);
     this.fallingPiece = new Piece(this, type, left, direction);
+    if (this.gameover == true) {
+      this.socket.emit('fallingPiece', { data: this.fallingPiece.tilesArray });
+      this.Player.Room.onePlayerGameover();
+    }
   }
-
+  /*check board*/
   touchBorder(tempTiles) {
     for (const tile of tempTiles) {
       if (tile.x < 0 || tile.x >= this.width || tile.y >= this.height || tile.y < 0) {
@@ -45,7 +48,7 @@ class Board {
     }
     return false;
   }
-
+  /*render piece*/
   renderPiece() {
     this.socket.emit('fallingPiece', { data: this.fallingPiece.tilesArray });
   }
@@ -55,13 +58,6 @@ class Board {
     this.piecesArray.push(this.fallingPiece.tilesArray);
     this.fallingPiece = null;
     this.newPiece()
-  }
-
-  pauseGame() {
-    clearInterval(this.intervalId);
-  }
-  restartGame() {
-    this.intervalId = setInterval(() => this.moveDown(), 200);
   }
 }
 

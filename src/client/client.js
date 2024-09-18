@@ -52,17 +52,17 @@ function getTypeString(type) {
     case 0:
       return 'O_BLOCK';
     case 1:
-      return 'T_BLOCK';
+      return 'I_BLOCK';
     case 2:
-      return 'J_BLOCK';
+      return 'T_BLOCK';
     case 3:
       return 'L_BLOCK';
     case 4:
-      return 'S_BLOCK';
+      return 'J_BLOCK';
     case 5:
-      return 'Z_BLOCK';
+      return 'S_BLOCK';
     case 6:
-      return 'I_BLOCK';
+      return 'Z_BLOCK';
   }
 }
 function renderPiece(data) {
