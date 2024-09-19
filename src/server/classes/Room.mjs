@@ -1,4 +1,6 @@
 import Player from './Player.mjs';
+import { v4 as uuidv4 } from 'uuid';
+
 /*
 Room class represents each room.
 It has all players.
@@ -16,7 +18,9 @@ class Room {
   }
 
   addPlayer(playername, socket) {
-    const isLeader = players.length === 0;
+    const isLeader = false 
+    if(!this.players)
+      isLeader = true
     const newPlayer = new Player(playername, socket, this.key, isLeader, this);
     if (this.isPlaying == true) {
       this.waitingPlayers.push(newPlayer);
