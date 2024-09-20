@@ -72,12 +72,12 @@ io.on('connection', function (socket) {
   player.Board.newPiece();
 
   socket.on('keyboard', data => {
-    switch (data.direction) {
+    switch (data.key) {
       case 'left':
-        player.Board.fallingPiece.moveLeft();
+        player.Board.fallingPiece.moveSide('left');
         break;
       case 'right':
-        player.Board.fallingPiece.moveRight();
+        player.Board.fallingPiece.moveSide('right');
         break;
       case 'down':
         player.Board.fallingPiece.fasterSpeed();
