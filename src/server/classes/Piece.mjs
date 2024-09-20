@@ -115,7 +115,7 @@ class Piece {
       clearInterval(this.intervalId);
       setTimeout(function () {
         if (this.fixxing) {
-          // TODO : make sure it's not floating
+          // TODO-Yoonseo : make sure it's not floating
           this.board.renderFixedPiece();
         }
       }.bind(this), 1000);

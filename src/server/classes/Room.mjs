@@ -6,8 +6,8 @@ It has all players.
 It can start, end, restart the game.
 */
 class Room {
-  constructor(roomName) {
-    this.roomName = roomName;
+  constructor(roomname) {
+    this.roomName = roomname;
     this.players = [];
     this.waitingPlayers = [];
     this.isPlaying = false;
@@ -43,10 +43,10 @@ class Room {
     });
   }
   endGame() {
-    // TODO : announce the result with winner info.
+    // TODO-Balkis : announce the result with winner info.
     this.isPlaying = false;
     this.key = uuidv4();
-    // TODO : announce them that they are joined now. it means it can start whenever (leader press the button)
+    // TODO-Balkis : announce them that they are joined now. it means it can start whenever (leader press the button)
     players.push(...this.waitingPlayers);
     this.waitingPlayers.length = 0;
     this.players.forEach(player => {
@@ -63,7 +63,7 @@ class Room {
   }
   sendPenalty(player, lines) {
     console.log(`In ${this.roomName}, ${player} sent ${lines} lines penalty`);
-    // TODO : send penalty to all player except the player.
+    // TODO-Yoonseo : send penalty to all player except the player.
   }
 }
 

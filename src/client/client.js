@@ -119,12 +119,3 @@ function renderFixedPiece(data) {
     );
   });
 }
-
-function pauseGame() {
-  console.log('pause');
-  socket.emit('pause', { data: 'pause' });
-}
-function playGame() {
-  console.log('pause');
-  socket.emit('pause', { data: 'play' });
-}

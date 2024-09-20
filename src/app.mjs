@@ -27,6 +27,7 @@ app.use(express.static(path.join(__dirname, 'client')));
 
 app.get('/*', (req, res) => {
   if (parseURL(req.path) === false) {
+    // TODO-Balkis : handle different error messages.
     console.log("Invalid URL, sending alert.html");
     res.sendFile(path.join(__dirname, 'alert.html'));
   } else {
@@ -35,18 +36,19 @@ app.get('/*', (req, res) => {
 });
 
 io.on('connection', function (socket) {
-
   const queryParams = socket.handshake.query;
-  // console.log('Query parameters:', queryParams.room);
-  // console.log('Query parameters:', queryParams.username);
-  // here to create room and add the player
-  if (queryParams.room == undefined || queryParams.username == undefined) {
-    socket.emit('redirect', '/error');  // Send a redirect message
-    socket.disconnect();  // Optionally disconnect the client
+  if (queryParams.room == undefined || queryParams.playername == undefined) {
+    socket.emit('redirect', '/error');
+    socket.disconnect();
     return;
   }
+// TODO-Balkis : don't start immediately
+// TODO-Balkis : make a start button to leader
+// TODO-Balkis : when game ends ( = only one player survive), it goes back to waiting page
+// TODO-Yoonseo : see other player's board
+// TODO-Yoonseo : implement penalty
 
-  addUserToRoom(queryParams.room, queryParams.username, socket)
+  addUserToRoom(queryParams.room, queryParams.playername, socket)
 
   let player = new Player('player', socket, "temp", true);
   player.Board.newPiece();
@@ -71,14 +73,8 @@ io.on('connection', function (socket) {
     }
   });
 
-  socket.on('pause', (data) => {
-    if (data.data === 'pause') {
-      player.Board.pauseGame();
-    } else {
-      player.Board.restartGame();
-    }
-  });
   socket.on('disconnect', () => {
+    console.log(`${queryParams.playername} is disconnected and left from ${queryParams.room}`)
     console.log('User disconnected');
   });
 });
@@ -88,28 +84,20 @@ server.listen(3000, function () {
 });
 
 function splitPath(path) {
-  // Remove leading and trailing slashes if they exist
   const trimmedPath = path.replace(/^\/|\/$/g, '');
 
-  // Split the string by '/' and return the array
   return trimmedPath ? trimmedPath.split('/') : [];
 }
 
-
-function parseURL(Url)
-{
+function parseURL(Url) {
   const tab = splitPath(Url)
-  if (tab.length == 0)
-    return true;
-  if (tab.length != 2 || !checkUserUnique(tab[1]))
+  if (!tab || tab.length != 2 || !checkUserUnique(tab[1]))
     return (false)
 }
 
-// Parsing Url
-
-function checkUserUnique(username){
+function checkUserUnique(playername){
   const userExists = rooms.some(room =>
-    room.players.some(player => player.playerName === username))
+    room.players.some(player => player.playername=== playername))
 
   if (userExists) {
       return false;
@@ -118,24 +106,13 @@ function checkUserUnique(username){
   }
 }
 
-function addUserToRoom(roomname, playername, socket){
-  if (rooms) {
-    const room = rooms.find(room => room.name == roomname)
-    if (room) {
-      room.addPlayer(playername, socket)
-      // add user to rooms
-    } else {
-      // create room and user as leader
-      const newRoom = new Room(roomname)
-      // TODOEY : socket to add
-      newRoom.addPlayer(playername, socket)
-      rooms.push(newRoom)
-
-    }
-  } else {
-    // rooms is empty
-    const newRoom = new Room(roomname)
-    newRoom.addPlayer(playername, socket)
-    rooms.push(newRoom)
+function addUserToRoom(roomname, playername, socket) {
+  let room = rooms.find(room => room.roomname == roomname)
+  if (!room) {
+    room = new Room(roomname)
+    console.log(`${room.roomname} is created`)
+    rooms.push(room)
   }
+  room.addPlayer(playername, socket)
+  console.log(`${playername} is join to ${room.roomname}`)
 }
