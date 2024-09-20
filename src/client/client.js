@@ -20,29 +20,30 @@ for (let i = 0; i < 200; i++) {
   board.appendChild(child);
 }
 document.addEventListener('keydown', event => {
-  let key = null;
+  let direction = null;
   switch (event.key) {
     case 'ArrowUp':
-      key = 'rotate';
+      direction = 'rotate';
       break;
     case 'ArrowDown':
-      key = 'down';
+      direction = 'down';
       break;
     case 'ArrowLeft':
-      key = 'left';
+      direction = 'left';
       break;
     case 'ArrowRight':
-      key = 'right';
+      direction = 'right';
       break;
     case ' ':
-      key = 'sprint';
+      direction = 'sprint';
       break;
     case 'Enter':
-      key = 'stop';
+      direction = 'stop';
       break;
   }
-  if (key) {
-    socket.emit('keyboard', { type: 'keydown', key: key });
+  if (direction) {
+    console.log('Sending move event:', direction);
+    socket.emit('keyboard', { type: 'keydown', direction: direction });
   }
 });
 document.addEventListener('keyup', event => {
@@ -57,10 +58,8 @@ socket.on('fallingPiece', data => {
 socket.on('fixPiece', data => {
   renderFixedPiece(data.data);
 });
-socket.on('clearLine', data => {
-  clearLine(data.y);
-});
-socket.on('gameover', data => {
+
+socket.on('gameOver', data => {
   alert('Game Over');
 });
 function getTypeString(type) {
@@ -103,15 +102,17 @@ function renderPiece(data) {
   });
 }
 function renderFixedPiece(data) {
-  const tiles = data;
-  const stringType = getTypeString(tiles[0].type);
+  const tilesArray = data;
+  const stringType = getTypeString(tilesArray[0].type);
 
+  console.log(tilesArray)
   board.querySelectorAll('li').forEach(element => {
     if (element.classList.contains('falling')) {
       element.classList.remove(stringType, 'falling');
     }
   });
-  tiles.forEach(element => {
+  tilesArray.forEach(element => {
+    console.log(element);
     board.children[element.x + (19 - element.y) * 10].classList.add(
       stringType,
       'fixed',
@@ -119,20 +120,11 @@ function renderFixedPiece(data) {
   });
 }
 
-function clearLine(y) {
-  for (let row = y; row < 19; row++) {
-    for (let x = 0; x < 10; x++) {
-      const fromIndex = x + (18 - row) * 10;
-      const toIndex = x + (19 - row) * 10;
-
-      const fromElement = board.children[fromIndex];
-      const toElement = board.children[toIndex];
-
-      toElement.className = fromElement.className;
-    }
-  }
-
-  for (let x = 0; x < this.width; x++) {
-    board.children[x].className = '';
-  }
+function pauseGame() {
+  console.log('pause');
+  socket.emit('pause', { data: 'pause' });
+}
+function playGame() {
+  console.log('pause');
+  socket.emit('pause', { data: 'play' });
 }

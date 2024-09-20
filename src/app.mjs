@@ -27,7 +27,19 @@ app.get('/socket.io/socket.io.js', (req, res) => {
 
 // This one is used to serve all static file
 //app.use('/', express.static(path.join(__dirname, 'client'))); 
+// Custom middleware to log the request and static file path
+app.use((req, res, next) => {
+  console.log(`FIRST Serving static file request for: ${req.url}`);
+  console.log("dirname is -> ", __dirname)
+  next(); // Proceed to the next middleware, which is express.static
+});
 app.use(express.static(path.join(__dirname, 'client')));
+
+app.use((req, res, next) => {
+  console.log(`SECOND Serving static file request for: ${req.url}`);
+  console.log("dirname is -> ", __dirname)
+  next(); // Proceed to the next middleware, which is express.static
+});
 
 
 app.use((req, res, next) => {
@@ -37,6 +49,7 @@ app.use((req, res, next) => {
   } else {
     console.log(`here to parse the url- ${req.path} -`)
     if (parseURL(req.path) == false) {
+      // TODOEY send diff page for diff error 
       console.log("we send alert.html")
       const filePath = path.join(__dirname, 'alert.html');
       console.log("File path is for alert ", filePath)
@@ -46,13 +59,19 @@ app.use((req, res, next) => {
   next()
 })
 
-app.use('/client.js', (req, res) => {
-  res.sendFile(__dirname + '/client/client.js');
-});
+// app.use('/client.js', (req, res) => {
+//   console.log("unique path")
+//   res.sendFile(__dirname + '/client/client.js');
+// });
 
 app.use('/*', (req, res) => {
-  res.sendFile(__dirname + '/client/index.html');
+  console.log("All Path")
+  express.static(path.join(__dirname, 'client'))
+  //res.sendFile(__dirname + '/client/index.html');
+  //res.sendFile(__dirname + '/client/stle.css');
+  //res.sendFile(__dirname + '/client/client.js');
 });
+
 
 io.on('connection', function (socket) {
 
@@ -121,11 +140,13 @@ function parseURL(Url)
   const tab = splitPath(Url)
   if (tab) {
     console.log("tab is ", tab)
-    if (checkUser(tab[1]) == false || tab.lenght != 2) {
+    if (tab.length != 2 || !checkUserUnique(tab[1]) ) {
+      console.log("tab lengnt is ", tab.length)
       return (false)
     }
     return true
   } else {
+    // TODOEY change to false
     console.log("tab dosn't exit")
     return true
   }
@@ -133,14 +154,14 @@ function parseURL(Url)
 
 // Parsing Url
 
-function checkUser(username){
+function checkUserUnique(username){
   const userExists = rooms.some(room => 
     room.players.some(player => player.playerName === username))
   
   if (userExists) {
-      return true;
-  } else {
       return false;
+  } else {
+      return true;
   }
 }
 
