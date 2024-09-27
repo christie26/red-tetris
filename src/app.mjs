@@ -26,13 +26,19 @@ app.get('/socket.io/socket.io.js', (req, res) => {
 app.use(express.static(path.join(__dirname, 'client')));
 
 app.get('/*', (req, res) => {
-  if (parseURL(req.path) === false) {
-    // TODO-Balkis : handle different error messages.
-    console.log("Invalid URL, sending alert.html");
-    res.sendFile(path.join(__dirname, 'alert.html'));
-  } else {
-    res.sendFile(path.join(__dirname, 'client', 'index.html'));
+  let res = parseURL(req.path)
+  switch (res) {
+    case 1 :
+      res.sendFile(path.join(__dirname, 'alert_user.html'));
+      console.log("user already exist, sending alert_user.html");
+    case 2:
+      res.sendFile(path.join(__dirname, 'alert.html'));
+      console.log("Invalid URL, sending alert.html");
+    default:
+      res.sendFile(path.join(__dirname, 'client', 'index.html'));
+
   }
+  
 });
 
 io.on('connection', function (socket) {
@@ -91,8 +97,13 @@ function splitPath(path) {
 
 function parseURL(Url) {
   const tab = splitPath(Url)
-  if (!tab || tab.length != 2 || !checkUserUnique(tab[1]))
-    return (false)
+  if (!tab || tab.length != 2 )
+    return (1)
+  else if (!checkUserUnique(tab[1])){
+    return (2)
+  } else {
+    return (0)
+  }
 }
 
 function checkUserUnique(playername){
