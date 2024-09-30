@@ -58,7 +58,10 @@ io.on('connection', function (socket) {
   }
 // TODO-Balkis : don't start immediately ✅
 // TODO-Balkis : make a start button to leader ✅
-// TODO-Balkis : when game ends ( = only one player survive), it goes back to waiting page
+// TODO-Balkis : when game ends ( = only one player survive), it goes back to waiting page ✅
+// Balkis review : so when people come i let them here but they don't see game's players
+//                  and I need a function to clear board at the endGame when the Game is finished
+//                  I manage endGame only when people leave and not the game is end idk when its end in the game logic
 // TODO-Yoonseo : see other player's board
 // TODO-Yoonseo : implement penalty
   console.log("here in socket on, go to addUserToRoom")
@@ -67,11 +70,9 @@ io.on('connection', function (socket) {
   let leader = addUserToRoom(queryParams.room, queryParams.playername, socket)
 
   if (leader == true) {
-    console.log("he is leader")
     socket.emit("isLeader")
   }
   else {
-    console.log("youre not a leader")
     let room = rooms.find(room => room.roomName == queryParams.room)
     if (room.isPlaying == false)
     {
@@ -89,21 +90,31 @@ io.on('connection', function (socket) {
     let room = rooms.find(room => room.roomName === queryParams.room)
     console.log("room is ", room.roomName)
     console.log("player to disconnect ", queryParams.playername)
-    room.removePlayer(queryParams.playername) 
+    let newLeader = room.removePlayer(queryParams.playername)
+    console.log("new Leader or not in disconnect is ", newLeader)
+    if (newLeader != "false"){
+      // The player who was removed was the Leader show the button to the new Leader
+      let player = room.players.find(player => player.playername === newLeader)
+      console.log("player to be new leader is ", player.playername)
+      io.to(player.socket.id).emit("newLeader")
+    }
     console.log('User disconnected');
   });
 
   socket.on('startGame', () => {
     console.log("begin the game")
-    // send to everyone playe game and do a while loop to do player.Board.newPiece()
     let room = rooms.find(room => room.roomName === queryParams.room)
-    room.startGame()
+    if (room.players.length == 1) {
+      socket.emit("noPlayer")
+    } else if (room.isPlaying == false) { // Game is not started
+      room.startGame() 
+      // It's for protect if the leader click even if the Game is alredy started
+    }  
     
   })
   socket.on('keyboard', data => {
     let room = rooms.find(room => room.roomName === queryParams.room)
     let player = room.players.find(player => player.playername === queryParams.playername)
-    console.log("the player ", player.playername , " moved keyboard ", data.key)
     switch (data.key) {
       case 'left':
         player.Board.fallingPiece.moveSide('left');

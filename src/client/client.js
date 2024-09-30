@@ -34,6 +34,24 @@ socket.on('waitRoom', () => {
   alert("Game is already started, wait end Game to play in this Room")
 })
 
+socket.on('newLeader', () => {
+  console.log("You're the newLeader")
+  alert("You're the new Leader of this room")
+  createButton()
+})
+
+socket.on('noPlayer', () => {
+  alert("You cannot play alone wait players join the room")
+})
+
+socket.on('endGame', (data) => {
+  const winner = data.winner 
+  alert("End Game, The winner is ", winner)
+})
+socket.on('endGamePlayAgain', () => {
+  alert("Game Finished, We gonna wait the leader start game to launch it !!")
+})
+
 for (let i = 0; i < 200; i++) {
   let child = document.createElement('li');
   board.appendChild(child);

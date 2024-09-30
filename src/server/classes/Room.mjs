@@ -37,8 +37,9 @@ class Room {
   }
 
   removePlayer(playername) {
-    // TODO : if everyone leave, what do we do?
+    // TODO : if everyone leave, what do we do? -> destroy the room i think
     // called when a user disconect
+    let newLeader = "false" 
     if (!this.players) {
       console.log("players doesn't exist in disconnect")
     }
@@ -48,35 +49,57 @@ class Room {
     }
     console.log("Player to remove is ", targetPlayer.playername)
     if (targetPlayer.isLeader == true && this.players.length > 1) {
-      players[1].isLeader = true;
+      this.players[1].isLeader = true;
+      newLeader = this.players[1].playername
     }
     this.players = this.players.filter(p => p !== targetPlayer);
     this.waitingPlayers = this.waitingPlayers.filter(p => p !== targetPlayer);
+    this.diePlayer++;
+    console.log("In this room there is ", this.players.length, " players")
+    if (this.players.length == 1)
+    {
+      this.endGame(this.players[0].playername)
+    }
+    return (newLeader)
   }
 
   startGame() {
     this.isPlaying = true;
     this.players.forEach(player => {
-      console.log("player is ", player.playername, "in room ", this.roomName)
       player.Board.newPiece();
     });
   }
-  endGame() {
-    // TODO-Balkis : announce the result with winner info.
+  endGame(winner) {
+    // TODO-Balkis : announce the result with winner info. ✅
     this.isPlaying = false;
     this.key = uuidv4();
     // TODO-Balkis : announce them that they are joined now. it means it can start whenever (leader press the button) ✅
-    players.push(...this.waitingPlayers);
+    this.sendWinnerToAllPlayers(winner)
+    this.players.push(...this.waitingPlayers);
     this.waitingPlayers.length = 0;
     this.players.forEach(player => {
       player.updateKey(this.key);
     });
+    this.sendToWaitingPlayers()
   }
+
+  sendWinnerToAllPlayers(winner){
+    this.players.forEach(player => {
+      console.log("we send endGame to player ", player.playername)
+      player.socket.emit("endGame", {winner: winner})
+    });
+  }
+  sendToWaitingPlayers(){
+    this.players.forEach(player => {
+      player.socket.emit("endGamePlayAgain")
+    });
+  } 
+
   onePlayerGameover() {
     console.log('game over!!!')
     this.diePlayer++;
     if (this.diePlayer == this.players.length - 1) {
-      this.winner = players.some(player => !player.Board.gameover);
+      this.winner = this.players.some(player => !player.Board.gameover);
       this.endGame();
     }
   }
