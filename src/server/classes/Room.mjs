@@ -17,18 +17,36 @@ class Room {
   }
 
   addPlayer(playername, socket) {
-    const isLeader = false 
-    if(!this.players)
+    let isLeader = false 
+    if(this.players.length == 0){
+      console.log("no Player in this game")
       isLeader = true
+    }
     const newPlayer = new Player(playername, socket, this.key, isLeader, this);
     if (this.isPlaying == true) {
       this.waitingPlayers.push(newPlayer);
     } else {
       this.players.push(newPlayer);
     }
+    if (this.players)
+    {
+      console.log("This Room name is ", this.roomName, " my playername is ", newPlayer.playername, " isLeader is ", newPlayer.isLeader)
+      console.log("this.players count ", this.players.length)
+    }
+    return (isLeader)
   }
-  removePlayer(targetPlayer) {
+  
+  removePlayer(playername) {
     // TODO : if everyone leave, what do we do?
+    // called when a user disconect
+    if (!this.players) {
+      console.log("players doesn't exist in disconnect")
+    }
+    let targetPlayer = this.players.find(player => player.playername === playername)
+    if (!targetPlayer){
+      return;
+    }
+    console.log("Player to remove is ", targetPlayer.playername)
     if (targetPlayer.isLeader == true && this.players.length > 1) {
       players[1].isLeader = true;
     }

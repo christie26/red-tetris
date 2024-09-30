@@ -1,19 +1,38 @@
 const pathParts = window.location.pathname.split('/');
-const username = pathParts[pathParts.length - 1]; // username is the last part of the path
-const roomname = pathParts[pathParts.length - 2]; // room name is the second last of the path
+const roomname = pathParts[1]; // room name is the second last of the path
+const playername = pathParts[2]; // username is the last part of the path
 
 const socket = io({
 query: {
   room: roomname,
-  username: username
+  playername: playername
 }
 });
 
 // To verify that the query parameters are sent to delete later
 socket.on('connect', () => {
   console.log('Connected to the server');
-  console.log('Room:', roomname, 'Username:', username);
+  console.log('Room:', roomname, 'Playername:', playername);
+  console.log(pathParts)
 });
+
+socket.on('isLeader', () => {
+  console.log("in leader emit")
+  alert("You're the leader of this room")
+  //notification("You're the leader of this room") to test at school
+  createButton()
+});
+
+socket.on('joinRoom', () => {
+  console.log("join Room")
+  alert("You join the room, we are waiting the leader to begin the game")
+  //notification("You join the room, we are waiting the leader to begin the game") to test at school
+})
+
+socket.on('waitRoom', () => {
+  console.log("wait room")
+  alert("Game is already started, wait end Game to play in this Room")
+})
 
 for (let i = 0; i < 200; i++) {
   let child = document.createElement('li');
@@ -118,4 +137,66 @@ function renderFixedPiece(data) {
       'fixed',
     );
   });
+
 }
+
+function notification(message) {
+  // Check if the browser supports notifications
+  console.log("in notification function")
+    if ("Notification" in window) {
+      // Check if the user has already granted permission
+      console.log("Notification is allowed")
+      if (Notification.permission === "granted") {
+        console.log("notification has been created")
+        // If permission is granted, create a notification
+        showNotification(message);
+      } 
+      // If permission hasn't been granted yet, request it
+      else if (Notification.permission !== "denied") {
+        Notification.requestPermission().then(permission => {
+          // If the user grants permission, create a notification
+          console.log("here in denied")
+          if (permission === "granted") {
+            console.log("notification has been created")
+            showNotification(message);
+          }
+        });
+      }
+      else {
+       console.log("in nothing is ", Notification.permission)   
+      }
+    } else {
+      console.log("This browser does not support desktop notifications.");
+    }
+
+}
+
+function showNotification(message) {
+  console.log("in ShowNotification function")
+  const notification = new Notification("Hello!", {
+      body: message,
+  });
+
+  // Optional: Handle click event
+  notification.onclick = function () {
+      window.focus(); // Bring the window to focus when notification is clicked
+  };
+}
+
+function createButton(){
+  if (!document.getElementById('leaderButton')) {  // Prevent duplicate buttons
+    let leaderButton = document.createElement('button');
+    leaderButton.id = 'leaderButton';
+    leaderButton.textContent = "Start Game";
+    leaderButton.classList.add('btn', 'btn-primary');
+
+    // Add the click event for the leader to start the game
+    leaderButton.addEventListener('click', () => {
+      console.log('Leader button clicked');
+      socket.emit('startGame');
+    });
+
+    document.querySelector('.container').appendChild(leaderButton);
+  }
+}
+

@@ -26,24 +26,32 @@ app.get('/socket.io/socket.io.js', (req, res) => {
 app.use(express.static(path.join(__dirname, 'client')));
 
 app.get('/*', (req, res) => {
-  let res = parseURL(req.path)
-  switch (res) {
+  let result = parseURL(req.path)
+  switch (result) {
     case 1 :
-      res.sendFile(path.join(__dirname, 'alert_user.html'));
-      console.log("user already exist, sending alert_user.html");
-    case 2:
-      res.sendFile(path.join(__dirname, 'alert.html'));
       console.log("Invalid URL, sending alert.html");
+      res.sendFile(path.join(__dirname, 'alert.html'));
+      break;
+    case 2:
+      console.log("user already exist, sending alert_user.html");
+      res.sendFile(path.join(__dirname, 'alert_user.html'));
+      break;
+    case 3:
+      console.log("Error path")
+      res.status(404).sendFile(path.join(__dirname, 'error.html'));
+      break;
     default:
+      console.log("ici dans default ")
       res.sendFile(path.join(__dirname, 'client', 'index.html'));
-
-  }
-  
+      break;
+    }
 });
 
 io.on('connection', function (socket) {
   const queryParams = socket.handshake.query;
-  if (queryParams.room == undefined || queryParams.playername == undefined) {
+  console.log("room is ", queryParams.room)
+  console.log("playername is", queryParams.playername)
+  if (queryParams.room == "undefined" || queryParams.playername == "undefined") {
     socket.emit('redirect', '/error');
     socket.disconnect();
     return;
@@ -53,37 +61,69 @@ io.on('connection', function (socket) {
 // TODO-Balkis : when game ends ( = only one player survive), it goes back to waiting page
 // TODO-Yoonseo : see other player's board
 // TODO-Yoonseo : implement penalty
+  console.log("here in socket on, go to addUserToRoom")
+  console.log("room is ", queryParams.room)
+  console.log("playername is", queryParams.playername)
+  let leader = addUserToRoom(queryParams.room, queryParams.playername, socket)
 
-  addUserToRoom(queryParams.room, queryParams.playername, socket)
+  if (leader == true) {
+    console.log("he is leader")
+    socket.emit("isLeader")
+  }
+  else {
+    console.log("youre not a leader")
+    let room = rooms.find(room => room.roomName == queryParams.room)
+    if (room.isPlaying == false)
+    {
+      socket.emit("joinRoom")
 
-  let player = new Player('player', socket, "temp", true);
-  player.Board.newPiece();
-
-  socket.on('keyboard', data => {
-    switch (data.key) {
-      case 'left':
-        player.Board.fallingPiece.moveSide('left');
-        break;
-      case 'right':
-        player.Board.fallingPiece.moveSide('right');
-        break;
-      case 'down':
-        player.Board.fallingPiece.fasterSpeed();
-        break;
-      case 'rotate':
-        player.Board.fallingPiece.rotatePiece();
-        break;
-      case 'sprint':
-        player.Board.fallingPiece.fallSprint();
-        break;
+    } else {
+      socket.emit("waitRoom")
     }
-  });
+  }
+
+ 
 
   socket.on('disconnect', () => {
     console.log(`${queryParams.playername} is disconnected and left from ${queryParams.room}`)
+    let room = rooms.find(room => room.roomName === queryParams.room)
+    console.log("room is ", room.roomName)
+    console.log("player to disconnect ", queryParams.playername)
+    room.removePlayer(queryParams.playername) 
     console.log('User disconnected');
   });
+
+  socket.on('startGame', () => {
+    console.log("begin the game")
+    // send to everyone playe game and do a while loop to do player.Board.newPiece()
+    let room = rooms.find(room => room.roomName === queryParams.room)
+    let player = room.players.find(player => player.playername === queryParams.playername )
+    console.log("player is ", player.playername, "in room ", room.roomName)
+
+    /*player.Board.newPiece();
+
+    socket.on('keyboard', data => {
+      switch (data.key) {
+        case 'left':
+          player.Board.fallingPiece.moveSide('left');
+          break;
+        case 'right':
+          player.Board.fallingPiece.moveSide('right');
+          break;
+        case 'down':
+          player.Board.fallingPiece.fasterSpeed();
+          break;
+        case 'rotate':
+          player.Board.fallingPiece.rotatePiece();
+          break;
+        case 'sprint':
+          player.Board.fallingPiece.fallSprint();
+          break;
+      }
+    });*/
+  })
 });
+
 
 server.listen(3000, function () {
   console.log('Socket IO server listening on port 3000');
@@ -96,6 +136,8 @@ function splitPath(path) {
 }
 
 function parseURL(Url) {
+  if (Url == "/error") 
+    return (3)
   const tab = splitPath(Url)
   if (!tab || tab.length != 2 )
     return (1)
@@ -111,19 +153,26 @@ function checkUserUnique(playername){
     room.players.some(player => player.playername=== playername))
 
   if (userExists) {
+    console.log("user already exist")
       return false;
   } else {
+    console.log("user not exist")
       return true;
   }
 }
 
 function addUserToRoom(roomname, playername, socket) {
-  let room = rooms.find(room => room.roomname == roomname)
+  console.log("roomname is ", roomname)
+  console.log("playername is ", playername)
+  let leader = false
+  let room = rooms.find(room => room.roomName == roomname)
   if (!room) {
+    console.log("room doesnt exist")
     room = new Room(roomname)
-    console.log(`${room.roomname} is created`)
+    console.log(`${roomname} is created`)
     rooms.push(room)
   }
-  room.addPlayer(playername, socket)
-  console.log(`${playername} is join to ${room.roomname}`)
+  leader = room.addPlayer(playername, socket)
+  console.log(`${playername} is join to ${roomname}`)
+  return (leader)
 }
