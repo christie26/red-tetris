@@ -35,7 +35,7 @@ class Room {
     }
     return (isLeader)
   }
-  
+
   removePlayer(playername) {
     // TODO : if everyone leave, what do we do?
     // called when a user disconect
@@ -57,14 +57,15 @@ class Room {
   startGame() {
     this.isPlaying = true;
     this.players.forEach(player => {
-      player.board.newPiece();
+      console.log("player is ", player.playername, "in room ", this.roomName)
+      player.Board.newPiece();
     });
   }
   endGame() {
     // TODO-Balkis : announce the result with winner info.
     this.isPlaying = false;
     this.key = uuidv4();
-    // TODO-Balkis : announce them that they are joined now. it means it can start whenever (leader press the button)
+    // TODO-Balkis : announce them that they are joined now. it means it can start whenever (leader press the button) ✅
     players.push(...this.waitingPlayers);
     this.waitingPlayers.length = 0;
     this.players.forEach(player => {

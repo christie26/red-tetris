@@ -62,7 +62,7 @@ document.addEventListener('keydown', event => {
   }
   if (direction) {
     console.log('Sending move event:', direction);
-    socket.emit('keyboard', { type: 'keydown', direction: direction });
+    socket.emit('keyboard', { type: 'keydown', key: direction });
   }
 });
 document.addEventListener('keyup', event => {

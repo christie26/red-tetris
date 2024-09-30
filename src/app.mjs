@@ -56,8 +56,8 @@ io.on('connection', function (socket) {
     socket.disconnect();
     return;
   }
-// TODO-Balkis : don't start immediately
-// TODO-Balkis : make a start button to leader
+// TODO-Balkis : don't start immediately ✅
+// TODO-Balkis : make a start button to leader ✅
 // TODO-Balkis : when game ends ( = only one player survive), it goes back to waiting page
 // TODO-Yoonseo : see other player's board
 // TODO-Yoonseo : implement penalty
@@ -97,31 +97,31 @@ io.on('connection', function (socket) {
     console.log("begin the game")
     // send to everyone playe game and do a while loop to do player.Board.newPiece()
     let room = rooms.find(room => room.roomName === queryParams.room)
-    let player = room.players.find(player => player.playername === queryParams.playername )
-    console.log("player is ", player.playername, "in room ", room.roomName)
-
-    /*player.Board.newPiece();
-
-    socket.on('keyboard', data => {
-      switch (data.key) {
-        case 'left':
-          player.Board.fallingPiece.moveSide('left');
-          break;
-        case 'right':
-          player.Board.fallingPiece.moveSide('right');
-          break;
-        case 'down':
-          player.Board.fallingPiece.fasterSpeed();
-          break;
-        case 'rotate':
-          player.Board.fallingPiece.rotatePiece();
-          break;
-        case 'sprint':
-          player.Board.fallingPiece.fallSprint();
-          break;
-      }
-    });*/
+    room.startGame()
+    
   })
+  socket.on('keyboard', data => {
+    let room = rooms.find(room => room.roomName === queryParams.room)
+    let player = room.players.find(player => player.playername === queryParams.playername)
+    console.log("the player ", player.playername , " moved keyboard ", data.key)
+    switch (data.key) {
+      case 'left':
+        player.Board.fallingPiece.moveSide('left');
+        break;
+      case 'right':
+        player.Board.fallingPiece.moveSide('right');
+        break;
+      case 'down':
+        player.Board.fallingPiece.fasterSpeed();
+        break;
+      case 'rotate':
+        player.Board.fallingPiece.rotatePiece();
+        break;
+      case 'sprint':
+        player.Board.fallingPiece.fallSprint();
+        break;
+    }
+  });
 });
 
 
