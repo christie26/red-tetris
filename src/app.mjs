@@ -90,11 +90,8 @@ io.on('connection', function (socket) {
   socket.on('startGame', () => {
     console.log("begin the game")
     let room = rooms.find(room => room.roomName === queryParams.room)
-    if (room.players.length == 1) {
-      socket.emit("noPlayer")
-    } else if (room.isPlaying == false) { // Game is not started
+    if (room.isPlaying == false) {
       room.startGame()
-      // It's for protect if the leader click even if the Game is alredy started
     }
 
   })

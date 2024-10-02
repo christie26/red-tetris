@@ -40,12 +40,8 @@ socket.on('newLeader', () => {
   createButton()
 })
 
-socket.on('noPlayer', () => {
-  alert("You cannot play alone wait players join the room")
-})
-
 socket.on('endGame', (data) => {
-  const winner = data.winner 
+  const winner = data.winner
   alert("End Game, The winner is ", winner)
 })
 socket.on('endGamePlayAgain', () => {
@@ -168,7 +164,7 @@ function notification(message) {
         console.log("notification has been created")
         // If permission is granted, create a notification
         showNotification(message);
-      } 
+      }
       // If permission hasn't been granted yet, request it
       else if (Notification.permission !== "denied") {
         Notification.requestPermission().then(permission => {
@@ -181,7 +177,7 @@ function notification(message) {
         });
       }
       else {
-       console.log("in nothing is ", Notification.permission)   
+       console.log("in nothing is ", Notification.permission)
       }
     } else {
       console.log("This browser does not support desktop notifications.");
