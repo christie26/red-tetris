@@ -56,9 +56,6 @@ io.on('connection', function (socket) {
     socket.disconnect();
     return;
   }
-// TODO-Balkis : don't start immediately ✅
-// TODO-Balkis : make a start button to leader ✅
-// TODO-Balkis : when game ends ( = only one player survive), it goes back to waiting page ✅
 // Balkis review : so when people come i let them here but they don't see game's players
 //                  and I need a function to clear board at the endGame when the Game is finished
 //                  I manage endGame only when people leave and not the game is end idk when its end in the game logic
@@ -83,7 +80,7 @@ io.on('connection', function (socket) {
     }
   }
 
- 
+
 
   socket.on('disconnect', () => {
     console.log(`${queryParams.playername} is disconnected and left from ${queryParams.room}`)
@@ -107,10 +104,10 @@ io.on('connection', function (socket) {
     if (room.players.length == 1) {
       socket.emit("noPlayer")
     } else if (room.isPlaying == false) { // Game is not started
-      room.startGame() 
+      room.startGame()
       // It's for protect if the leader click even if the Game is alredy started
-    }  
-    
+    }
+
   })
   socket.on('keyboard', data => {
     let room = rooms.find(room => room.roomName === queryParams.room)
@@ -147,7 +144,7 @@ function splitPath(path) {
 }
 
 function parseURL(Url) {
-  if (Url == "/error") 
+  if (Url == "/error")
     return (3)
   const tab = splitPath(Url)
   if (!tab || tab.length != 2 )

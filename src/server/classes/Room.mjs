@@ -17,7 +17,7 @@ class Room {
   }
 
   addPlayer(playername, socket) {
-    let isLeader = false 
+    let isLeader = false
     if(this.players.length == 0){
       console.log("no Player in this game")
       isLeader = true
@@ -39,7 +39,7 @@ class Room {
   removePlayer(playername) {
     // TODO : if everyone leave, what do we do? -> destroy the room i think
     // called when a user disconect
-    let newLeader = "false" 
+    let newLeader = "false"
     if (!this.players) {
       console.log("players doesn't exist in disconnect")
     }
@@ -70,10 +70,8 @@ class Room {
     });
   }
   endGame(winner) {
-    // TODO-Balkis : announce the result with winner info. ✅
     this.isPlaying = false;
     this.key = uuidv4();
-    // TODO-Balkis : announce them that they are joined now. it means it can start whenever (leader press the button) ✅
     this.sendWinnerToAllPlayers(winner)
     this.players.push(...this.waitingPlayers);
     this.waitingPlayers.length = 0;
@@ -93,7 +91,7 @@ class Room {
     this.players.forEach(player => {
       player.socket.emit("endGamePlayAgain")
     });
-  } 
+  }
 
   onePlayerGameover() {
     console.log('game over!!!')
