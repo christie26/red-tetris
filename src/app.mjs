@@ -49,7 +49,6 @@ app.get('/*', (req, res) => {
 
 io.on('connection', function (socket) {
   const queryParams = socket.handshake.query;
-  // console.log(`room: ${queryParams.room}, player: ${queryParams.player}`)
   if (queryParams.room == "undefined" || queryParams.playername == "undefined") {
     socket.emit('redirect', '/error');
     socket.disconnect();
@@ -60,43 +59,30 @@ io.on('connection', function (socket) {
 //                  I manage endGame only when people leave and not the game is end idk when its end in the game logic
 // TODO-Yoonseo : see other player's board
 // TODO-Yoonseo : implement penalty
-  let leader = addUserToRoom(queryParams.room, queryParams.playername, socket)
-
-  if (leader == true)
-    socket.emit("isLeader")
-  else {
-    const room = rooms.find(room => room.roomName == queryParams.room)
-    if (room.isPlaying == false)
-      socket.emit("joinRoom")
-    else
-      socket.emit("waitRoom")
-  }
+  addUserToRoom(queryParams.room, queryParams.playername, socket)
 
   socket.on('disconnect', () => {
-    console.log(`${queryParams.playername} is disconnected and left from ${queryParams.room}`)
-    let room = rooms.find(room => room.roomName === queryParams.room)
-    console.log("room is ", room.roomName)
-    console.log("player to disconnect ", queryParams.playername)
-    let newLeader = room.removePlayer(queryParams.playername)
-    console.log("new Leader or not in disconnect is ", newLeader)
-    if (newLeader != "false"){
-      // The player who was removed was the Leader show the button to the new Leader
-      let player = room.players.find(player => player.playername === newLeader)
-      console.log("player to be new leader is ", player.playername)
-      io.to(player.socket.id).emit("newLeader")
-    }
     console.log('User disconnected');
+    const room = rooms.find(room => room.roomname === queryParams.room)
+    const newLeader = room.removePlayer(queryParams.playername)
+    if (newLeader)
+      io.to(newLeader.socket.id).emit("newLeader")
+    if (room.players.length == 0 && room.waitingPlayers.length == 0) {
+      console.log(`Destroy ${room.roomname}`)
+      rooms = rooms.filter(p => p !== room);
+    }
   });
   socket.on('startGame', () => {
+    // BUG: this is called every time new piece created.
     console.log("begin the game")
-    let room = rooms.find(room => room.roomName === queryParams.room)
+    let room = rooms.find(room => room.roomname === queryParams.room)
     if (room.isPlaying == false) {
       room.startGame()
     }
 
   })
   socket.on('keyboard', data => {
-    let room = rooms.find(room => room.roomName === queryParams.room)
+    let room = rooms.find(room => room.roomname === queryParams.room)
     let player = room.players.find(player => player.playername === queryParams.playername)
     switch (data.key) {
       case 'left':
@@ -143,27 +129,34 @@ function parseURL(Url) {
 }
 
 function checkUserUnique(playername){
+  //TODO-BALKIS: we should check in the room. not any room.
   const userExists = rooms.some(room =>
     room.players.some(player => player.playername=== playername))
 
   if (userExists) {
-    console.log("user already exist")
+    console.log(`${playername} already exist :(`)
       return false;
   } else {
-    console.log("user not exist")
+    console.log(`${playername} is unique. :)`)
       return true;
   }
 }
 
 function addUserToRoom(roomname, playername, socket) {
-  let leader = false
-  let room = rooms.find(room => room.roomName == roomname)
+  let room = rooms.find(room => room.roomname == roomname)
   if (!room) {
     room = new Room(roomname)
-    console.log(`${roomname} is created`)
     rooms.push(room)
   }
-  leader = room.addPlayer(playername, socket)
-  console.log(`${playername} is join to ${roomname}`)
-  return (leader)
+  const isLeader = room.addPlayer(playername, socket)
+
+  if (isLeader == true)
+    socket.emit("isLeader")
+  else {
+    if (room.isPlaying == false)
+      socket.emit("joinRoom")
+    else
+      socket.emit("waitRoom")
+  }
+  return;
 }

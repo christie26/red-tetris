@@ -7,13 +7,14 @@ It can start, end, restart the game.
 */
 class Room {
   constructor(roomname) {
-    this.roomName = roomname;
+    this.roomname = roomname;
     this.players = [];
     this.waitingPlayers = [];
     this.isPlaying = false;
     this.key = uuidv4();
     this.diePlayer = 0;
     this.winner = null;
+    console.log(`${roomname} is created`)
   }
 
   addPlayer(playername, socket) {
@@ -21,42 +22,51 @@ class Room {
     const newPlayer = new Player(playername, socket, this.key, isLeader, this);
     if (this.isPlaying == true) {
       this.waitingPlayers.push(newPlayer);
-    } else {
+      console.log(`${playername} joinned to ${this.roomname} as waitingPlayer`)
+  } else {
       this.players.push(newPlayer);
-    }
-    if (this.players)
-    {
-      console.log(`room: ${this.roomName}, player: ${newPlayer.playername}, isLeader: ${newPlayer.isLeader}`)
-      console.log(`isLeader: ${newPlayer.isLeader}, this.players.length: ${this.players.length}`)
+      console.log(`${playername} joinned to ${this.roomname} as player`)
     }
     return (isLeader)
   }
-
   removePlayer(playername) {
-    // TODO : if everyone leave, what do we do? -> destroy the room i think
-    // called when a user disconect
-    let newLeader = "false"
     if (!this.players) {
-      console.log("players doesn't exist in disconnect")
-    }
-    let targetPlayer = this.players.find(player => player.playername === playername)
-    if (!targetPlayer){
+      console.error(`try to disconnect, no player in ${this.roomname}`)
       return;
     }
-    console.log("Player to remove is ", targetPlayer.playername)
-    if (targetPlayer.isLeader == true && this.players.length > 1) {
-      this.players[1].isLeader = true;
-      newLeader = this.players[1].playername
+    const targetPlayer = this.players.find(player => player.playername === playername)
+    if (!targetPlayer){
+      console.error(`try to disconnect, ${playername} is not in ${this.roomname}`)
+      return;
     }
-    this.players = this.players.filter(p => p !== targetPlayer);
-    this.waitingPlayers = this.waitingPlayers.filter(p => p !== targetPlayer);
-    this.diePlayer++;
-    console.log("In this room there is ", this.players.length, " players")
-    if (this.players.length == 1)
-    {
-      this.endGame(this.players[0].playername)
+    let newLeader
+    if (targetPlayer.isLeader == true) {
+      if (this.players.length) {
+        newLeader = this.players[1]
+      } else if (this.waitingPlayers) {
+        newLeader = this.waitingPlayers[0]
+      }
+      if (newLeader) {
+        newLeader.isLeader = true;
+        console.log(`${newLeader.playername} became new leader.`)
+      }
     }
+    const targetIsPlaying = this.targetIsPlaying(playername)
+    if (targetIsPlaying) {
+      this.players = this.players.filter(p => p.playername !== targetPlayer.playername);
+      this.diePlayer++;
+      if (this.players.length == 1)
+        this.endGame(this.players[0].playername)
+    } else {
+      this.players = this.players.filter(p => p.playername !== targetPlayer.playername);
+      this.waitingPlayers = this.waitingPlayers.filter(p => p.playername !== targetPlayer.playername);
+    }
+    console.log(`${playername} left from ${this.roomname}, ${this.players.length} players left.`)
     return (newLeader)
+  }
+
+  targetIsPlaying(playername) {
+    return (this.isPlaying && this.players.some(player => player.playername === playername))
   }
 
   startGame() {
@@ -98,7 +108,7 @@ class Room {
     }
   }
   sendPenalty(player, lines) {
-    console.log(`In ${this.roomName}, ${player} sent ${lines} lines penalty`);
+    console.log(`In ${this.roomname}, ${player} sent ${lines} lines penalty`);
     // TODO-Yoonseo : send penalty to all player except the player.
   }
 }
