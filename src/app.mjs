@@ -49,8 +49,7 @@ app.get('/*', (req, res) => {
 
 io.on('connection', function (socket) {
   const queryParams = socket.handshake.query;
-  console.log("room is ", queryParams.room)
-  console.log("playername is", queryParams.playername)
+  // console.log(`room: ${queryParams.room}, player: ${queryParams.player}`)
   if (queryParams.room == "undefined" || queryParams.playername == "undefined") {
     socket.emit('redirect', '/error');
     socket.disconnect();
@@ -61,26 +60,17 @@ io.on('connection', function (socket) {
 //                  I manage endGame only when people leave and not the game is end idk when its end in the game logic
 // TODO-Yoonseo : see other player's board
 // TODO-Yoonseo : implement penalty
-  console.log("here in socket on, go to addUserToRoom")
-  console.log("room is ", queryParams.room)
-  console.log("playername is", queryParams.playername)
   let leader = addUserToRoom(queryParams.room, queryParams.playername, socket)
 
-  if (leader == true) {
+  if (leader == true)
     socket.emit("isLeader")
-  }
   else {
-    let room = rooms.find(room => room.roomName == queryParams.room)
+    const room = rooms.find(room => room.roomName == queryParams.room)
     if (room.isPlaying == false)
-    {
       socket.emit("joinRoom")
-
-    } else {
+    else
       socket.emit("waitRoom")
-    }
   }
-
-
 
   socket.on('disconnect', () => {
     console.log(`${queryParams.playername} is disconnected and left from ${queryParams.room}`)
@@ -97,7 +87,6 @@ io.on('connection', function (socket) {
     }
     console.log('User disconnected');
   });
-
   socket.on('startGame', () => {
     console.log("begin the game")
     let room = rooms.find(room => room.roomName === queryParams.room)
@@ -170,12 +159,9 @@ function checkUserUnique(playername){
 }
 
 function addUserToRoom(roomname, playername, socket) {
-  console.log("roomname is ", roomname)
-  console.log("playername is ", playername)
   let leader = false
   let room = rooms.find(room => room.roomName == roomname)
   if (!room) {
-    console.log("room doesnt exist")
     room = new Room(roomname)
     console.log(`${roomname} is created`)
     rooms.push(room)

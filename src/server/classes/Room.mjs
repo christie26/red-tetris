@@ -17,11 +17,7 @@ class Room {
   }
 
   addPlayer(playername, socket) {
-    let isLeader = false
-    if(this.players.length == 0){
-      console.log("no Player in this game")
-      isLeader = true
-    }
+    const isLeader = this.players.length === 0;
     const newPlayer = new Player(playername, socket, this.key, isLeader, this);
     if (this.isPlaying == true) {
       this.waitingPlayers.push(newPlayer);
@@ -30,8 +26,8 @@ class Room {
     }
     if (this.players)
     {
-      console.log("This Room name is ", this.roomName, " my playername is ", newPlayer.playername, " isLeader is ", newPlayer.isLeader)
-      console.log("this.players count ", this.players.length)
+      console.log(`room: ${this.roomName}, player: ${newPlayer.playername}, isLeader: ${newPlayer.isLeader}`)
+      console.log(`isLeader: ${newPlayer.isLeader}, this.players.length: ${this.players.length}`)
     }
     return (isLeader)
   }
