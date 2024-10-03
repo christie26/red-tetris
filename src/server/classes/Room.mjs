@@ -29,10 +29,10 @@ class Room {
     const newPlayer = new Player(playername, socket, this.key, isLeader, this);
     if (this.isPlaying == true) {
       this.waitingPlayers.push(newPlayer);
-    console.log(`${c.YELLOW}%s${c.RESET} joinned to ${c.GREEN}%s${c.RESET} as waitingPlayer.`, playername, this.roomname)
-  } else {
+      console.log(`${c.YELLOW}%s${c.RESET} joinned to ${c.GREEN}%s${c.RESET} as waitingPlayer.`, playername, this.roomname)
+    } else {
       this.players.push(newPlayer);
-    console.log(`${c.YELLOW}%s${c.RESET} joinned to ${c.GREEN}%s${c.RESET} as player.`, playername, this.roomname)
+      console.log(`${c.YELLOW}%s${c.RESET} joinned to ${c.GREEN}%s${c.RESET} as player.`, playername, this.roomname)
     }
     return (isLeader)
   }
@@ -114,18 +114,10 @@ class Room {
       this.endGame();
     }
   }
-  sendPenalty(player, lines) {
-    console.log(`In ${this.roomname}, ${player} sent ${lines} lines penalty`);
-    // TODO-Yoonseo : send penalty to all player except the player.
+  sendPenalty(playername, lines) {
+    console.log(`${c.YELLOW}%s${c.RESET} sent ${c.RED}%d${c.RESET} lines penalty in ${c.GREEN}%s${c.RESET}.`, playername, lines, this.roomname)
+      // TODO-Yoonseo : send penalty to all player except the player.
   }
 }
 
 export default Room;
-
-/*
-parse URL
-└ if Room exists
-  └ YES -> room.addPlayer
-  └ NO  -> create Room
-        -> room.addPlayer (= create Player)
-*/

@@ -12,7 +12,7 @@ class Piece {
     this.tiles = [];
     for (let i = 0; i < 4; i++) {
       const index = this.elements[direction][i]
-      this.addTile(index % 10 + left, 19 - Math.floor(index / 10), i === 0);
+      this.addTile(index % 10 + left, Math.floor(index / 10), i === 0);
     }
     this.board.fallingPiece = this;
     if (this.board.touchOtherPiece(this.tiles)) {
@@ -24,7 +24,7 @@ class Piece {
   }
   /* manage tiles */
   addTile(x, y) {
-    this.tiles.push(new Tile(x, y, this.type));
+    this.tiles.push(new Tile(x, y, this.type + 1));
   }
   dupTiles(tiles) {
     let tempTiles = tiles.map(tile =>
@@ -39,7 +39,7 @@ class Piece {
       } else if (direction === 'right') {
         tile.x++;
       } else if (direction === 'down') {
-        tile.y--;
+        tile.y++;
       }
     });
   }

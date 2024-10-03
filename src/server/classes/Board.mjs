@@ -23,8 +23,12 @@ class Board {
     let direction = Math.floor(this.createRandom() * 4);
     this.fallingPiece = new Piece(this, type, left, direction);
     if (this.gameover == true) {
-      this.socket.emit('fallingPiece', { data: this.fallingPiece.tiles });
-      //TODO : announce the player that they just died
+      let board = this.fixedTiles.map(row => [...row]);
+
+      for (const tile of this.fallingPiece.tiles) {
+        board[tile.y][tile.x] = tile.type
+      }
+      this.socket.emit('updateboard', {playername: this.Player.playername, board: board})
       this.Player.Room.onePlayerGameover();
     }
   }
@@ -50,18 +54,23 @@ class Board {
   }
   /*render piece*/
   renderPiece() {
-    this.socket.emit('fallingPiece', { data: this.fallingPiece.tiles });
+    let board = this.fixedTiles.map(row => [...row]);
+
+    for (const tile of this.fallingPiece.tiles) {
+      board[tile.y][tile.x] = tile.type
+    }
+    this.socket.emit('updateboard', {playername: this.Player.playername, board: board})
   }
   renderFixedPiece() {
-    this.socket.emit('fixPiece', { data: this.fallingPiece.tiles });
     for (const tile of this.fallingPiece.tiles) {
-      this.fixedTiles[tile.y][tile.x] = 1;
+      this.fixedTiles[tile.y][tile.x] = tile.type+10;
     }
+    this.socket.emit('updateboard', {playername: this.Player.playername, board: this.fixedTiles})
     this.clearLines();
     this.fallingPiece = null;
     this.newPiece()
-    // this.printBoard()
   }
+
   isLineFull(y) {
     for (let x = 0; x < 10; x++) {
       if (!this.fixedTiles[y][x]) {
@@ -75,27 +84,27 @@ class Board {
     for (const tile of this.fallingPiece.tiles) {
       const y = tile.y;
       if (this.isLineFull(y)) {
-        for (let row = y; row < this.height; row++) {
+        for (let row = y; row > 0; row--) {
           for (let x = 0; x < this.width; x++) {
-            this.fixedTiles[row - 1][x] = this.fixedTiles[row][x];
+            this.fixedTiles[row][x] = this.fixedTiles[row - 1][x];
           }
         }
         for (let x = 0; x < this.width; x++) {
-          this.fixedTiles[19][x] = 0;
+          this.fixedTiles[0][x] = 0;
         }
-        this.socket.emit('clearLine', { y: y });
+        this.socket.emit('updateboard', {playername: this.Player.playername, board: this.fixedTiles})
         lineNumber++;
       }
     }
     if (lineNumber > 1) {
-      this.Player.Room.sendPenalty(this.Player, lineNumber - 1)
+      this.Player.Room.sendPenalty(this.Player.playername, lineNumber - 1)
     }
   }
-  printBoard() {
-    for (let row = 19; row >= 0; row--) {
+  printBoard(board) {
+    for (let row = 0; row <= 19; row++) {
       let rowString = '';
       for (let col = 0; col < this.width; col++) {
-        rowString += this.fixedTiles[row][col] === 1 ? 'x' : '.';
+        rowString += board[row][col] > 0 ? 'x' : '.';
       }
       console.log(rowString);
     }

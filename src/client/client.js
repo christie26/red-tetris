@@ -2,6 +2,38 @@ const pathParts = window.location.pathname.split('/');
 const roomname = pathParts[1]; // room name is the second last of the path
 const playername = pathParts[2]; // username is the last part of the path
 
+function getTypeString(type) {
+  switch (type) {
+    case 1:
+      return 'I_BLOCK';
+    case 2:
+      return 'T_BLOCK';
+    case 3:
+      return 'L_BLOCK';
+    case 4:
+      return 'J_BLOCK';
+    case 5:
+      return 'S_BLOCK';
+    case 6:
+      return 'Z_BLOCK';
+    case 7:
+      return 'O_BLOCK';
+    case 11:
+      return 'I_BLOCK_FIX';
+    case 12:
+      return 'T_BLOCK_FIX';
+    case 13:
+      return 'L_BLOCK_FIX';
+    case 14:
+      return 'J_BLOCK_FIX';
+    case 15:
+      return 'S_BLOCK_FIX';
+    case 16:
+      return 'Z_BLOCK_FIX';
+    case 17:
+      return 'O_BLOCK_FIX';
+  }
+}
 const socket = io({
 query: {
   room: roomname,
@@ -9,37 +41,29 @@ query: {
 }
 });
 
-// To verify that the query parameters are sent to delete later
 socket.on('connect', () => {
-  console.log('Connected to the server');
-  console.log('Room:', roomname, 'Playername:', playername);
-  console.log(pathParts)
+  console.log(`You joinned ${roomname} as ${playername}`);
 });
-
 socket.on('isLeader', () => {
-  console.log("in leader emit")
-  alert("You're the leader of this room")
+  console.log("You became a leader")
+  // alert("You're the leader of this room")
   //notification("You're the leader of this room") to test at school
   createButton()
 });
-
 socket.on('joinRoom', () => {
   console.log("join Room")
   alert("You join the room, we are waiting the leader to begin the game")
   //notification("You join the room, we are waiting the leader to begin the game") to test at school
 })
-
 socket.on('waitRoom', () => {
   console.log("wait room")
   alert("Game is already started, wait end Game to play in this Room")
 })
-
 socket.on('newLeader', () => {
   console.log("You're the newLeader")
   alert("You're the new Leader of this room")
   createButton()
 })
-
 socket.on('endGame', (data) => {
   const winner = data.winner
   alert("End Game, The winner is ", winner)
@@ -47,11 +71,23 @@ socket.on('endGame', (data) => {
 socket.on('endGamePlayAgain', () => {
   alert("Game Finished, We gonna wait the leader start game to launch it !!")
 })
+socket.on('players', (data) => {
+  console.log(data)
 
-for (let i = 0; i < 200; i++) {
-  let child = document.createElement('li');
-  board.appendChild(child);
-}
+})
+socket.on('updateboard', data => {
+  // console.log(data)
+  if(data.playername == playername)
+    renderBoard(data.board)
+  else
+    renderOtherBoard(data)
+})
+socket.on('gameOver', data => {
+  alert('Game Over');
+});
+socket.on('redirect', (url) => {
+  window.location.href = url;  // Redirect to the error page
+});
 document.addEventListener('keydown', event => {
   let direction = null;
   switch (event.key) {
@@ -85,75 +121,30 @@ document.addEventListener('keyup', event => {
   }
 });
 
-socket.on('fallingPiece', data => {
-  renderPiece(data.data);
-});
-socket.on('fixPiece', data => {
-  renderFixedPiece(data.data);
-});
+const boardElement = document.getElementById('myBoard');
 
-socket.on('gameOver', data => {
-  alert('Game Over');
-});
-function getTypeString(type) {
-  switch (type) {
-    case 0:
-      return 'O_BLOCK';
-    case 1:
-      return 'I_BLOCK';
-    case 2:
-      return 'T_BLOCK';
-    case 3:
-      return 'L_BLOCK';
-    case 4:
-      return 'J_BLOCK';
-    case 5:
-      return 'S_BLOCK';
-    case 6:
-      return 'Z_BLOCK';
-  }
-}
-
-socket.on('redirect', (url) => {
-  window.location.href = url;  // Redirect to the error page
-});
-
-function renderPiece(data) {
-  const tilesArray = data;
-  const stringType = getTypeString(tilesArray[0].type);
-
-  board.querySelectorAll('li').forEach(element => {
-    if (element.classList.contains('falling')) {
-      element.classList.remove(stringType, 'falling');
-    }
-  });
-  tilesArray.forEach(element => {
-    board.children[element.x + (19 - element.y) * 10].classList.add(
-      stringType,
-      'falling',
-    );
+function renderBoard(board) {
+  // console.log("board:", board)
+  boardElement.innerHTML = '';
+  board.forEach(row => {
+    row.forEach(cell => {
+      const cellElement = document.createElement('li');
+      cellElement.classList.add(getTypeString(cell))
+      boardElement.appendChild(cellElement);
+    });
   });
 }
-function renderFixedPiece(data) {
-  const tilesArray = data;
-  const stringType = getTypeString(tilesArray[0].type);
-
-  console.log(tilesArray)
-  board.querySelectorAll('li').forEach(element => {
-    if (element.classList.contains('falling')) {
-      element.classList.remove(stringType, 'falling');
-    }
+function renderOtherBoard(data) {
+  // console.log("board:", data.board)
+  boardElement.innerHTML = '';
+  data.board.forEach(row => {
+    row.forEach(cell => {
+      const cellElement = document.createElement('li');
+      cellElement.classList.add(getTypeString(cell))
+      boardElement.appendChild(cellElement);
+    });
   });
-  tilesArray.forEach(element => {
-    console.log(element);
-    board.children[element.x + (19 - element.y) * 10].classList.add(
-      stringType,
-      'fixed',
-    );
-  });
-
 }
-
 function notification(message) {
   // Check if the browser supports notifications
   console.log("in notification function")
@@ -184,7 +175,6 @@ function notification(message) {
     }
 
 }
-
 function showNotification(message) {
   console.log("in ShowNotification function")
   const notification = new Notification("Hello!", {
@@ -196,7 +186,6 @@ function showNotification(message) {
       window.focus(); // Bring the window to focus when notification is clicked
   };
 }
-
 function createButton(){
   if (!document.getElementById('leaderButton')) {  // Prevent duplicate buttons
     let leaderButton = document.createElement('button');
@@ -207,10 +196,10 @@ function createButton(){
     // Add the click event for the leader to start the game
     leaderButton.addEventListener('click', () => {
       console.log('Leader button clicked');
-      socket.emit('startGame');
+      socket.emit('startGame', {playername: playername, roomname: roomname});
     });
+    // TODO : have to send info of room and player as well.
 
     document.querySelector('.container').appendChild(leaderButton);
   }
 }
-
