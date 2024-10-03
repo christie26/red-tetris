@@ -2,6 +2,9 @@ const pathParts = window.location.pathname.split('/');
 const roomname = pathParts[1]; // room name is the second last of the path
 const playername = pathParts[2]; // username is the last part of the path
 
+const myBoard = document.getElementById('myBoard');
+const otherBoardContainer = document.getElementById('others');
+
 function getTypeString(type) {
   switch (type) {
     case 1:
@@ -32,6 +35,8 @@ function getTypeString(type) {
       return 'Z_BLOCK_FIX';
     case 17:
       return 'O_BLOCK_FIX';
+    case 20:
+      return 'PENALTY';
   }
 }
 const socket = io({
@@ -43,6 +48,14 @@ query: {
 
 socket.on('connect', () => {
   console.log(`You joinned ${roomname} as ${playername}`);
+  myBoard.innerHTML = '';
+  for (let row = 0; row < 20; row++) {
+    for (let col = 0; col < 10; col++) {
+      const cellElement = document.createElement('li');
+      myBoard.appendChild(cellElement)
+    }
+
+  }
 });
 socket.on('join', (data) => {
   if (data.type == 'leader') {
@@ -52,11 +65,11 @@ socket.on('join', (data) => {
     createButton()
   } else if (data.type == 'normal') {
     console.log("join Room")
-    alert("You join the room, we are waiting the leader to begin the game")
+    // alert("You join the room, we are waiting the leader to begin the game")
     //notification("You join the room, we are waiting the leader to begin the game") to test at school
   } else if (data.type == 'wait') {
     console.log("wait room")
-    alert("Game is already started, wait end Game to play in this Room")
+    // alert("Game is already started, wait end Game to play in this Room")
   }
 });
 socket.on('newLeader', () => {
@@ -71,14 +84,28 @@ socket.on('endGame', (data) => {
 socket.on('endGamePlayAgain', () => {
   alert("Game Finished, We gonna wait the leader start game to launch it !!")
 })
-socket.on('players', (data) => {
-  console.log(data)
-
+socket.on('playerList', (data) => {
+  if (data.roomname == roomname) {
+    for (const player of data.playerList) {
+      if (player == playername) continue;
+      const otherplayer = document.createElement('div');
+      otherplayer.classList.add('otherboard-container')
+      const board = document.createElement('div')
+      board.id = player
+      board.classList.add('otherboard')
+      const playerName = document.createElement('p');
+      playerName.textContent = player;
+      otherBoardContainer.appendChild(otherplayer)
+      otherplayer.appendChild(board)
+      otherplayer.appendChild(playerName)
+    }
+  }
 })
 socket.on('updateboard', data => {
-  // console.log(data)
-  if(data.playername == playername)
+  if(data.playername == playername) {
+
     renderBoard(data.board)
+  }
   else
     renderOtherBoard(data)
 })
@@ -111,7 +138,6 @@ document.addEventListener('keydown', event => {
       break;
   }
   if (direction) {
-    console.log('Sending move event:', direction);
     socket.emit('keyboard', { type: 'keydown', key: direction });
   }
 });
@@ -121,27 +147,24 @@ document.addEventListener('keyup', event => {
   }
 });
 
-const boardElement = document.getElementById('myBoard');
-
 function renderBoard(board) {
-  // console.log("board:", board)
-  boardElement.innerHTML = '';
+  myBoard.innerHTML = '';
   board.forEach(row => {
     row.forEach(cell => {
       const cellElement = document.createElement('li');
       cellElement.classList.add(getTypeString(cell))
-      boardElement.appendChild(cellElement);
+      myBoard.appendChild(cellElement);
     });
   });
 }
 function renderOtherBoard(data) {
-  // console.log("board:", data.board)
-  boardElement.innerHTML = '';
+  const theirBoard = document.getElementById(data.playername);
+  theirBoard.innerHTML = '';
   data.board.forEach(row => {
     row.forEach(cell => {
       const cellElement = document.createElement('li');
       cellElement.classList.add(getTypeString(cell))
-      boardElement.appendChild(cellElement);
+      theirBoard.appendChild(cellElement);
     });
   });
 }

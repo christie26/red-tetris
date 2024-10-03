@@ -21,9 +21,9 @@ class Player {
       this.Room.startGame()
     }
   }
-  gameOver() {
+  gameover() {
     //CONCERN : should we send to everyone?
-    this.socket.emit('updateboard', {playername: this.Player.playername, board: this.Board.fixedTiles})
+    this.socket.emit('updateboard', {playername: this.playername, board: this.Board.fixedTiles})
     this.Room.onePlayerGameover(this)
   }
 }

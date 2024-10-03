@@ -79,14 +79,13 @@ io.on('connection', function (socket) {
     }
   });
   socket.on('startGame', (data) => {
-    console.log(`${c.YELLOW}%s${c.RESET} began a game.`, data.playername)
-
     const room = rooms.find(room => room.roomname === data.roomname)
     const playerList = room.players.map(player => player.playername);
 
     if (room.isPlaying == false) {
+      console.log(`${c.YELLOW}%s${c.RESET} began a game.`, data.playername)
       room.players.forEach(player => {
-        io.to(player.socket.id).emit("players", {data: playerList})
+        io.to(player.socket.id).emit("playerList", {roomname: data.roomname, playerList: playerList})
       });
       room.startGame()
     }

@@ -4,12 +4,23 @@ h1 {
   margin-top: 80px;
   margin-bottom: 80px;
 }
-
-.board-container {
-  display: inline-block;
-  margin: 10px;
+.container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
 }
-
+.myboard-container {
+  list-style-type: none;
+  padding: 0;
+  overflow: hidden;
+  background-color: white;
+  width: 300px;
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  margin: 0 auto;
+  margin-bottom: 50px;
+}
 .board {
   list-style-type: none;
   display: grid;
@@ -21,18 +32,31 @@ h1 {
   height: 30px;
   box-shadow: 0 0 0 1px #000 inset;
 }
+.otherboard-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
 .otherboard {
   list-style-type: none;
-  padding: 0;
-  overflow: hidden;
-  background-color: white;
-  width: 300px;
   display: grid;
-  grid-template-columns: repeat(10, 1fr);
-  margin: 0 auto;
-  margin-bottom: 50px;
+  grid-template-columns: repeat(10, 10px); /* 10 columns */
+  grid-template-rows: repeat(20, 10px); /* 20 rows */
 }
-
+.otherboard>li {
+  width: 10px;
+  height: 10px;
+  box-shadow: 0 0 0 0.3px #000 inset;
+}
+p {
+  font-size: 16px;
+  color: #333;
+  line-height: 1.5;
+  text-align: center;
+  margin: 10px 0;
+  font-family: Arial, sans-serif;
+}
 .O_BLOCK {
   background-color: lightcoral;
 }
@@ -74,4 +98,7 @@ h1 {
 }
 .I_BLOCK_FIX {
   background-color: #8a8a8a;
+}
+.PENALTY {
+  background-color: darkred;
 }

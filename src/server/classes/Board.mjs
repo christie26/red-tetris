@@ -22,6 +22,7 @@ class Board {
     let left = 3 + Math.floor(this.createRandom() * 4);
     let direction = Math.floor(this.createRandom() * 4);
     this.fallingPiece = new Piece(this, type, left, direction);
+    // this.fallingPiece = new Piece(this, 0, left, direction);
     if (this.gameover == true) {
       for (const tile of this.fallingPiece.tiles) {
         this.fixedTiles[tile.y][tile.x] = tile.type
