@@ -65,7 +65,6 @@ io.on('connection', function (socket) {
 //                  and I need a function to clear board at the endGame when the Game is finished
 //                  I manage endGame only when people leave and not the game is end idk when its end in the game logic
 // TODO-Yoonseo : see other player's board
-// TODO-Yoonseo : implement penalty
   addUserToRoom(queryParams.room, queryParams.playername, socket)
 
   socket.on('disconnect', () => {

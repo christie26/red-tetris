@@ -23,13 +23,10 @@ class Board {
     let direction = Math.floor(this.createRandom() * 4);
     this.fallingPiece = new Piece(this, type, left, direction);
     if (this.gameover == true) {
-      let board = this.fixedTiles.map(row => [...row]);
-
       for (const tile of this.fallingPiece.tiles) {
-        board[tile.y][tile.x] = tile.type
+        this.fixedTiles[tile.y][tile.x] = tile.type
       }
-      this.socket.emit('updateboard', {playername: this.Player.playername, board: board})
-      this.Player.Room.onePlayerGameover();
+      this.Player.gameover();
     }
   }
   /*check board*/
@@ -59,13 +56,13 @@ class Board {
     for (const tile of this.fallingPiece.tiles) {
       board[tile.y][tile.x] = tile.type
     }
-    this.socket.emit('updateboard', {playername: this.Player.playername, board: board})
+    this.Player.Room.updateBoard(this.Player.playername, board)
   }
   renderFixedPiece() {
     for (const tile of this.fallingPiece.tiles) {
-      this.fixedTiles[tile.y][tile.x] = tile.type+10;
+      this.fixedTiles[tile.y][tile.x] = tile.type + 10;
     }
-    this.socket.emit('updateboard', {playername: this.Player.playername, board: this.fixedTiles})
+    this.Player.Room.updateBoard(this.Player.playername, this.fixedTiles)
     this.clearLines();
     this.fallingPiece = null;
     this.newPiece()
@@ -92,12 +89,30 @@ class Board {
         for (let x = 0; x < this.width; x++) {
           this.fixedTiles[0][x] = 0;
         }
-        this.socket.emit('updateboard', {playername: this.Player.playername, board: this.fixedTiles})
         lineNumber++;
       }
     }
+    this.Player.Room.updateBoard(this.Player.playername, this.fixedTiles)
     if (lineNumber > 1) {
       this.Player.Room.sendPenalty(this.Player.playername, lineNumber - 1)
+    }
+  }
+  getPenalty(numberOfLine) {
+    for (let offset = 0; offset < numberOfLine; offset++) {
+      if (this.fixedTiles[19 - offset].some(element => element > 0))
+        this.gameover = true;
+    }
+
+    for (let row = 19 - numberOfLine; row >= 0; row--) {
+      this.fixedTiles[row] = [...this.fixedTiles[row + numberOfLine]];
+    }
+    for (let row = 19; row >= 19 - numberOfLine; row--) {
+      this.fixedTiles[row].forEach((_, colIndex) => {
+        this.fixedTiles[row][colIndex] = 20;
+      });
+    }
+    if (this.gameover) {
+      this.Player.gameover()
     }
   }
   printBoard(board) {

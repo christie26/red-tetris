@@ -106,17 +106,25 @@ class Room {
     });
   }
 
-  onePlayerGameover() {
-    console.log('game over!!!')
+  onePlayerGameover(player) {
+    console.log(`${c.YELLOW}%s${c.RESET} gameover in ${c.GREEN}%s${c.RESET}.`, player.playername, this.roomname)
     this.diePlayer++;
     if (this.diePlayer == this.players.length - 1) {
       this.winner = this.players.some(player => !player.Board.gameover);
       this.endGame();
     }
   }
-  sendPenalty(playername, lines) {
-    console.log(`${c.YELLOW}%s${c.RESET} sent ${c.RED}%d${c.RESET} lines penalty in ${c.GREEN}%s${c.RESET}.`, playername, lines, this.roomname)
-      // TODO-Yoonseo : send penalty to all player except the player.
+  updateBoard(playername, board) {
+    this.players.forEach(player => {
+      player.socket.emit('updateboard', {playername: playername, board: board})
+    });
+  }
+  sendPenalty(sender, lines) {
+    for (const player of this.players) {
+      if (player.playername == sender) continue;
+      player.Board.getPenalty(lines)
+    }
+    console.log(`${c.YELLOW}%s${c.RESET} sent ${c.RED}%d${c.RESET} lines penalty in ${c.GREEN}%s${c.RESET}.`, sender, lines, this.roomname)
   }
 }
 
