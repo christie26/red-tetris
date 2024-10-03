@@ -5,6 +5,13 @@ Room class represents each room.
 It has all players.
 It can start, end, restart the game.
 */
+
+const c = {
+  RED: '\x1b[31m',
+  GREEN: '\x1b[32m',
+  YELLOW: '\x1b[33m',
+  RESET: '\x1b[0m'
+};
 class Room {
   constructor(roomname) {
     this.roomname = roomname;
@@ -14,7 +21,7 @@ class Room {
     this.key = uuidv4();
     this.diePlayer = 0;
     this.winner = null;
-    console.log(`${roomname} is created`)
+    console.log(`${c.GREEN}%s${c.RESET} is created`, roomname);
   }
 
   addPlayer(playername, socket) {
@@ -22,10 +29,10 @@ class Room {
     const newPlayer = new Player(playername, socket, this.key, isLeader, this);
     if (this.isPlaying == true) {
       this.waitingPlayers.push(newPlayer);
-      console.log(`${playername} joinned to ${this.roomname} as waitingPlayer`)
+    console.log(`${c.YELLOW}%s${c.RESET} joinned to ${c.GREEN}%s${c.RESET} as waitingPlayer.`, playername, this.roomname)
   } else {
       this.players.push(newPlayer);
-      console.log(`${playername} joinned to ${this.roomname} as player`)
+    console.log(`${c.YELLOW}%s${c.RESET} joinned to ${c.GREEN}%s${c.RESET} as player.`, playername, this.roomname)
     }
     return (isLeader)
   }
@@ -48,7 +55,7 @@ class Room {
       }
       if (newLeader) {
         newLeader.isLeader = true;
-        console.log(`${newLeader.playername} became new leader.`)
+        console.log(`${c.YELLOW}%s${c.RESET} became new leader.`, newLeader.playername)
       }
     }
     const targetIsPlaying = this.targetIsPlaying(playername)
@@ -61,7 +68,7 @@ class Room {
       this.players = this.players.filter(p => p.playername !== targetPlayer.playername);
       this.waitingPlayers = this.waitingPlayers.filter(p => p.playername !== targetPlayer.playername);
     }
-    console.log(`${playername} left from ${this.roomname}, ${this.players.length} players left.`)
+    console.log(`${c.YELLOW}%s${c.RESET} left from ${c.GREEN}%s${c.RESET}.`, playername, this.roomname)
     return (newLeader)
   }
 

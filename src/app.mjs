@@ -6,6 +6,13 @@ import { fileURLToPath } from 'url';
 import Player from './server/classes/Player.mjs';
 import Room from './server/classes/Room.mjs'
 
+const c = {
+  RED: '\x1b[31m',
+  GREEN: '\x1b[32m',
+  YELLOW: '\x1b[33m',
+  RESET: '\x1b[0m'
+};
+
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
@@ -72,14 +79,18 @@ io.on('connection', function (socket) {
       rooms = rooms.filter(p => p !== room);
     }
   });
-  socket.on('startGame', () => {
-    // BUG: this is called every time new piece created.
-    console.log("begin the game")
-    let room = rooms.find(room => room.roomname === queryParams.room)
+  socket.on('startGame', (data) => {
+    console.log(`${c.YELLOW}%s${c.RESET} began a game.`, data.playername)
+
+    const room = rooms.find(room => room.roomname === data.roomname)
+    const playerList = room.players.map(player => player.playername);
+
     if (room.isPlaying == false) {
+      room.players.forEach(player => {
+        io.to(player.socket.id).emit("players", {data: playerList})
+      });
       room.startGame()
     }
-
   })
   socket.on('keyboard', data => {
     let room = rooms.find(room => room.roomname === queryParams.room)
