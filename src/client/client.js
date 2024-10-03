@@ -1,6 +1,6 @@
 const pathParts = window.location.pathname.split('/');
-const roomname = pathParts[1]; // room name is the second last of the path
-const playername = pathParts[2]; // username is the last part of the path
+const roomname = pathParts[1];
+const playername = pathParts[2];
 
 const myBoard = document.getElementById('myBoard');
 const otherBoardContainer = document.getElementById('others');
@@ -60,29 +60,20 @@ socket.on('connect', () => {
 socket.on('join', (data) => {
   if (data.type == 'leader') {
     console.log("You became a leader")
-    // alert("You're the leader of this room")
-    //notification("You're the leader of this room") to test at school
+    toastr.success("You're the leader of this room");
     createButton()
   } else if (data.type == 'normal') {
     console.log("join Room")
-    // alert("You join the room, we are waiting the leader to begin the game")
-    //notification("You join the room, we are waiting the leader to begin the game") to test at school
+    toastr.success("You join the room, we are waiting the leader to begin the game")
   } else if (data.type == 'wait') {
     console.log("wait room")
-    // alert("Game is already started, wait end Game to play in this Room")
+    toastr.success("Game is already started, wait end Game to play in this Room")
   }
 });
 socket.on('newLeader', () => {
   console.log("You're the newLeader")
-  alert("You're the new Leader of this room")
+  toastr.success("You're the new Leader of this room")
   createButton()
-})
-socket.on('endGame', (data) => {
-  const winner = data.winner
-  alert("End Game, The winner is ", winner)
-})
-socket.on('endGamePlayAgain', () => {
-  alert("Game Finished, We gonna wait the leader start game to launch it !!")
 })
 socket.on('playerList', (data) => {
   if (data.roomname == roomname) {
@@ -110,10 +101,17 @@ socket.on('updateboard', data => {
     renderOtherBoard(data)
 })
 socket.on('gameOver', data => {
-  alert('Game Over');
+  toastr.success('Game Over');
 });
+socket.on('endGame', (data) => {
+  const winner = data.winner
+  toastr.success("End Game, The winner is ", winner)
+})
+socket.on('endGamePlayAgain', () => {
+  toastr.success("Game Finished, We gonna wait the leader start game to launch it !!")
+})
 socket.on('redirect', (url) => {
-  window.location.href = url;  // Redirect to the error page
+  window.location.href = url;
 });
 document.addEventListener('keydown', event => {
   let direction = null;
@@ -221,7 +219,6 @@ function createButton(){
       console.log('Leader button clicked');
       socket.emit('startGame', {playername: playername, roomname: roomname});
     });
-    // TODO : have to send info of room and player as well.
 
     document.querySelector('.container').appendChild(leaderButton);
   }
