@@ -44,21 +44,21 @@ query: {
 socket.on('connect', () => {
   console.log(`You joinned ${roomname} as ${playername}`);
 });
-socket.on('isLeader', () => {
-  console.log("You became a leader")
-  // alert("You're the leader of this room")
-  //notification("You're the leader of this room") to test at school
-  createButton()
+socket.on('join', (data) => {
+  if (data.type == 'leader') {
+    console.log("You became a leader")
+    // alert("You're the leader of this room")
+    //notification("You're the leader of this room") to test at school
+    createButton()
+  } else if (data.type == 'normal') {
+    console.log("join Room")
+    alert("You join the room, we are waiting the leader to begin the game")
+    //notification("You join the room, we are waiting the leader to begin the game") to test at school
+  } else if (data.type == 'wait') {
+    console.log("wait room")
+    alert("Game is already started, wait end Game to play in this Room")
+  }
 });
-socket.on('joinRoom', () => {
-  console.log("join Room")
-  alert("You join the room, we are waiting the leader to begin the game")
-  //notification("You join the room, we are waiting the leader to begin the game") to test at school
-})
-socket.on('waitRoom', () => {
-  console.log("wait room")
-  alert("Game is already started, wait end Game to play in this Room")
-})
 socket.on('newLeader', () => {
   console.log("You're the newLeader")
   alert("You're the new Leader of this room")
