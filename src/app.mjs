@@ -162,12 +162,12 @@ function addUserToRoom(roomname, playername, socket) {
   const isLeader = room.addPlayer(playername, socket)
 
   if (isLeader == true)
-    socket.emit("join", {type: 'leader', player: playername})
+    socket.emit("join", {type: 'leader', player: playername, room: roomname})
   else {
     if (room.isPlaying == false)
-      socket.emit("join", {type: 'normal', player: playername})
+      socket.emit("join", {type: 'normal', player: playername, room: roomname})
     else
-      socket.emit("join", {type: 'wait', player: playername})
+      socket.emit("join", {type: 'wait', player: playername, room: roomname})
   }
   return;
 }
