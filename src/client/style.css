@@ -1,8 +1,8 @@
 h1 {
   margin: 0 auto;
   text-align: center;
-  margin-top: 80px;
-  margin-bottom: 80px;
+  margin-top: 60px;
+  margin-bottom: 20px;
 }
 
 .container {
@@ -10,18 +10,13 @@ h1 {
   flex-direction: row;
   justify-content: center;
   align-items: center;
+  margin: 15px;
 }
 
 .myboard-container {
-  list-style-type: none;
-  padding: 0;
-  overflow: hidden;
   background-color: white;
-  width: 300px;
   display: grid;
   grid-template-columns: repeat(10, 1fr);
-  margin: 0 auto;
-  margin-bottom: 50px;
 }
 
 .board {
@@ -29,12 +24,16 @@ h1 {
   display: grid;
   grid-template-columns: repeat(10, 30px);
   grid-template-rows: repeat(20, 30px);
+  border: 3px solid #53484e;
+  background-color: #faf6f0;
+  box-shadow: 7px 7px 0px #b3a69f;
 }
 
 .board>li {
   width: 30px;
   height: 30px;
-  border: 1px solid #000;
+  border: 1px solid #53484e;
+  padding: 5px
 }
 
 .otherboard-container {
