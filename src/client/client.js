@@ -70,6 +70,14 @@ socket.on('join', (data) => {
     toastr.success("Game is already started, wait end Game to play in this Room")
   }
 });
+socket.on('leave', (data) => {
+  if (data.roomname == roomname) {
+    if (data.playername != playername) {
+      const board = document.getElementById(data.playername)
+      board.classList.add('left')
+    }
+  }
+})
 socket.on('newLeader', () => {
   console.log("You're the newLeader")
   toastr.success("You're the new Leader of this room")
@@ -96,16 +104,17 @@ socket.on('playerList', (data) => {
 socket.on('updateboard', data => {
   if (data.playername == playername)
     renderBoard(data.board)
-  else
+  else if (data.type == 'fixed')
     renderOtherBoard(data)
 })
 //TODO-Yoonseo : proper change of board when games end.
 socket.on('gameover', data => {
   if (data.dier == playername) {
     toastr.success('Game Over');
-    // TODO : change my board
+    myBoard.classList.add('died')
   } else {
-    //TODO : change dier's board
+    const board = document.getElementById(data.playername)
+    board.classList.add('died')
   }
 });
 socket.on('endGame', (data) => {
@@ -145,8 +154,29 @@ document.addEventListener('keydown', event => {
   }
 });
 document.addEventListener('keyup', event => {
-  if (event.key === 'ArrowDown') {
-    socket.emit('keyboard', { type: 'keyup', direction: 'down' });
+  let direction = null;
+  switch (event.key) {
+    case 'ArrowUp':
+      direction = 'rotate';
+      break;
+    case 'ArrowDown':
+      direction = 'down';
+      break;
+    case 'ArrowLeft':
+      direction = 'left';
+      break;
+    case 'ArrowRight':
+      direction = 'right';
+      break;
+    case ' ':
+      direction = 'sprint';
+      break;
+    case 'Enter':
+      direction = 'stop';
+      break;
+  }
+  if (direction) {
+    socket.emit('keyboard', { type: 'keyup', key: direction });
   }
 });
 
@@ -163,54 +193,24 @@ function renderBoard(board) {
 function renderOtherBoard(data) {
   const theirBoard = document.getElementById(data.playername);
   theirBoard.innerHTML = '';
+  for (let col = 0; col < 20; col++) {
+    for (let row = 0; row < 10; row++) {
+      if (data.board[col][row]) {
+        for (let target_col = col; target_col < 20; target_col++) {
+          data.board[target_col][row] = 1
+        }
+      }
+    }
+  }
+
   data.board.forEach(row => {
     row.forEach(cell => {
       const cellElement = document.createElement('li');
-      cellElement.classList.add(getTypeString(cell))
+      if (cell)
+        cellElement.classList.add('filled')
       theirBoard.appendChild(cellElement);
     });
   });
-}
-function notification(message) {
-  // Check if the browser supports notifications
-  console.log("in notification function")
-  if ("Notification" in window) {
-    // Check if the user has already granted permission
-    console.log("Notification is allowed")
-    if (Notification.permission === "granted") {
-      console.log("notification has been created")
-      // If permission is granted, create a notification
-      showNotification(message);
-    }
-    // If permission hasn't been granted yet, request it
-    else if (Notification.permission !== "denied") {
-      Notification.requestPermission().then(permission => {
-        // If the user grants permission, create a notification
-        console.log("here in denied")
-        if (permission === "granted") {
-          console.log("notification has been created")
-          showNotification(message);
-        }
-      });
-    }
-    else {
-      console.log("in nothing is ", Notification.permission)
-    }
-  } else {
-    console.log("This browser does not support desktop notifications.");
-  }
-
-}
-function showNotification(message) {
-  console.log("in ShowNotification function")
-  const notification = new Notification("Hello!", {
-    body: message,
-  });
-
-  // Optional: Handle click event
-  notification.onclick = function () {
-    window.focus(); // Bring the window to focus when notification is clicked
-  };
 }
 function createButton() {
   if (!document.getElementById('leaderButton')) {  // Prevent duplicate buttons

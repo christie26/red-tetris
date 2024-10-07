@@ -55,18 +55,17 @@ class Board {
     for (const tile of this.fallingPiece.tiles) {
       board[tile.y][tile.x] = tile.type
     }
-    this.Player.Room.updateBoard(this.Player.playername, board)
+    this.Player.Room.updateBoard(this.Player.playername, board, 'falling')
   }
   renderFixedPiece() {
     for (const tile of this.fallingPiece.tiles) {
       this.fixedTiles[tile.y][tile.x] = tile.type + 10;
     }
-    this.Player.Room.updateBoard(this.Player.playername, this.fixedTiles)
+    this.Player.Room.updateBoard(this.Player.playername, this.fixedTiles, 'fixed')
     this.clearLines();
     this.fallingPiece = null;
     this.newPiece()
   }
-
   isLineFull(y) {
     for (let x = 0; x < 10; x++) {
       if (!this.fixedTiles[y][x]) {
@@ -126,6 +125,18 @@ class Board {
   }
   freezeBoard() {
     this.fallingPiece.stopPiece();
+  }
+  dropLocation() {
+    let tiles = this.fallingPiece.dupTiles(this.fallingPiece.tiles)
+    let testTiles = this.fallingPiece.dupTiles(this.fallingPiece.tiles)
+
+    this.fallingPiece.moveTiles(testTiles, 'down')
+    while (this.isFree(testTiles)) {
+      tiles = testTiles
+      this.fallingPiece.moveTiles(testTiles, 'down')
+    }
+    console.log(tiles)
+    return tiles
   }
 }
 

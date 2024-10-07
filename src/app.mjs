@@ -5,7 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import Player from './server/classes/Player.mjs';
 import Room from './server/classes/Room.mjs'
-
+let pressedKeys = {}; // Track pressed keys
 const c = {
   RED: '\x1b[31m',
   GREEN: '\x1b[32m',
@@ -71,7 +71,6 @@ io.on('connection', function (socket) {
     console.log('User disconnected');
     const room = rooms.find(room => room.roomname === queryParams.room)
     const newLeader = room.removePlayer(queryParams.playername)
-    //TODO-Yoonseo : remove player properly and also send proper notif to other players.
     if (newLeader)
       io.to(newLeader.socket.id).emit("newLeader")
     if (room.players.length == 0 && room.waitingPlayers && room.waitingPlayers.length == 0) {
@@ -94,23 +93,36 @@ io.on('connection', function (socket) {
   socket.on('keyboard', data => {
     let room = rooms.find(room => room.roomname === queryParams.room)
     let player = room.players.find(player => player.playername === queryParams.playername)
-    switch (data.key) {
-      case 'left':
-        player.Board.fallingPiece.moveSide('left');
-        break;
-      case 'right':
-        player.Board.fallingPiece.moveSide('right');
-        break;
-      case 'down':
-        // TODO-Yoonseo: add key released
-        player.Board.fallingPiece.fasterSpeed();
-        break;
-      case 'rotate':
-        player.Board.fallingPiece.rotatePiece();
-        break;
-      case 'sprint':
-        player.Board.fallingPiece.fallSprint();
-        break;
+
+    if (data.type == 'keydown') {
+      if (!pressedKeys[data.key]) {
+        pressedKeys[data.key] = true
+      } else {
+        return
+      }
+      switch (data.key) {
+        case 'left':
+          player.Board.fallingPiece.moveSide('left');
+          break;
+        case 'right':
+          player.Board.fallingPiece.moveSide('right');
+          break;
+        case 'down':
+          player.Board.fallingPiece.fasterSpeed();
+          break;
+        case 'rotate':
+          player.Board.fallingPiece.rotatePiece();
+          break;
+        case 'sprint':
+          player.Board.fallingPiece.fallSprint();
+          break;
+      }
+    }
+    if (data.type == 'keyup') {
+      pressedKeys[data.key] = false;
+      if (data.key === 'down') {
+        player.Board.fallingPiece.resetSpeed();
+      }
     }
   });
 });

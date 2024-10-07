@@ -78,6 +78,9 @@ class Room {
     if (isPlaying) {
       targetPlayer.Board.freezeBoard()
       targetPlayer.isPlaying = false;
+      this.players.forEach(player => {
+        player.socket.emit("leave", { player: playername, room: this.roomname })
+      });
     }
     return (isPlaying)
   }
@@ -123,9 +126,9 @@ class Room {
       this.endGame(winner);
     }
   }
-  updateBoard(playername, board) {
+  updateBoard(playername, board, type) {
     this.players.forEach(player => {
-      player.socket.emit('updateboard', { playername: playername, board: board })
+      player.socket.emit('updateboard', { playername: playername, board: board, type: type })
     });
   }
   sendPenalty(sender, lines) {

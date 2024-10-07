@@ -4,12 +4,14 @@ h1 {
   margin-top: 80px;
   margin-bottom: 80px;
 }
+
 .container {
   display: flex;
   flex-direction: row;
   justify-content: center;
   align-items: center;
 }
+
 .myboard-container {
   list-style-type: none;
   padding: 0;
@@ -21,34 +23,48 @@ h1 {
   margin: 0 auto;
   margin-bottom: 50px;
 }
+
 .board {
   list-style-type: none;
   display: grid;
-  grid-template-columns: repeat(10, 30px); /* 10 columns */
-  grid-template-rows: repeat(20, 30px); /* 20 rows */
+  grid-template-columns: repeat(10, 30px);
+  grid-template-rows: repeat(20, 30px);
 }
+
 .board>li {
   width: 30px;
   height: 30px;
-  box-shadow: 0 0 0 1px #000 inset;
+  border: 1px solid #000;
 }
+
 .otherboard-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 }
+
 .otherboard {
   list-style-type: none;
   display: grid;
-  grid-template-columns: repeat(10, 10px); /* 10 columns */
-  grid-template-rows: repeat(20, 10px); /* 20 rows */
+  grid-template-columns: repeat(10, 10px);
+  grid-template-rows: repeat(20, 10px);
+  background-color: lightgray;
 }
+
 .otherboard>li {
   width: 10px;
   height: 10px;
-  box-shadow: 0 0 0 0.3px #000 inset;
 }
+
+.filled {
+  background-color: darkgray;
+}
+
+.left {
+  background-color: darkblue;
+}
+
 p {
   font-size: 16px;
   color: #333;
@@ -57,48 +73,63 @@ p {
   margin: 10px 0;
   font-family: Arial, sans-serif;
 }
+
 .O_BLOCK {
   background-color: lightcoral;
 }
+
 .T_BLOCK {
   background-color: #f6cefc;
 }
+
 .J_BLOCK {
   background-color: lightblue;
 }
+
 .L_BLOCK {
   background-color: pink;
 }
+
 .S_BLOCK {
   background-color: darkkhaki;
 }
+
 .Z_BLOCK {
   background-color: lightgreen;
 }
+
 .I_BLOCK {
   background-color: lightgray;
 }
+
 .O_BLOCK_FIX {
   background-color: #c96d6d;
 }
+
 .T_BLOCK_FIX {
   background-color: #d49adf;
 }
+
 .J_BLOCK_FIX {
   background-color: #6497b1;
 }
+
 .L_BLOCK_FIX {
   background-color: #d3878e;
 }
+
 .S_BLOCK_FIX {
   background-color: #a69e51;
 }
+
 .Z_BLOCK_FIX {
   background-color: #6dbf6d;
 }
+
 .I_BLOCK_FIX {
   background-color: #8a8a8a;
 }
+
 .PENALTY {
   background-color: darkred;
 }

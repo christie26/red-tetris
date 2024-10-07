@@ -4,14 +4,14 @@ class Piece {
   constructor(board, type, left, direction) {
     this.board = board;
     this.type = type;
-    this.elements = Pieces[type];
     this.sprint = false;
     this.fixxing = false;
     this.fastSpeed = false;
+    this.lock = false;
     this.intervalId = null;
     this.tiles = [];
     for (let i = 0; i < 4; i++) {
-      const index = this.elements[direction][i]
+      const index = Pieces[type][direction][i]
       this.addTile(index % 10 + left, Math.floor(index / 10), i === 0);
     }
     this.board.fallingPiece = this;
@@ -44,7 +44,6 @@ class Piece {
     });
   }
   rotateTiles(tiles) {
-    // TODO : change direction
     if (tiles[0].type == 0)
       return;
     const center = tiles[0];
@@ -52,19 +51,21 @@ class Piece {
       let tile = tiles[index];
       const tmp_x = tile.x
       const tmp_y = tile.y
-      tile.x = center.x - center.y + tmp_y;
-      tile.y = center.y + center.x - tmp_x;
+      tile.x = center.x + center.y - tmp_y;
+      tile.y = center.y - center.x + tmp_x;
     }
   }
   /* manage a piece */
   moveSide(direction) {
+    if (this.lock)
+      return
     let tempTiles = this.dupTiles(this.tiles)
     this.moveTiles(tempTiles, direction);
     if (this.board.isFree(tempTiles)) {
       this.moveTiles(this.tiles, direction);
       this.board.renderPiece();
       this.moveTiles(tempTiles, 'down')
-      if (this.fixxing && !this.board.touchBorder(tempTiles)) {
+      if (this.fixxing && this.board.isFree(tempTiles)) {
         this.fixxing = false;
         this.fastSpeed = true;
         this.resetSpeed();
@@ -82,7 +83,7 @@ class Piece {
     }
   }
   rotatePiece() {
-    if (this.tiles[0].type === 0) return;
+    if (this.tiles[0].type === 1 || this.lock) return;
 
     let tempTiles = this.dupTiles(this.tiles);
     this.rotateTiles(tempTiles);
@@ -95,6 +96,13 @@ class Piece {
 
     this.rotateTiles(this.tiles);
     this.board.renderPiece();
+    this.moveTiles(tempTiles, 'down')
+    if (this.fixxing && this.board.isFree(tempTiles)) {
+      this.fixxing = false;
+      this.fastSpeed = true;
+      this.resetSpeed();
+    } else {
+    }
   }
   tryMoveInDirections(tempTiles, directions) {
     for (const direction of directions) {
@@ -116,8 +124,10 @@ class Piece {
       clearInterval(this.intervalId);
       setTimeout(function () {
         if (this.fixxing) {
-          // TODO-Yoonseo : make sure it's not floating
           this.board.renderFixedPiece();
+        }
+        else {
+          this.lock = true
         }
       }.bind(this), 1000);
     }
@@ -145,17 +155,22 @@ class Piece {
     this.fastSpeed = true;
   }
   resetSpeed() {
-    if (this.fastSpeed || this.fixxing) {
+    if (!this.fastSpeed || this.fixxing) {
       return;
     }
     clearInterval(this.intervalId);
     this.intervalId = setInterval(() => {
       this.moveDown();
-    }, 200);
+    }, 500);
     this.fastSpeed = false;
   }
   stopPiece() {
     clearInterval(this.intervalId);
+  }
+  checkFloating() {
+    if (this.board.dropLocation != this.tiles) {
+      this.tiles = this.board.dropLocation()
+    }
   }
 }
 
