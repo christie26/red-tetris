@@ -153,6 +153,9 @@ class Piece {
     }, 200);
     this.fastSpeed = false;
   }
+  stopPiece() {
+    clearInterval(this.intervalId);
+  }
 }
 
 export default Piece;

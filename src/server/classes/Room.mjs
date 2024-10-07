@@ -16,7 +16,7 @@ class Room {
   constructor(roomname) {
     this.roomname = roomname;
     this.players = [];
-    this.waitingPlayers = [];
+    this.waiters = [];
     this.isPlaying = false;
     this.key = uuidv4();
     this.diePlayer = 0;
@@ -28,7 +28,7 @@ class Room {
     const isLeader = this.players.length === 0;
     const newPlayer = new Player(playername, socket, this.key, isLeader, this);
     if (this.isPlaying == true) {
-      this.waitingPlayers.push(newPlayer);
+      this.waiters.push(newPlayer);
       console.log(`${c.YELLOW}%s${c.RESET} joinned to ${c.GREEN}%s${c.RESET} as waitingPlayer.`, playername, this.roomname)
     } else {
       this.players.push(newPlayer);
@@ -42,7 +42,7 @@ class Room {
       return;
     }
     const targetPlayer = this.players.find(player => player.playername === playername)
-    if (!targetPlayer){
+    if (!targetPlayer) {
       console.error(`try to disconnect, ${playername} is not in ${this.roomname}`)
       return;
     }
@@ -50,8 +50,8 @@ class Room {
     if (targetPlayer.isLeader == true) {
       if (this.players.length) {
         newLeader = this.players[1]
-      } else if (this.waitingPlayers) {
-        newLeader = this.waitingPlayers[0]
+      } else if (this.waiters) {
+        newLeader = this.waiters[0]
       }
       if (newLeader) {
         newLeader.isLeader = true;
@@ -66,57 +66,66 @@ class Room {
         this.endGame(this.players[0].playername)
     } else {
       this.players = this.players.filter(p => p.playername !== targetPlayer.playername);
-      this.waitingPlayers = this.waitingPlayers.filter(p => p.playername !== targetPlayer.playername);
+      this.waiters = this.waiters.filter(p => p.playername !== targetPlayer.playername);
     }
     console.log(`${c.YELLOW}%s${c.RESET} left from ${c.GREEN}%s${c.RESET}.`, playername, this.roomname)
     return (newLeader)
   }
 
   targetIsPlaying(playername) {
-    return (this.isPlaying && this.players.some(player => player.playername === playername))
+    const targetPlayer = this.players.find(player => player.playername === playername);
+    const isPlaying = this.isPlaying && targetPlayer && targetPlayer.isPlaying
+    if (isPlaying) {
+      targetPlayer.Board.freezeBoard()
+      targetPlayer.isPlaying = false;
+    }
+    return (isPlaying)
   }
 
   startGame() {
     this.isPlaying = true;
     this.players.forEach(player => {
+      player.isPlaying = true
       player.Board.newPiece();
     });
   }
   endGame(winner) {
     this.isPlaying = false;
     this.key = uuidv4();
-    this.sendWinnerToAllPlayers(winner)
-    this.players.push(...this.waitingPlayers);
-    this.waitingPlayers.length = 0;
+    this.updateEndgameToPlayers(winner)
+    this.updateEndgameToWaiters(winner)
+    this.players.push(...this.waiters);
+    this.waiters.length = 0;
     this.players.forEach(player => {
       player.updateKey(this.key);
     });
-    this.sendToWaitingPlayers()
   }
 
-  sendWinnerToAllPlayers(winner){
+  updateEndgameToPlayers(winner) {
     this.players.forEach(player => {
-      console.log("we send endGame to player ", player.playername)
-      player.socket.emit("endGame", {winner: winner})
+      player.socket.emit("endGame", { roomname: this.roomname, winner: winner, type: 'player' })
     });
   }
-  sendToWaitingPlayers(){
-    this.players.forEach(player => {
-      player.socket.emit("endGamePlayAgain")
+  updateEndgameToWaiters(winner) {
+    this.waiters.forEach(player => {
+      player.socket.emit("endGame", { roomname: this.roomname, winner: winner, type: 'waiter' })
     });
   }
 
   onePlayerGameover(player) {
+    this.players.forEach(player => {
+      player.socket.emit("gameover", { roomname: this.roomname, dier: player })
+    });
     console.log(`${c.YELLOW}%s${c.RESET} gameover in ${c.GREEN}%s${c.RESET}.`, player.playername, this.roomname)
     this.diePlayer++;
     if (this.diePlayer == this.players.length - 1) {
       this.winner = this.players.some(player => !player.Board.gameover);
-      this.endGame();
+      this.endGame(winner);
     }
   }
   updateBoard(playername, board) {
     this.players.forEach(player => {
-      player.socket.emit('updateboard', {playername: playername, board: board})
+      player.socket.emit('updateboard', { playername: playername, board: board })
     });
   }
   sendPenalty(sender, lines) {

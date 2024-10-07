@@ -1,7 +1,7 @@
 const pathParts = window.location.pathname.split('/');
 const roomname = pathParts[1];
 const playername = pathParts[2];
-
+// TODO-Yoonseo : make html, css prettier
 const myBoard = document.getElementById('myBoard');
 const otherBoardContainer = document.getElementById('others');
 
@@ -40,10 +40,10 @@ function getTypeString(type) {
   }
 }
 const socket = io({
-query: {
-  room: roomname,
-  playername: playername
-}
+  query: {
+    room: roomname,
+    playername: playername
+  }
 });
 
 socket.on('connect', () => {
@@ -93,22 +93,26 @@ socket.on('playerList', (data) => {
   }
 })
 socket.on('updateboard', data => {
-  if(data.playername == playername) {
-
+  if (data.playername == playername)
     renderBoard(data.board)
-  }
   else
     renderOtherBoard(data)
 })
-socket.on('gameOver', data => {
-  toastr.success('Game Over');
+//TODO : proper change of board when games end.
+socket.on('gameover', data => {
+  if (data.dier == playername) {
+    toastr.success('Game Over');
+    // TODO : change my board
+  } else {
+    //TODO : change dier's board
+  }
 });
 socket.on('endGame', (data) => {
   const winner = data.winner
-  toastr.success("End Game, The winner is ", winner)
-})
-socket.on('endGamePlayAgain', () => {
-  toastr.success("Game Finished, We gonna wait the leader start game to launch it !!")
+  if (data.type == 'player')
+    toastr.success("End Game, The winner is ", winner)
+  else if (data.type == 'waiter')
+    toastr.success("Game Finished, We gonna wait the leader start game to launch it !!")
 })
 socket.on('redirect', (url) => {
   window.location.href = url;
@@ -169,45 +173,45 @@ function renderOtherBoard(data) {
 function notification(message) {
   // Check if the browser supports notifications
   console.log("in notification function")
-    if ("Notification" in window) {
-      // Check if the user has already granted permission
-      console.log("Notification is allowed")
-      if (Notification.permission === "granted") {
-        console.log("notification has been created")
-        // If permission is granted, create a notification
-        showNotification(message);
-      }
-      // If permission hasn't been granted yet, request it
-      else if (Notification.permission !== "denied") {
-        Notification.requestPermission().then(permission => {
-          // If the user grants permission, create a notification
-          console.log("here in denied")
-          if (permission === "granted") {
-            console.log("notification has been created")
-            showNotification(message);
-          }
-        });
-      }
-      else {
-       console.log("in nothing is ", Notification.permission)
-      }
-    } else {
-      console.log("This browser does not support desktop notifications.");
+  if ("Notification" in window) {
+    // Check if the user has already granted permission
+    console.log("Notification is allowed")
+    if (Notification.permission === "granted") {
+      console.log("notification has been created")
+      // If permission is granted, create a notification
+      showNotification(message);
     }
+    // If permission hasn't been granted yet, request it
+    else if (Notification.permission !== "denied") {
+      Notification.requestPermission().then(permission => {
+        // If the user grants permission, create a notification
+        console.log("here in denied")
+        if (permission === "granted") {
+          console.log("notification has been created")
+          showNotification(message);
+        }
+      });
+    }
+    else {
+      console.log("in nothing is ", Notification.permission)
+    }
+  } else {
+    console.log("This browser does not support desktop notifications.");
+  }
 
 }
 function showNotification(message) {
   console.log("in ShowNotification function")
   const notification = new Notification("Hello!", {
-      body: message,
+    body: message,
   });
 
   // Optional: Handle click event
   notification.onclick = function () {
-      window.focus(); // Bring the window to focus when notification is clicked
+    window.focus(); // Bring the window to focus when notification is clicked
   };
 }
-function createButton(){
+function createButton() {
   if (!document.getElementById('leaderButton')) {  // Prevent duplicate buttons
     let leaderButton = document.createElement('button');
     leaderButton.id = 'leaderButton';
@@ -217,7 +221,7 @@ function createButton(){
     // Add the click event for the leader to start the game
     leaderButton.addEventListener('click', () => {
       console.log('Leader button clicked');
-      socket.emit('startGame', {playername: playername, roomname: roomname});
+      socket.emit('startGame', { playername: playername, roomname: roomname });
     });
 
     document.querySelector('.container').appendChild(leaderButton);

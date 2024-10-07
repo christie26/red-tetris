@@ -35,7 +35,7 @@ app.use(express.static(path.join(__dirname, 'client')));
 app.get('/*', (req, res) => {
   let result = parseURL(req.path)
   switch (result) {
-    case 1 :
+    case 1:
       console.log("Invalid URL, sending alert.html");
       res.sendFile(path.join(__dirname, 'alert.html'));
       break;
@@ -51,7 +51,7 @@ app.get('/*', (req, res) => {
       console.log("ici dans default ")
       res.sendFile(path.join(__dirname, 'client', 'index.html'));
       break;
-    }
+  }
 });
 
 io.on('connection', function (socket) {
@@ -61,15 +61,17 @@ io.on('connection', function (socket) {
     socket.disconnect();
     return;
   }
-// Balkis review : so when people come i let them here but they don't see game's players
-//                  and I need a function to clear board at the endGame when the Game is finished
-//                  I manage endGame only when people leave and not the game is end idk when its end in the game logic
+  // Balkis review : so when people come i let them here but they don't see game's players
+  //                  and I need a function to clear board at the endGame when the Game is finished
+  //                  I manage endGame only when people leave and not the game is end idk when its end in the game logic
   addUserToRoom(queryParams.room, queryParams.playername, socket)
 
   socket.on('disconnect', () => {
+    // TODO : make sure they don't get error when we reload the page.
     console.log('User disconnected');
     const room = rooms.find(room => room.roomname === queryParams.room)
     const newLeader = room.removePlayer(queryParams.playername)
+    //TODO : remove player properly and also send proper notif to other players.
     if (newLeader)
       io.to(newLeader.socket.id).emit("newLeader")
     if (room.players.length == 0 && room.waitingPlayers.length == 0) {
@@ -84,7 +86,7 @@ io.on('connection', function (socket) {
     if (room.isPlaying == false) {
       console.log(`${c.YELLOW}%s${c.RESET} began a game.`, data.playername)
       room.players.forEach(player => {
-        io.to(player.socket.id).emit("playerList", {roomname: data.roomname, playerList: playerList})
+        io.to(player.socket.id).emit("playerList", { roomname: data.roomname, playerList: playerList })
       });
       room.startGame()
     }
@@ -114,7 +116,7 @@ io.on('connection', function (socket) {
 
 
 server.listen(3000, function () {
-  console.log('Socket IO server listening on port 3000');
+  console.log('red-tetris server listening on port 3000');
 });
 
 function splitPath(path) {
@@ -127,26 +129,26 @@ function parseURL(Url) {
   if (Url == "/error")
     return (3)
   const tab = splitPath(Url)
-  if (!tab || tab.length != 2 )
+  if (!tab || tab.length != 2)
     return (1)
-  else if (!checkUserUnique(tab[1])){
+  else if (!checkUserUnique(tab[1])) {
     return (2)
   } else {
     return (0)
   }
 }
 
-function checkUserUnique(playername){
+function checkUserUnique(playername) {
   //TODO-BALKIS: we should check in the room. not any room.
   const userExists = rooms.some(room =>
-    room.players.some(player => player.playername=== playername))
+    room.players.some(player => player.playername === playername))
 
   if (userExists) {
     console.log(`${playername} already exist :(`)
-      return false;
+    return false;
   } else {
     console.log(`${playername} is unique. :)`)
-      return true;
+    return true;
   }
 }
 
@@ -159,12 +161,12 @@ function addUserToRoom(roomname, playername, socket) {
   const isLeader = room.addPlayer(playername, socket)
 
   if (isLeader == true)
-    socket.emit("join", {type: 'leader', player: playername, room: roomname})
+    socket.emit("join", { type: 'leader', player: playername, room: roomname })
   else {
     if (room.isPlaying == false)
-      socket.emit("join", {type: 'normal', player: playername, room: roomname})
+      socket.emit("join", { type: 'normal', player: playername, room: roomname })
     else
-      socket.emit("join", {type: 'wait', player: playername, room: roomname})
+      socket.emit("join", { type: 'wait', player: playername, room: roomname })
   }
   return;
 }

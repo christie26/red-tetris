@@ -10,20 +10,21 @@ class Player {
     this.socket = socket;
     this.isLeader = isLeader
     this.Board = new Board(this.socket, key, this);
+    this.isPlaying = false;
     this.Room = Room;
   }
 
   updateKey(key) {
     this.Board = new Board(this.socket, key, this);
   }
-  startGame() {
+  clickStartButton() {
     if (this.Room.isPlaying == false) {
       this.Room.startGame()
     }
   }
   gameover() {
-    //CONCERN : should we send to everyone?
-    this.socket.emit('updateboard', {playername: this.playername, board: this.Board.fixedTiles})
+    this.isPlaying = false;
+    this.socket.emit('updateboard', { playername: this.playername, board: this.Board.fixedTiles })
     this.Room.onePlayerGameover(this)
   }
 }
