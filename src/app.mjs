@@ -141,25 +141,31 @@ function parseURL(Url) {
   const tab = splitPath(Url)
   if (!tab || tab.length != 2)
     return (1)
-  else if (!checkUserUnique(tab[1])) {
+  else if (!checkUserUnique(tab[1], tab[0])) {
     return (2)
   } else {
     return (0)
   }
 }
 
-function checkUserUnique(playername) {
-  //TODO-BALKIS: we should check in the room. not any room.
-  const userExists = rooms.some(room =>
-    room.players.some(player => player.playername === playername))
-
-  if (userExists) {
-    console.log(`${playername} already exist :(`)
-    return false;
-  } else {
-    console.log(`${playername} is unique. :)`)
-    return true;
+function checkUserUnique(playername, roomname) {
+  //TODO-BALKIS: we should check in the room. not any room. ✅
+  const myroom = rooms.find(room => room.roomname === roomname);
+  if (myroom){
+    const userExists = myroom.players.some(player => player.playername === playername)
+    if (userExists) {
+      console.log(`${playername} already exist :(`)
+      return false;
+    } else {
+      console.log(`${playername} is unique. :)`)
+      return true;
+    }
   }
+  else {
+    // Because room dosen't exist so user is unique
+    return true
+  }
+  
 }
 
 function addUserToRoom(roomname, playername, socket) {
