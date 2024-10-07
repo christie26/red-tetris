@@ -104,24 +104,22 @@ class Room {
   }
 
   updateEndgameToPlayers(winner) {
-    const roomname = this.roomname
     this.players.forEach(player => {
-      player.socket.emit("endGame", { roomname: roomname, winner: winner, type: 'player' })
+      player.socket.emit("endGame", { roomname: this.roomname, winner: winner, type: 'player' })
     });
   }
   updateEndgameToWaiters(winner) {
-    const roomname = this.roomname
     this.waiters.forEach(player => {
-      player.socket.emit("endGame", { roomname: roomname, winner: winner, type: 'waiter' })
+      player.socket.emit("endGame", { roomname: this.roomname, winner: winner, type: 'waiter' })
     });
   }
 
   onePlayerGameover(dier) {
-    const roomname = this.roomname
+    this.updateBoard(dier.playername, dier.Board.fixedTiles, 'died')
     this.players.forEach(player => {
-      player.socket.emit("gameover", { roomname: roomname, dier: dier })
+      player.socket.emit("gameover", { roomname: this.roomname, dier: dier.playername })
     });
-    console.log(`${c.YELLOW}%s${c.RESET} gameover in ${c.GREEN}%s${c.RESET}.`, dier, this.roomname)
+    console.log(`${c.YELLOW}%s${c.RESET} gameover in ${c.GREEN}%s${c.RESET}.`, dier.playername, this.roomname)
     this.diePlayer++;
     if (this.diePlayer == this.players.length - 1) {
       this.winner = this.players.some(player => !player.Board.gameover);

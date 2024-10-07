@@ -24,7 +24,7 @@ class Player {
   }
   gameover() {
     this.isPlaying = false;
-    this.Room.onePlayerGameover(this.playername)
+    this.Room.onePlayerGameover(this)
   }
 }
 

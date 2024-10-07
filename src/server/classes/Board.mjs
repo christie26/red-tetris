@@ -24,8 +24,7 @@ class Board {
     let left = 3 + Math.floor(this.createRandom() * 4);
     let direction = Math.floor(this.createRandom() * 4);
     this.fallingPiece = new Piece(this, type, left, direction);
-    if (this.gameover == true) {
-      this.Player.Room.updateBoard(this.Player.playername, this.fixedTiles, 'died')
+    if (this.gameover) {
       for (const tile of this.fallingPiece.tiles)
         this.fixedTiles[tile.y][tile.x] = tile.type
       this.Player.gameover();
@@ -112,9 +111,8 @@ class Board {
         this.fixedTiles[row][colIndex] = 20;
       });
     }
-    if (this.gameover) {
+    if (this.gameover)
       this.Player.gameover()
-    }
   }
   printBoard(board) {
     for (let row = 0; row <= 19; row++) {
