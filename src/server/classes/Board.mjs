@@ -18,11 +18,14 @@ class Board {
     this.Player = Player;
   }
   newPiece() {
+    if (this.gameover)
+      return;
     let type = Math.floor(this.createRandom() * 7);
     let left = 3 + Math.floor(this.createRandom() * 4);
     let direction = Math.floor(this.createRandom() * 4);
     this.fallingPiece = new Piece(this, type, left, direction);
     if (this.gameover == true) {
+      this.Player.Room.updateBoard(this.Player.playername, this.fixedTiles, 'died')
       for (const tile of this.fallingPiece.tiles)
         this.fixedTiles[tile.y][tile.x] = tile.type
       this.Player.gameover();

@@ -71,7 +71,6 @@ class Room {
     console.log(`${c.YELLOW}%s${c.RESET} left from ${c.GREEN}%s${c.RESET}.`, playername, this.roomname)
     return (newLeader)
   }
-
   targetIsPlaying(playername) {
     const targetPlayer = this.players.find(player => player.playername === playername);
     const isPlaying = this.isPlaying && targetPlayer && targetPlayer.isPlaying
@@ -105,21 +104,24 @@ class Room {
   }
 
   updateEndgameToPlayers(winner) {
+    const roomname = this.roomname
     this.players.forEach(player => {
-      player.socket.emit("endGame", { roomname: this.roomname, winner: winner, type: 'player' })
+      player.socket.emit("endGame", { roomname: roomname, winner: winner, type: 'player' })
     });
   }
   updateEndgameToWaiters(winner) {
+    const roomname = this.roomname
     this.waiters.forEach(player => {
-      player.socket.emit("endGame", { roomname: this.roomname, winner: winner, type: 'waiter' })
+      player.socket.emit("endGame", { roomname: roomname, winner: winner, type: 'waiter' })
     });
   }
 
-  onePlayerGameover(player) {
+  onePlayerGameover(dier) {
+    const roomname = this.roomname
     this.players.forEach(player => {
-      player.socket.emit("gameover", { roomname: this.roomname, dier: player })
+      player.socket.emit("gameover", { roomname: roomname, dier: dier })
     });
-    console.log(`${c.YELLOW}%s${c.RESET} gameover in ${c.GREEN}%s${c.RESET}.`, player.playername, this.roomname)
+    console.log(`${c.YELLOW}%s${c.RESET} gameover in ${c.GREEN}%s${c.RESET}.`, dier, this.roomname)
     this.diePlayer++;
     if (this.diePlayer == this.players.length - 1) {
       this.winner = this.players.some(player => !player.Board.gameover);

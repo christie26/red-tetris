@@ -93,7 +93,8 @@ io.on('connection', function (socket) {
   socket.on('keyboard', data => {
     let room = rooms.find(room => room.roomname === queryParams.room)
     let player = room.players.find(player => player.playername === queryParams.playername)
-
+    if (!player.isPlaying)
+      return;
     if (data.type == 'keydown') {
       if (!pressedKeys[data.key]) {
         pressedKeys[data.key] = true

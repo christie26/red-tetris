@@ -24,8 +24,7 @@ class Player {
   }
   gameover() {
     this.isPlaying = false;
-    this.socket.emit('updateboard', { playername: this.playername, board: this.Board.fixedTiles })
-    this.Room.onePlayerGameover(this)
+    this.Room.onePlayerGameover(this.playername)
   }
 }
 
