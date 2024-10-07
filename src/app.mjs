@@ -48,7 +48,6 @@ app.get('/*', (req, res) => {
       res.status(404).sendFile(path.join(__dirname, 'error.html'));
       break;
     default:
-      console.log("ici dans default ")
       res.sendFile(path.join(__dirname, 'client', 'index.html'));
       break;
   }
@@ -61,9 +60,6 @@ io.on('connection', function (socket) {
     socket.disconnect();
     return;
   }
-  // Balkis review : so when people come i let them here but they don't see game's players
-  //                  and I need a function to clear board at the endGame when the Game is finished
-  //                  I manage endGame only when people leave and not the game is end idk when its end in the game logic
   addUserToRoom(queryParams.room, queryParams.playername, socket)
 
   socket.on('disconnect', () => {

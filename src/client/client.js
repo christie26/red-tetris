@@ -119,8 +119,9 @@ socket.on('gameover', data => {
 });
 socket.on('endGame', (data) => {
   const winner = data.winner
+  console.log('The game ends, the winner is', winner)
   if (data.type == 'player')
-    toastr.success("End Game, The winner is ", winner)
+    toastr.success(`End Game, The winner is ${winner}`)
   else if (data.type == 'waiter')
     toastr.success("Game Finished, We gonna wait the leader start game to launch it !!")
 })

@@ -114,16 +114,16 @@ class Room {
     });
   }
 
-  onePlayerGameover(dier) {
+  onePlayerDied(dier) {
     this.updateBoard(dier.playername, dier.Board.fixedTiles, 'died')
     this.players.forEach(player => {
       player.socket.emit("gameover", { roomname: this.roomname, dier: dier.playername })
     });
     console.log(`${c.YELLOW}%s${c.RESET} gameover in ${c.GREEN}%s${c.RESET}.`, dier.playername, this.roomname)
-    this.diePlayer++;
-    if (this.diePlayer == this.players.length - 1) {
-      this.winner = this.players.some(player => !player.Board.gameover);
-      this.endGame(winner);
+    const winner = this.players.filter(player => !player.Board.gameover);
+    if (winner && winner.length == 1) {
+      winner[0].Board.freezeBoard()
+      this.endGame(winner[0].playername);
     }
   }
   updateBoard(playername, board, type) {
