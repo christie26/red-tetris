@@ -149,9 +149,8 @@ function parseURL(Url) {
 }
 
 function checkUserUnique(playername, roomname) {
-  //TODO-BALKIS: we should check in the room. not any room. ✅
   const myroom = rooms.find(room => room.roomname === roomname);
-  if (myroom){
+  if (myroom) {
     const userExists = myroom.players.some(player => player.playername === playername)
     if (userExists) {
       console.log(`${playername} already exist :(`)
@@ -162,10 +161,9 @@ function checkUserUnique(playername, roomname) {
     }
   }
   else {
-    // Because room dosen't exist so user is unique
     return true
   }
-  
+
 }
 
 function addUserToRoom(roomname, playername, socket) {
