@@ -1,9 +1,9 @@
 const pathParts = window.location.pathname.split('/');
 const roomname = pathParts[1];
 const playername = pathParts[2];
-// TODO-Yoonseo : make html, css prettier
+// TODO-Balkis : make html, css prettier
 const myBoard = document.getElementById('myBoard');
-const otherBoardContainer = document.getElementById('others');
+const containerWrapper = document.getElementById('others');
 
 function getTypeString(type) {
   switch (type) {
@@ -79,16 +79,17 @@ socket.on('playerList', (data) => {
   if (data.roomname == roomname) {
     for (const player of data.playerList) {
       if (player == playername) continue;
-      const otherplayer = document.createElement('div');
-      otherplayer.classList.add('otherboard-container')
+      const container = document.createElement('div');
+      container.classList.add('otherboard-container')
       const board = document.createElement('div')
       board.id = player
       board.classList.add('otherboard')
       const playerName = document.createElement('p');
       playerName.textContent = player;
-      otherBoardContainer.appendChild(otherplayer)
-      otherplayer.appendChild(board)
-      otherplayer.appendChild(playerName)
+
+      containerWrapper.appendChild(container)
+      container.appendChild(board)
+      container.appendChild(playerName)
     }
   }
 })
@@ -98,7 +99,7 @@ socket.on('updateboard', data => {
   else
     renderOtherBoard(data)
 })
-//TODO : proper change of board when games end.
+//TODO-Yoonseo : proper change of board when games end.
 socket.on('gameover', data => {
   if (data.dier == playername) {
     toastr.success('Game Over');

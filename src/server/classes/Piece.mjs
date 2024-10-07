@@ -44,6 +44,7 @@ class Piece {
     });
   }
   rotateTiles(tiles) {
+    // TODO : change direction
     if (tiles[0].type == 0)
       return;
     const center = tiles[0];

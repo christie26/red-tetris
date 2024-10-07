@@ -71,10 +71,10 @@ io.on('connection', function (socket) {
     console.log('User disconnected');
     const room = rooms.find(room => room.roomname === queryParams.room)
     const newLeader = room.removePlayer(queryParams.playername)
-    //TODO : remove player properly and also send proper notif to other players.
+    //TODO-Yoonseo : remove player properly and also send proper notif to other players.
     if (newLeader)
       io.to(newLeader.socket.id).emit("newLeader")
-    if (room.players.length == 0 && room.waitingPlayers.length == 0) {
+    if (room.players.length == 0 && room.waitingPlayers && room.waitingPlayers.length == 0) {
       console.log(`Destroy ${room.roomname}`)
       rooms = rooms.filter(p => p !== room);
     }
@@ -102,6 +102,7 @@ io.on('connection', function (socket) {
         player.Board.fallingPiece.moveSide('right');
         break;
       case 'down':
+        // TODO-Yoonseo: add key released
         player.Board.fallingPiece.fasterSpeed();
         break;
       case 'rotate':
