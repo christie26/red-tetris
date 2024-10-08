@@ -1,13 +1,3 @@
-@font-face {
-  font-family: 'Jersey 25';
-  src:
-  url('fonts/Jersey25.woff2') format('woff2'), /* Modern browsers */
-  url('fonts/Jersey25.woff') format('woff'),   /* Older browsers */
-  url('fonts/Jersey25.ttf') format('truetype'); /* Fallback for older browsers */
-  font-weight: normal;
-  font-style: normal;
-}
-
 h1 {
   margin: 0 auto;
   text-align: center;
