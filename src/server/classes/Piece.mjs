@@ -83,7 +83,7 @@ class Piece {
     }
   }
   rotatePiece() {
-    if (this.tiles[0].type === 1 || this.lock) return;
+    if (this.tiles[0].type === 7 || this.lock) return;
 
     let tempTiles = this.dupTiles(this.tiles);
     this.rotateTiles(tempTiles);
