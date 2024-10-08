@@ -20,7 +20,7 @@ class Piece {
       return;
     }
     this.board.renderPiece();
-    this.intervalId = setInterval(() => this.moveDown(), 5000);
+    this.intervalId = setInterval(() => this.moveDown(), 500);
   }
   /* manage tiles */
   addTile(x, y) {

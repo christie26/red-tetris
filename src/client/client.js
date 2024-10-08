@@ -1,43 +1,15 @@
 const pathParts = window.location.pathname.split('/');
 const roomname = pathParts[1];
 const playername = pathParts[2];
-const myBoard = document.getElementById('myBoard');
+const myboard = document.getElementById('myboard');
 const containerWrapper = document.getElementById('containerWrapper');
+const info = document.getElementById('info')
+const room_info = document.getElementById('room-info')
+const player_info = document.getElementById('player-info')
+let playing = false;
+//TODO: remove start game button when the game starts
+//show their own player name in 'myboard'
 
-function getTypeString(type) {
-  switch (type) {
-    case 1:
-      return 'I_BLOCK';
-    case 2:
-      return 'T_BLOCK';
-    case 3:
-      return 'L_BLOCK';
-    case 4:
-      return 'J_BLOCK';
-    case 5:
-      return 'S_BLOCK';
-    case 6:
-      return 'Z_BLOCK';
-    case 7:
-      return 'O_BLOCK';
-    case 11:
-      return 'I_BLOCK_FIX';
-    case 12:
-      return 'T_BLOCK_FIX';
-    case 13:
-      return 'L_BLOCK_FIX';
-    case 14:
-      return 'J_BLOCK_FIX';
-    case 15:
-      return 'S_BLOCK_FIX';
-    case 16:
-      return 'Z_BLOCK_FIX';
-    case 17:
-      return 'O_BLOCK_FIX';
-    case 20:
-      return 'PENALTY';
-  }
-}
 const socket = io({
   query: {
     room: roomname,
@@ -46,43 +18,67 @@ const socket = io({
 });
 
 socket.on('connect', () => {
-  console.log(`You joinned ${roomname} as ${playername}`);
-  myBoard.innerHTML = '';
+  console.log(`You connected to red-tetris server.`);
+  myboard.innerHTML = '';
   for (let row = 0; row < 20; row++) {
     for (let col = 0; col < 10; col++) {
       const cellElement = document.createElement('li');
-      myBoard.appendChild(cellElement)
+      myboard.appendChild(cellElement)
     }
-
   }
+  room_info.textContent = `Room: ${roomname}`
 });
 socket.on('join', (data) => {
-  if (data.type == 'leader') {
-    console.log("You became a leader")
-    toastr.success("You're the leader of this room");
-    createButton()
-  } else if (data.type == 'normal') {
-    console.log("join Room")
-    toastr.success("You join the room, we are waiting the leader to begin the game")
-  } else if (data.type == 'wait') {
-    console.log("wait room")
-    toastr.success("Game is already started, wait end Game to play in this Room")
+  if (data.roomname != roomname)
+    return;
+  if (data.player == playername) {
+    if (data.type == 'leader') {
+      console.log(`You joinned ${roomname} as ${playername} as a leader.`);
+      toastr.success("You're the leader of this room");
+      createButton()
+      updatePlayerInfo(data.playerlist)
+    } else if (data.type == 'normal') {
+      console.log(`You joinned ${roomname} as ${playername} as a player.`);
+      toastr.success("You join the room, we are waiting the leader to begin the game")
+      updatePlayerInfo(data.playerlist)
+    } else if (data.type == 'wait') {
+      console.log(`You joinned ${roomname} as ${playername} as a waiter.`);
+      player_info.innerHTML = ''
+      const text1 = document.createElement('text');
+      text1.textContent = 'A game is already playing...'
+      player_info.appendChild(text1)
+      const text2 = document.createElement('text');
+      text2.textContent = 'You should wait until it ends'
+      player_info.appendChild(text2)
+    }
+  } else {
+    if (data.type != 'wait')
+      updatePlayerInfo(data.playerlist)
   }
 });
 socket.on('leave', (data) => {
-  if (data.roomname == roomname) {
+  if (data.roomname != roomname)
+    return;
+
+  if (playing) {
     if (data.playername != playername) {
       const board = document.getElementById(data.playername)
       board.classList.add('left')
     }
+  } else {
+    updatePlayerInfo(data.playerlist)
   }
 })
-socket.on('newLeader', () => {
-  console.log("You're the newLeader")
-  toastr.success("You're the new Leader of this room")
-  createButton()
+socket.on('newLeader', (data) => {
+  if (data.roomname == roomname && data.playername == playername) {
+    console.log("You're the newLeader")
+    toastr.success("You're the new Leader of this room")
+    createButton()
+  }
 })
-socket.on('playerList', (data) => {
+socket.on('startgame', (data) => {
+  playing = true;
+  info.innerHTML = ''
   if (data.roomname == roomname) {
     for (const player of data.playerList) {
       if (player == playername) continue;
@@ -101,28 +97,29 @@ socket.on('playerList', (data) => {
   }
 })
 socket.on('updateboard', data => {
-  if (data.playername == playername)
+  if (data.player == playername)
     renderBoard(data.board)
   else if (data.type == 'fixed')
     renderOtherBoard(data)
 })
-//TODO-Yoonseo : proper change of board when games end.
 socket.on('gameover', data => {
   if (data.dier == playername) {
     toastr.success('Game Over');
-    myBoard.classList.add('died')
+    myboard.classList.add('died')
   } else {
     const board = document.getElementById(data.playername)
     board.classList.add('died')
   }
 });
 socket.on('endGame', (data) => {
+  if (data.roomname != roomname)
+    return;
   const winner = data.winner
-  console.log('The game ends, the winner is', winner)
-  if (data.type == 'player')
+  if (playing)
     toastr.success(`End Game, The winner is ${winner}`)
-  else if (data.type == 'waiter')
+  else
     toastr.success("Game Finished, We gonna wait the leader start game to launch it !!")
+  playing = false;
 })
 socket.on('redirect', (url) => {
   window.location.href = url;
@@ -179,14 +176,60 @@ document.addEventListener('keyup', event => {
     socket.emit('keyboard', { type: 'keyup', key: direction });
   }
 });
-
+function getTypeString(type) {
+  switch (type) {
+    case 1:
+      return 'I_BLOCK';
+    case 2:
+      return 'T_BLOCK';
+    case 3:
+      return 'L_BLOCK';
+    case 4:
+      return 'J_BLOCK';
+    case 5:
+      return 'S_BLOCK';
+    case 6:
+      return 'Z_BLOCK';
+    case 7:
+      return 'O_BLOCK';
+    case 11:
+      return 'I_BLOCK_FIX';
+    case 12:
+      return 'T_BLOCK_FIX';
+    case 13:
+      return 'L_BLOCK_FIX';
+    case 14:
+      return 'J_BLOCK_FIX';
+    case 15:
+      return 'S_BLOCK_FIX';
+    case 16:
+      return 'Z_BLOCK_FIX';
+    case 17:
+      return 'O_BLOCK_FIX';
+    case 20:
+      return 'PENALTY';
+  }
+}
+function updatePlayerInfo(players) {
+  if (players.length == 0)
+    return;
+  player_info.innerHTML = ''
+  const player = document.createElement('text');
+  player.textContent = 'Players:'
+  player_info.appendChild(player)
+  for (let index = 0; index < players.length; index++) {
+    const player = document.createElement('text');
+    player.textContent = players[index]
+    player_info.appendChild(player)
+  }
+}
 function renderBoard(board) {
-  myBoard.innerHTML = '';
+  myboard.innerHTML = '';
   board.forEach(row => {
     row.forEach(cell => {
       const cellElement = document.createElement('li');
       cellElement.classList.add(getTypeString(cell))
-      myBoard.appendChild(cellElement);
+      myboard.appendChild(cellElement);
     });
   });
 }
@@ -221,9 +264,9 @@ function createButton() {
 
     leaderButton.addEventListener('click', () => {
       console.log('Leader button clicked');
-      socket.emit('startGame', { playername: playername, roomname: roomname });
+      socket.emit('leaderClick', { roomname: roomname, playername: playername, });
     });
 
-    document.querySelector('.myboard-container').appendChild(leaderButton);
+    document.getElementById('myboard-container').appendChild(leaderButton);
   }
 }

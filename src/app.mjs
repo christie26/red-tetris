@@ -61,25 +61,19 @@ io.on('connection', function (socket) {
 
   socket.on('disconnect', () => {
     const room = rooms.find(room => room.roomname === queryParams.room)
-    const newLeader = room.removePlayer(queryParams.playername)
-    if (newLeader)
-      io.to(newLeader.socket.id).emit("newLeader")
+    room.playerDisconnect(queryParams.playername)
     if (room.players.length == 0 && room.waiters.length == 0) {
       console.log(`${c.GREEN}%s${c.RESET} is destroyed`, room.roomname)
       rooms = rooms.filter(p => p !== room);
     }
   });
-  socket.on('startGame', (data) => {
+  socket.on('leaderClick', (data) => {
     const room = rooms.find(room => room.roomname === data.roomname)
-    const playerList = room.players.map(player => player.playername);
-
-    if (room.isPlaying == false) {
-      console.log(`${c.YELLOW}%s${c.RESET} began a game.`, data.playername)
-      room.players.forEach(player => {
-        io.to(player.socket.id).emit("playerList", { roomname: data.roomname, playerList: playerList })
-      });
-      room.startGame()
+    if (!room) {
+      console.error(`${data.roomname} doesn't exist.`)
     }
+    if (room.isPlaying == false)
+      room.startGame(data.playername)
   })
   socket.on('keyboard', data => {
     let room = rooms.find(room => room.roomname === queryParams.room)
@@ -118,7 +112,6 @@ io.on('connection', function (socket) {
     }
   });
 });
-
 
 server.listen(3000, function () {
   console.log('red-tetris server listening on port 3000');
@@ -167,15 +160,9 @@ function addUserToRoom(roomname, playername, socket) {
     room = new Room(roomname)
     rooms.push(room)
   }
-  const isLeader = room.addPlayer(playername, socket)
+  room.addPlayer(playername, socket)
 
-  if (isLeader == true)
-    socket.emit("join", { type: 'leader', player: playername, room: roomname })
-  else {
-    if (room.isPlaying == false)
-      socket.emit("join", { type: 'normal', player: playername, room: roomname })
-    else
-      socket.emit("join", { type: 'wait', player: playername, room: roomname })
-  }
   return;
 }
+
+export default io;
