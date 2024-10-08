@@ -241,7 +241,7 @@ function renderBoard(board) {
   });
 }
 function renderOtherBoard(data) {
-  const theirBoard = document.getElementById(data.playername);
+  const theirBoard = document.getElementById(data.player);
   theirBoard.innerHTML = '';
   for (let col = 0; col < 20; col++) {
     for (let row = 0; row < 10; row++) {
