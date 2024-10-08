@@ -1,8 +1,28 @@
+@font-face {
+  font-family: 'Jersey 25';
+  src:
+    url('fonts/Jersey25.woff2') format('woff2'),
+    /* Modern browsers */
+    url('fonts/Jersey25.woff') format('woff'),
+    /* Older browsers */
+    url('fonts/Jersey25.ttf') format('truetype');
+  /* Fallback for older browsers */
+  font-weight: normal;
+  font-style: normal;
+}
+
 h1 {
   margin: 0 auto;
   text-align: center;
   margin-top: 60px;
   margin-bottom: 20px;
+  font-family: 'Jersey 25', sans-serif;
+  color: #C1121F;
+  font-size: 200;
+}
+
+body {
+  background-color: #FDF0D5;
 }
 
 .container {
@@ -14,7 +34,9 @@ h1 {
 }
 
 .myboard-container {
-  background-color: white;
+  list-style-type: none;
+  background-color: #FDF0D5;
+  width: 300px;
   display: grid;
   grid-template-columns: repeat(10, 1fr);
 }
@@ -74,31 +96,31 @@ p {
 }
 
 .O_BLOCK {
-  background-color: lightcoral;
+  background-color: #FDFFB6;
 }
 
 .T_BLOCK {
-  background-color: #f6cefc;
+  background-color: #BDB2FF;
 }
 
 .J_BLOCK {
-  background-color: lightblue;
+  background-color: #A0C4FF;
 }
 
 .L_BLOCK {
-  background-color: pink;
+  background-color: #FFD7A6;
 }
 
 .S_BLOCK {
-  background-color: darkkhaki;
+  background-color: #BDF2B1;
 }
 
 .Z_BLOCK {
-  background-color: lightgreen;
+  background-color: #FFAEAD;
 }
 
 .I_BLOCK {
-  background-color: lightgray;
+  background-color: #C5FAFF;
 }
 
 .O_BLOCK_FIX {
@@ -106,27 +128,27 @@ p {
 }
 
 .T_BLOCK_FIX {
-  background-color: #d49adf;
+  background-color: #9E8EFF;
 }
 
 .J_BLOCK_FIX {
-  background-color: #6497b1;
+  background-color: #70A6FF;
 }
 
 .L_BLOCK_FIX {
-  background-color: #d3878e;
+  background-color: #FFC783;
 }
 
 .S_BLOCK_FIX {
-  background-color: #a69e51;
+  background-color: #A0F08E;
 }
 
 .Z_BLOCK_FIX {
-  background-color: #6dbf6d;
+  background-color: #FF8180;
 }
 
 .I_BLOCK_FIX {
-  background-color: #8a8a8a;
+  background-color: #8DF5FF;
 }
 
 .PENALTY {
