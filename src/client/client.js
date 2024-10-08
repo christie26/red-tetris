@@ -7,8 +7,6 @@ const info = document.getElementById('info')
 const room_info = document.getElementById('room-info')
 const player_info = document.getElementById('player-info')
 let playing = false;
-//TODO: remove start game button when the game starts
-//show their own player name in 'myboard'
 
 const socket = io({
   query: {
@@ -27,6 +25,10 @@ socket.on('connect', () => {
     }
   }
   room_info.textContent = `Room: ${roomname}`
+  const playernameblock = document.createElement('text')
+  playernameblock.textContent = playername
+  playernameblock.classList.add('big')
+  document.getElementById('under-wrapper').appendChild(playernameblock);
 });
 socket.on('join', (data) => {
   if (data.roomname != roomname)
@@ -77,32 +79,37 @@ socket.on('newLeader', (data) => {
   }
 })
 socket.on('startgame', (data) => {
+  if (data.roomname != roomname)
+    return;
   playing = true;
   info.innerHTML = ''
-  if (data.roomname == roomname) {
-    for (const player of data.playerList) {
-      if (player == playername) continue;
-      const container = document.createElement('div');
-      container.classList.add('otherboard-container')
-      const board = document.createElement('div')
-      board.id = player
-      board.classList.add('otherboard')
-      const playerName = document.createElement('p');
-      playerName.textContent = player;
+  removeButton()
+  for (const player of data.playerList) {
+    if (player == playername) continue;
+    const container = document.createElement('div');
+    container.classList.add('otherboard-container')
+    const board = document.createElement('div')
+    board.id = player
+    board.classList.add('otherboard')
+    const playerName = document.createElement('p');
+    playerName.textContent = player;
 
-      containerWrapper.appendChild(container)
-      container.appendChild(board)
-      container.appendChild(playerName)
-    }
+    containerWrapper.appendChild(container)
+    container.appendChild(board)
+    container.appendChild(playerName)
   }
 })
 socket.on('updateboard', data => {
+  if (data.roomname != roomname)
+    return;
   if (data.player == playername)
     renderBoard(data.board)
   else if (data.type == 'fixed')
     renderOtherBoard(data)
 })
 socket.on('gameover', data => {
+  if (data.roomname != roomname)
+    return;
   if (data.dier == playername) {
     toastr.success('Game Over');
     myboard.classList.add('died')
@@ -256,7 +263,7 @@ function renderOtherBoard(data) {
   });
 }
 function createButton() {
-  if (!document.getElementById('leaderButton')) {  // Prevent duplicate buttons
+  if (!document.getElementById('leaderButton')) {
     const leaderButton = document.createElement('button');
     leaderButton.id = 'leaderButton';
     leaderButton.textContent = "Start Game";
@@ -267,6 +274,12 @@ function createButton() {
       socket.emit('leaderClick', { roomname: roomname, playername: playername, });
     });
 
-    document.getElementById('myboard-container').appendChild(leaderButton);
+    document.getElementById('under-wrapper').appendChild(leaderButton);
+  }
+}
+function removeButton() {
+  const leaderButton = document.getElementById('leaderButton');
+  if (leaderButton) {
+    leaderButton.remove();
   }
 }
