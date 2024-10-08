@@ -1,9 +1,8 @@
 const pathParts = window.location.pathname.split('/');
 const roomname = pathParts[1];
 const playername = pathParts[2];
-// TODO-Balkis : make html, css prettier
 const myBoard = document.getElementById('myBoard');
-const containerWrapper = document.getElementById('others');
+const containerWrapper = document.getElementById('containerWrapper');
 
 function getTypeString(type) {
   switch (type) {
@@ -215,17 +214,16 @@ function renderOtherBoard(data) {
 }
 function createButton() {
   if (!document.getElementById('leaderButton')) {  // Prevent duplicate buttons
-    let leaderButton = document.createElement('button');
+    const leaderButton = document.createElement('button');
     leaderButton.id = 'leaderButton';
     leaderButton.textContent = "Start Game";
-    leaderButton.classList.add('btn', 'btn-primary');
+    leaderButton.classList.add('button', 'leader');
 
-    // Add the click event for the leader to start the game
     leaderButton.addEventListener('click', () => {
       console.log('Leader button clicked');
       socket.emit('startGame', { playername: playername, roomname: roomname });
     });
 
-    document.querySelector('.container').appendChild(leaderButton);
+    document.querySelector('.myboard-container').appendChild(leaderButton);
   }
 }
