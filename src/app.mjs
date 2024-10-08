@@ -36,15 +36,12 @@ app.get('/*', (req, res) => {
   let result = parseURL(req.path)
   switch (result) {
     case 1:
-      console.log("Invalid URL, sending alert.html");
       res.sendFile(path.join(__dirname, 'alert.html'));
       break;
     case 2:
-      console.log("user already exist, sending alert_user.html");
       res.sendFile(path.join(__dirname, 'alert_user.html'));
       break;
     case 3:
-      console.log("Error path")
       res.status(404).sendFile(path.join(__dirname, 'error.html'));
       break;
     default:
@@ -63,14 +60,12 @@ io.on('connection', function (socket) {
   addUserToRoom(queryParams.room, queryParams.playername, socket)
 
   socket.on('disconnect', () => {
-    // TODO : make sure they don't get error when we reload the page.
-    console.log('User disconnected');
     const room = rooms.find(room => room.roomname === queryParams.room)
     const newLeader = room.removePlayer(queryParams.playername)
     if (newLeader)
       io.to(newLeader.socket.id).emit("newLeader")
-    if (room.players.length == 0 && room.waitingPlayers && room.waitingPlayers.length == 0) {
-      console.log(`Destroy ${room.roomname}`)
+    if (room.players.length == 0 && room.waiters.length == 0) {
+      console.log(`${c.GREEN}%s${c.RESET} is destroyed`, room.roomname)
       rooms = rooms.filter(p => p !== room);
     }
   });
@@ -153,10 +148,10 @@ function checkUserUnique(playername, roomname) {
   if (myroom) {
     const userExists = myroom.players.some(player => player.playername === playername)
     if (userExists) {
-      console.log(`${playername} already exist :(`)
+      console.log(`${c.YELLOW}%s${c.RESET} ${c.RED}already existed${c.RESET} in ${c.GREEN}%s${c.RESET}.`, playername, roomname)
       return false;
     } else {
-      console.log(`${playername} is unique. :)`)
+      console.log(`${c.YELLOW}%s${c.RESET} is unique in ${c.GREEN}%s${c.RESET}.`, playername, roomname)
       return true;
     }
   }

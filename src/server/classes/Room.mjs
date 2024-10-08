@@ -29,10 +29,13 @@ class Room {
     const newPlayer = new Player(playername, socket, this.key, isLeader, this);
     if (this.isPlaying == true) {
       this.waiters.push(newPlayer);
-      console.log(`${c.YELLOW}%s${c.RESET} joinned to ${c.GREEN}%s${c.RESET} as waitingPlayer.`, playername, this.roomname)
+      console.log(`${c.YELLOW}%s${c.RESET} joinned to ${c.GREEN}%s${c.RESET} as a waiter.`, playername, this.roomname)
     } else {
       this.players.push(newPlayer);
-      console.log(`${c.YELLOW}%s${c.RESET} joinned to ${c.GREEN}%s${c.RESET} as player.`, playername, this.roomname)
+      if (this.players.length == 1)
+        console.log(`${c.YELLOW}%s${c.RESET} joinned to ${c.GREEN}%s${c.RESET} as a leader.`, playername, this.roomname)
+      else
+        console.log(`${c.YELLOW}%s${c.RESET} joinned to ${c.GREEN}%s${c.RESET} as a player.`, playername, this.roomname)
     }
     return (isLeader)
   }
