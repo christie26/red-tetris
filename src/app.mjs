@@ -1,6 +1,6 @@
-import express from 'express';
+import express, { query } from 'express';
 import http from 'http';
-import Server from 'socket.io';
+import { Server } from 'socket.io';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import Player from './server/classes/Player.mjs';
@@ -16,7 +16,13 @@ const c = {
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: 'http://localhost:3000', // Specify your client URL
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['my-custom-header'],
+    credentials: true // Optional
+  }});
 let rooms = [];
 
 const __filename = fileURLToPath(import.meta.url);
@@ -26,7 +32,11 @@ server.listen(8000, function () {
   console.log('red-tetris server listening on port 8000');
 });
 
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:3000', // Allow your client URL
+  methods: ['GET', 'POST'], // Allow specific HTTP methods
+  credentials: true // Allow credentials (optional, depending on your needs)
+}));
 app.get('/favicon.ico', (req, res) => {
   res.send()
 })
@@ -44,13 +54,16 @@ app.get('/:room/:player', (req, res) => {
   }
 });
 app.get('/error', (res) =>{
-  res.status(403).send('Forbidden: Access denied');
+  //res.status(403).send('Forbidden: Access denied');
 })
 
 
 io.on('connection', function (socket) {
   console.log('user connect')
-  // const queryParams = socket.handshake.query;
+  const queryParams = socket.handshake.query;
+  console.log(queryParams.room)
+  console.log(queryParams.player)
+  console.log(socket.id)
   // if (queryParams.room == "undefined" || queryParams.player == "undefined") {
   //   socket.emit('redirect', '/error');
   //   socket.disconnect();
@@ -58,6 +71,9 @@ io.on('connection', function (socket) {
   // }
   // addUserToRoom(queryParams.room, queryParams.player, socket)
 
+  socket.on('connect', (msg) => {
+    console.log("room is ", queryParams.room, " player is ", queryParams.player);
+  });
   socket.on('disconnect', () => {
     const room = rooms.find(room => room.roomname === queryParams.room)
     room.playerDisconnect(queryParams.player)

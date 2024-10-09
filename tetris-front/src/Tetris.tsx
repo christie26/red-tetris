@@ -6,33 +6,41 @@ import { io, Socket } from 'socket.io-client';
 
 function Tetris() {
   const { room, player } = useParams();
-  const [socket, setSocket] = useState<Socket | null>(null);
-
-  fetch(`http://localhost:8000/${room}/${player}`)
-  .then((res) => {
-    if (res.status === 200) {
-      console.log('good');
-    } else if (res.status === 400) {
-      console.log('bad');
-    }
-  });
-
+  console.log("rendered Tetris")
   useEffect(() => {
-    console.log('I will make new socket yeah~')
-    const newSocket = io('http://localhost:8000', { query: { room: 'someRoom', player: 'somePlayer' } });
-    setSocket(newSocket);
+    console.log("in useEffect")
+        fetch(`http://localhost:8000/${room}/${player}`)
+      .then((res) => {
+        if (res.status === 200) {
+          console.log('good');
+          console.log('I will make new socket yeah~')
+          const socket = io('http://localhost:8000', { query: { room: room, player: player }, reconnection: false });
 
-    newSocket.on('connect', () => {
-      console.log('Connected to server');
-    });
+          socket.on('connect', () => {
+            console.log('Connected to server');
+          });
 
-    // Cleanup function to disconnect the socket
-    return () => {
-      newSocket.disconnect();
-      console.log('Disconnected from server');
-    };
-  }, []);
+          socket.on("connect_error", (error) => {
+            if (socket.active) {
+              console.log("reconnection")
+              // temporary failure, the socket will automatically try to reconnect
+            } else {
+              // the connection was denied by the server
+              // in that case, `socket.connect()` must be manually called in order to reconnect
+              console.log("error from socket io", error.message);
+            }
+          });
+          socket.on("disconnect", (reason, details) => {
+            console.log("disconection socket");
+            
+          });
 
+        } else if (res.status === 400) {
+          console.log('bad');
+        }
+      });
+    
+  }, [room, player]);
 
 
   return     (
