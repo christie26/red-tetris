@@ -5,6 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import Player from './server/classes/Player.mjs';
 import Room from './server/classes/Room.mjs'
+import cors from 'cors';
 let pressedKeys = {}; // Track pressed keys
 const c = {
   RED: '\x1b[31m',
@@ -21,47 +22,45 @@ let rooms = [];
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+server.listen(8000, function () {
+  console.log('red-tetris server listening on port 8000');
+});
+
+app.use(cors());
 app.get('/favicon.ico', (req, res) => {
   res.send()
 })
-
 app.get('/socket.io/socket.io.js', (req, res) => {
   res.setHeader('Content-Type', 'application/javascript');
   res.sendFile(path.join(__dirname, '/node_modules/socket.io-client/dist/socket.io.js'));
 });
 
-app.use(express.static(path.join(__dirname, 'client')));
-
-app.get('/*', (req, res) => {
-  let result = parseURL(req.path)
-  switch (result) {
-    case 1:
-      res.sendFile(path.join(__dirname, 'alert.html'));
-      break;
-    case 2:
-      res.sendFile(path.join(__dirname, 'alert_user.html'));
-      break;
-    case 3:
-      res.status(404).sendFile(path.join(__dirname, 'error.html'));
-      break;
-    default:
-      res.sendFile(path.join(__dirname, 'client', 'index.html'));
-      break;
+app.get('/:room/:player', (req, res) => {
+  if (checkUserUnique(req.params.player, req.params.room)) {
+    res.status(200).send('Good');
+    // addUserToRoom(req.params.room, req.params.player, socket)
+  } else {
+    res.status(400).send('Player name is not unique.');
   }
 });
+app.get('/error', (res) =>{
+  res.status(403).send('Forbidden: Access denied');
+})
+
 
 io.on('connection', function (socket) {
-  const queryParams = socket.handshake.query;
-  if (queryParams.room == "undefined" || queryParams.playername == "undefined") {
-    socket.emit('redirect', '/error');
-    socket.disconnect();
-    return;
-  }
-  addUserToRoom(queryParams.room, queryParams.playername, socket)
+  console.log('user connect')
+  // const queryParams = socket.handshake.query;
+  // if (queryParams.room == "undefined" || queryParams.player == "undefined") {
+  //   socket.emit('redirect', '/error');
+  //   socket.disconnect();
+  //   return;
+  // }
+  // addUserToRoom(queryParams.room, queryParams.player, socket)
 
   socket.on('disconnect', () => {
     const room = rooms.find(room => room.roomname === queryParams.room)
-    room.playerDisconnect(queryParams.playername)
+    room.playerDisconnect(queryParams.player)
     if (room.players.length == 0 && room.waiters.length == 0) {
       console.log(`${c.GREEN}%s${c.RESET} is destroyed`, room.roomname)
       rooms = rooms.filter(p => p !== room);
@@ -77,7 +76,7 @@ io.on('connection', function (socket) {
   })
   socket.on('keyboard', data => {
     let room = rooms.find(room => room.roomname === queryParams.room)
-    let player = room.players.find(player => player.playername === queryParams.playername)
+    let player = room.players.find(player => player.playername === queryParams.player)
     if (!player.isPlaying)
       return;
     if (data.type == 'keydown') {
@@ -113,28 +112,7 @@ io.on('connection', function (socket) {
   });
 });
 
-server.listen(3000, function () {
-  console.log('red-tetris server listening on port 3000');
-});
 
-function splitPath(path) {
-  const trimmedPath = path.replace(/^\/|\/$/g, '');
-
-  return trimmedPath ? trimmedPath.split('/') : [];
-}
-
-function parseURL(Url) {
-  if (Url == "/error")
-    return (3)
-  const tab = splitPath(Url)
-  if (!tab || tab.length != 2)
-    return (1)
-  else if (!checkUserUnique(tab[1], tab[0])) {
-    return (2)
-  } else {
-    return (0)
-  }
-}
 
 function checkUserUnique(playername, roomname) {
   const myroom = rooms.find(room => room.roomname === roomname);

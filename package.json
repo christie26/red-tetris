@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "type": "module",
-  "presets": ["@babel/preset-env"],
+  "presets": [
+    "@babel/preset-env"
+  ],
   "scripts": {
     "start": "node ./src/app.mjs",
     "dev": "nodemon ./src/app.mjs",
@@ -14,6 +16,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "4.14.0",
     "seedrandom": "^3.0.5",
     "socket.io": "1.4.8",
