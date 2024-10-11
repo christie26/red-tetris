@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+      "module": "ESNext",
+      "target": "ESNext",
+      "outDir": "./dist",
+      "moduleResolution": "node",
+      "esModuleInterop": true, 
+      "resolveJsonModule": true,
+      "allowSyntheticDefaultImports": true,
+      "isolatedModules": true,
+      "forceConsistentCasingInFileNames": true
+    }
+  }
