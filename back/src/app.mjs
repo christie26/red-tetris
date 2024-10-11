@@ -53,7 +53,7 @@ app.get('/error', (res) =>{
 
 io.on('connection', function (socket) {
   const queryParams = socket.handshake.query;
-  console.log('user connect', queryParams, socket.id)
+  // console.log('user connect', queryParams, socket.id)
   if (queryParams.room == "undefined" || queryParams.player == "undefined") {
     socket.emit('redirect', '/error');
     socket.disconnect();
