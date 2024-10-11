@@ -6,14 +6,10 @@ import { io, Socket } from 'socket.io-client';
 
 function Tetris() {
   const { room, player } = useParams();
-  console.log("rendered Tetris")
   useEffect(() => {
-    console.log("in useEffect")
         fetch(`http://localhost:8000/${room}/${player}`)
       .then((res) => {
         if (res.status === 200) {
-          console.log('good');
-          console.log('I will make new socket yeah~')
           const socket = io('http://localhost:8000', { query: { room: room, player: player }, reconnection: false });
 
           socket.on('connect', () => {

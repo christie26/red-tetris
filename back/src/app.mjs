@@ -3,10 +3,11 @@ import http from 'http';
 import { Server } from 'socket.io';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import Player from './server/classes/Player.mjs';
 import Room from './server/classes/Room.mjs'
 import cors from 'cors';
-let pressedKeys = {}; // Track pressed keys
+
+let pressedKeys = {};
+let rooms = [];
 const c = {
   RED: '\x1b[31m',
   GREEN: '\x1b[32m',
@@ -23,15 +24,10 @@ const io = new Server(server, {
     allowedHeaders: ['my-custom-header'],
     credentials: true // Optional
   }});
-let rooms = [];
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 server.listen(8000, function () {
   console.log('red-tetris server listening on port 8000');
 });
-
 app.use(cors({
   origin: 'http://localhost:3000', // Allow your client URL
   methods: ['GET', 'POST'], // Allow specific HTTP methods
@@ -42,38 +38,29 @@ app.get('/favicon.ico', (req, res) => {
 })
 app.get('/socket.io/socket.io.js', (req, res) => {
   res.setHeader('Content-Type', 'application/javascript');
-  res.sendFile(path.join(__dirname, '/node_modules/socket.io-client/dist/socket.io.js'));
+  res.sendFile(path.join(path.dirname(fileURLToPath(import.meta.url)), '/node_modules/socket.io-client/dist/socket.io.js'));
 });
-
 app.get('/:room/:player', (req, res) => {
   if (checkUserUnique(req.params.player, req.params.room)) {
     res.status(200).send('Good');
-    // addUserToRoom(req.params.room, req.params.player, socket)
   } else {
     res.status(400).send('Player name is not unique.');
   }
 });
 app.get('/error', (res) =>{
-  //res.status(403).send('Forbidden: Access denied');
+  res.status(403).send('Forbidden: Access denied');
 })
 
-
 io.on('connection', function (socket) {
-  console.log('user connect')
   const queryParams = socket.handshake.query;
-  console.log(queryParams.room)
-  console.log(queryParams.player)
-  console.log(socket.id)
-  // if (queryParams.room == "undefined" || queryParams.player == "undefined") {
-  //   socket.emit('redirect', '/error');
-  //   socket.disconnect();
-  //   return;
-  // }
-  // addUserToRoom(queryParams.room, queryParams.player, socket)
+  console.log('user connect', queryParams, socket.id)
+  if (queryParams.room == "undefined" || queryParams.player == "undefined") {
+    socket.emit('redirect', '/error');
+    socket.disconnect();
+    return;
+  }
+  addUserToRoom(queryParams.room, queryParams.player, socket.id)
 
-  socket.on('connect', (msg) => {
-    console.log("room is ", queryParams.room, " player is ", queryParams.player);
-  });
   socket.on('disconnect', () => {
     const room = rooms.find(room => room.roomname === queryParams.room)
     room.playerDisconnect(queryParams.player)
@@ -128,8 +115,6 @@ io.on('connection', function (socket) {
   });
 });
 
-
-
 function checkUserUnique(playername, roomname) {
   const myroom = rooms.find(room => room.roomname === roomname);
   if (myroom) {
@@ -147,7 +132,6 @@ function checkUserUnique(playername, roomname) {
   }
 
 }
-
 function addUserToRoom(roomname, playername, socket) {
   let room = rooms.find(room => room.roomname == roomname)
   if (!room) {
@@ -155,8 +139,6 @@ function addUserToRoom(roomname, playername, socket) {
     rooms.push(room)
   }
   room.addPlayer(playername, socket)
-
-  return;
 }
 
 export default io;
