@@ -16,7 +16,6 @@
         "react-scripts": "5.0.1",
         "socket.io-client": "^4.8.0",
         "toastr": "^2.1.4",
-        "typescript": "^4.9.5",
         "web-vitals": "^2.1.4"
     },
     "scripts": {
@@ -24,8 +23,8 @@
         "build": "react-scripts build",
         "test": "react-scripts test",
         "eject": "react-scripts eject",
-        "lint": "eslint src/ --fix --max-warnings=0",
-        "format": "prettier src/ --write"
+        "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}' --fix --max-warnings=0",
+        "format": "prettier 'src/**/*.{js,jsx,ts,tsx}' --write"
     },
     "eslintConfig": {
         "extends": [
@@ -47,12 +46,15 @@
     },
     "devDependencies": {
         "@eslint/js": "^9.12.0",
+        "@types/eslint__js": "^8.42.3",
         "eslint": "^8.57.1",
         "eslint-config-prettier": "^9.1.0",
         "eslint-plugin-prettier": "^5.2.1",
         "eslint-plugin-react": "^7.37.1",
+        "eslint-plugin-unused-imports": "^4.1.4",
         "globals": "^15.11.0",
         "prettier": "^3.3.3",
+        "typescript": "^5.6.3",
         "typescript-eslint": "^8.8.1"
     }
 }

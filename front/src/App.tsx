@@ -1,14 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { Routes, Route, useParams } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Routes, Route } from "react-router-dom";
 import logo from "./logo.svg";
 import "./App.css";
 import Tetris from "./Tetris";
 
 function ErrorPage() {
   useEffect(() => {
-    fetch(`http://localhost:8000/error`)
-      .then((res) => res.json())
-      .then((data) => {});
+    fetch(`http://localhost:8000/error`).then((res) => res.json());
     console.log("message from server");
   }, []);
 

@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { Routes, Route, useParams } from "react-router-dom";
+import React, { useEffect } from "react";
+import { useParams } from "react-router-dom";
 import "./App.css";
-import { io, Socket } from "socket.io-client";
+import { io } from "socket.io-client";
 import "./style.css";
 
 function Tetris() {
@@ -17,18 +17,14 @@ function Tetris() {
         socket.on("connect", () => {
           console.log("Connected to server");
         });
-
         socket.on("connect_error", (error) => {
           if (socket.active) {
             console.log("reconnection");
-            // temporary failure, the socket will automatically try to reconnect
           } else {
-            // the connection was denied by the server
-            // in that case, `socket.connect()` must be manually called in order to reconnect
             console.log("error from socket io", error.message);
           }
         });
-        socket.on("disconnect", (reason, details) => {
+        socket.on("disconnect", () => {
           console.log("disconection socket");
         });
       } else if (res.status === 400) {
