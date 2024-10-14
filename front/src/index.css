@@ -115,14 +115,13 @@ h1 {
     outline: 4px solid #53484e;
     background-color: #faf6f0;
     box-shadow: 7px 7px 0px #b3a69f;
-    margin: 0px;
-    padding: 0px;
   }
   
   #myboard > li {
     width: 25px;
     height: 25px;
-    outline: 1px solid #53484e;
+    box-sizing: border-box;
+    border: 1px solid #53484e;
   }
   
   #containerWrapper {

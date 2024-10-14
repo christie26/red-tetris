@@ -15,11 +15,11 @@ const Myboard = forwardRef((_, ref) => {
   }));
 
   return (
-    <ul id="myboard">
+    <div id="myboard">
       {board.flat().map((cell, index) => (
         <li key={index} className={getTypeString(cell)} />
       ))}
-    </ul>
+    </div>
   );
 });
 

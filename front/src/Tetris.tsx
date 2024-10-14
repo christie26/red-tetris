@@ -84,7 +84,6 @@ function Tetris() {
         <div id="containerWrapper"></div>
         <div id="myboard-container">
           <div id="myboard-wrapper">
-            <Myboard ref={myboardRef} />
             {room && (
               <InfoBox
                 roomname={room}
@@ -92,6 +91,7 @@ function Tetris() {
                 visible={infoVisible}
               />
             )}
+            <Myboard ref={myboardRef} />
           </div>
           <div id="under-wrapper">
             {player}
