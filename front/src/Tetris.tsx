@@ -17,9 +17,10 @@ function Tetris() {
   const myboardRef = useRef<{
     updateBoard: (newBoard: number[][]) => void;
   } | null>(null);
-  const updatePlayers = (newPlayers: string[]) => {
-    setPlayers(newPlayers);
-  };
+  const otherboardRef = useRef<{
+    updateBoard: (newBoard: number[][], playername: string) => void;
+  } | null>(null);
+
   useEffect(() => {
     if (!myroom || !myname) {
       console.error("Room or player is undefined");
@@ -47,7 +48,7 @@ function Tetris() {
         newSocket.on("playerList", (data) => {
           if (data.roomname !== myroom) return;
           if (data.playerList) {
-            updatePlayers(data.playerList);
+            setPlayers(data.playerList);
           } else {
             console.log("Player list is not available.");
           }
@@ -58,14 +59,15 @@ function Tetris() {
             setButtonVisible(false);
             setInfoVisible(false);
           }
+          // TODO:create other's boards.
         });
         newSocket.on("updateboard", (data) => {
           if (data.roomname !== myroom) return;
           if (data.player == myname) {
             myboardRef.current?.updateBoard(data.board);
+          } else if (data.type == "fixed") {
+            otherboardRef.current?.updateBoard(data.board, data.player);
           }
-          //  else if (data.type == "fixed")
-          //   otherboardRef.current?.updateBoard(data.board, data.player);
         });
         newSocket.on("disconnect", () => {
           console.log("disconnected from server");
@@ -84,7 +86,11 @@ function Tetris() {
     <div>
       <h1>Red-Tetris</h1>
       <div className="container">
-        <OtherBoardsContainer players={players} myname={myname} />
+        <OtherBoardsContainer
+          ref={otherboardRef}
+          players={players}
+          myname={myname}
+        />
         <div id="myboard-container">
           <div id="myboard-wrapper">
             <InfoBox
@@ -101,7 +107,7 @@ function Tetris() {
               roomname={myroom}
               playername={myname}
               visible={isButtonVisible}
-            ></StartButton>
+            />
           </div>
         </div>
       </div>

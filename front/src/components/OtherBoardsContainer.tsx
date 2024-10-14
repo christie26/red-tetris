@@ -1,5 +1,10 @@
-import React, { forwardRef, useImperativeHandle } from "react";
+import React, { forwardRef, useImperativeHandle, useState } from "react";
 import { OtherBoard } from "./OtherBoard";
+
+// [problem]
+// I have to create and change other players' board dynamically.
+// and with react system I can't find clear way.
+// 1. dynamically make state from OtherBoardsContainer and pass it to each OtherBoard.
 
 interface OtherBoardsContainerProps {
   players: string[];
@@ -7,9 +12,14 @@ interface OtherBoardsContainerProps {
 }
 const OtherBoardsContainer = forwardRef(
   ({ players, myname }: OtherBoardsContainerProps, ref) => {
+    const [boards, setBoards] = useState<{ [key: string]: number[][] }>({});
+
     const updateBoard = (newBoard: number[][], playername: string) => {
-      console.log("playername", playername);
-      console.log("newBoard", newBoard);
+      // TODO: add logic to make it silhouette
+      setBoards((prevBoards) => ({
+        ...prevBoards,
+        [playername]: newBoard,
+      }));
     };
 
     useImperativeHandle(ref, () => ({
@@ -21,7 +31,11 @@ const OtherBoardsContainer = forwardRef(
         {players
           .filter((player) => player !== myname)
           .map((player) => (
-            <OtherBoard key={player} playername={player} />
+            <OtherBoard
+              key={player}
+              playername={player}
+              board={boards[player]}
+            />
           ))}
       </div>
     );
