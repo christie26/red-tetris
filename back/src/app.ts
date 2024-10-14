@@ -52,11 +52,6 @@ app.get('/favicon.ico', (req: Request, res: Response) => {
   res.send();
 });
 
-// app.get('/socket.io/socket.io.js', (req: Request, res: Response) => {
-//   res.setHeader('Content-Type', 'application/javascript');
-//   res.sendFile(path.join(path.dirname(fileURLToPath(import.meta.url)), '/node_modules/socket.io-client/dist/socket.io.js'));
-// });
-
 app.get('/:room/:player', (req: Request, res: Response) => {
   if (checkUserUnique(req.params.player, req.params.room)) {
     res.status(200).send('Good');
@@ -159,6 +154,7 @@ function checkUserUnique(playername: string, roomname: string): boolean {
       return true;
     }
   } else {
+    console.log(`${c.GREEN}%s${c.RESET} is empty.`, roomname)
     return true;
   }
 }

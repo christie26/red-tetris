@@ -1,67 +1,75 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import "./App.css";
-import { io } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
 import { Myboard } from "./components/Myboard";
-import { updatePlayers } from "./components/PlayerInfo";
+import { PlayerInfo } from "./components/PlayerInfo";
+import StartButton from "./components/StartButton";
+import InfoBox from "./components/InfoBox";
 
 function Tetris() {
   const { room, player } = useParams();
-  const [isUnique, setIsUnique] = useState<boolean>(false);
+  const [isButtonVisible, setButtonVisible] = useState<boolean>(false);
+  const [socket, setSocket] = useState<Socket | null>(null);
+  const [infoVisible, setInfoVisible] = useState<boolean>(false);
+  const [players, setPlayers] = useState<string[]>([]);
+
+  const myboardRef = useRef<{
+    updateBoard: (newBoard: number[][]) => void;
+  } | null>(null);
 
   useEffect(() => {
+    if (!room || !player) {
+      console.error("Room or player is undefined");
+      return;
+    }
     fetch(`http://localhost:8000/${room}/${player}`).then((res) => {
       if (res.status === 200) {
-        setIsUnique(true);
-        const socket = io("http://localhost:8000", {
+        const newSocket = io("http://localhost:8000", {
           query: { room: room, player: player },
           reconnection: false,
         });
-        socket.on("connect", () => {
+        setSocket(newSocket);
+
+        newSocket.on("connect", () => {
           console.log("Connected to server");
         });
-        socket.on("join", (data) => {
-            console.log(data)
+        newSocket.on("join", (data) => {
+          if (data.roomname !== room || data.player !== player) return;
+          console.log(`Joined as ${data.player}`);
+          if (data.type == "leader") {
+            setButtonVisible(true);
+          }
+        });
+        newSocket.on("playerList", (data) => {
           if (data.roomname !== room) return;
-          if (data.player === player) {
-            if (data.type === "leader") {
-                console.log(`You joinned ${room} as ${player} as a leader.`);
-                console.log(typeof(data.playerList))
-                if (Array.isArray(data.playerList)){
-                    updatePlayers(data.playerList);
-                }
-              // toastr.success("You're the leader of this room");
-              // createButton()
-            } else if (data.type === "normal") {
-              console.log(`You joinned ${room} as ${player} as a player.`);
-              updatePlayers(data.playerList);
-              // toastr.success("You join the room, we are waiting the leader to begin the game")
-            } else if (data.type === "wait") {
-              console.log(`You joinned ${room} as ${player} as a waiter.`);
-              // player_info.innerHTML = ''
-              // const text1 = document.createElement('text');
-              // text1.textContent = 'A game is already playing...'
-              // player_info.appendChild(text1)
-              // const text2 = document.createElement('text');
-              // text2.textContent = 'You should wait until it ends'
-              // player_info.appendChild(text2)
-            }
+          if (data.playerList) {
+            setPlayers(data.playerList);
           } else {
-            if (data.type !== "wait") updatePlayers(data.playerList);
+            console.log("Player list is not available.");
           }
         });
-        socket.on("connect_error", (error) => {
-          if (socket.active) {
-            console.log("reconnection");
-          } else {
-            console.log("error from socket io", error.message);
+        newSocket.on("startgame", (data) => {
+          if (data.roomname !== room) return;
+          if (data.playerList.find((pl: string) => pl === player)) {
+            setButtonVisible(false);
+            setInfoVisible(false);
           }
         });
-        socket.on("disconnect", () => {
-          console.log("disconection socket");
+        newSocket.on("updateboard", (data) => {
+          if (data.roomname !== room) return;
+          if (data.player == player) {
+            myboardRef.current?.updateBoard(data.board);
+          }
+          // else if (data.type == "fixed") renderOtherBoard(data);
         });
+        newSocket.on("disconnect", () => {
+          console.log("disconnected from server");
+        });
+        return () => {
+          newSocket.disconnect();
+        };
       } else if (res.status === 400) {
-        setIsUnique(false);
         console.log("bad");
       }
     });
@@ -73,9 +81,28 @@ function Tetris() {
       <div className="container">
         <div id="containerWrapper"></div>
         <div id="myboard-container">
-          {room && player && (
-            <Myboard roomname={room} playername={player} isUnique={isUnique} />
-          )}
+          <div id="myboard-wrapper">
+            <Myboard ref={myboardRef} />
+            {room && (
+              <InfoBox
+                roomname={room}
+                players={players}
+                visible={infoVisible}
+              />
+            )}
+          </div>
+          <div id="under-wrapper">
+            {player}
+            {room && player && socket && (
+              <StartButton
+                socket={socket}
+                roomname={room}
+                playername={player}
+                visible={isButtonVisible}
+                setButtonVisible={setButtonVisible}
+              ></StartButton>
+            )}
+          </div>
         </div>
       </div>
     </div>

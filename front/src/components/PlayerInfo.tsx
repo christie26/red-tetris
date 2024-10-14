@@ -1,17 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 
-let updatePlayers: (newPlayers: string[]) => void;
+interface PlayerInfoProps {
+  players: string[];
+}
 
-const PlayerInfo: React.FC = () => {
-  const [players, setPlayers] = useState<string[]>([]);
-
-  useEffect(() => {
-    updatePlayers = (newPlayers: string[]) => {
-        console.log('updatePlayers called')
-      setPlayers(newPlayers);
-    };
-  }, []);
-
+const PlayerInfo: React.FC<PlayerInfoProps> = ({ players }) => {
   if (players.length === 0) {
     return null;
   }
@@ -26,4 +19,4 @@ const PlayerInfo: React.FC = () => {
   );
 };
 
-export { PlayerInfo, updatePlayers };
+export { PlayerInfo };

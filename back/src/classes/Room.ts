@@ -26,26 +26,21 @@ class Room {
     return this.players.map(player => player.playername);
   }
 
-  addPlayer(playername: string, socket: any): boolean {
+  addPlayer(playername: string, socketId: string): void {
     const isLeader = this.players.length === 0;
-    const newPlayer = new Player(playername, socket, this.key, isLeader, this); // Create the Player instance
+    const newPlayer = new Player(playername, socketId, this.key, isLeader, this);
 
     if (this.isPlaying) {
       this.waiters.push(newPlayer);
-      io.emit("join", { roomname: this.roomname, player: playername, playerlist: this.getPlayerList(), type: 'wait' });
-      console.log(`${c.YELLOW}%s${c.RESET} joined ${c.GREEN}%s${c.RESET} as a waiter.`, playername, this.roomname);
     } else {
       this.players.push(newPlayer);
-      if (this.players.length === 1) {
-        console.log('playerlist', this.getPlayerList());
-        io.emit("join", { roomname: this.roomname, player: playername, playerlist: this.getPlayerList(), type: 'leader' });
-        console.log(`${c.YELLOW}%s${c.RESET} joined ${c.GREEN}%s${c.RESET} as a leader.`, playername, this.roomname);
-      } else {
-        io.emit("join", { roomname: this.roomname, player: playername, playerlist: this.getPlayerList(), type: 'normal' });
-        console.log(`${c.YELLOW}%s${c.RESET} joined ${c.GREEN}%s${c.RESET} as a player.`, playername, this.roomname);
-      }
     }
-    return isLeader;
+    const role = this.isPlaying ? 'waiter' : (isLeader ? 'leader' : 'player');
+    io.emit("join", { roomname: this.roomname, player: playername, type: role });
+    console.log(`${c.YELLOW}%s${c.RESET} joined ${c.GREEN}%s${c.RESET} as a ${role}.`, playername, this.roomname);
+
+    // to everyone
+    io.emit('playerList', {roomname: this.roomname, playerList : this.getPlayerList()});
   }
 
   setNewLeader(): void {
@@ -89,7 +84,9 @@ class Room {
       this.endGame(this.players[0].playername);
     }
 
-    io.emit("leave", { roomname: this.roomname, player: playername, playerlist: this.getPlayerList() });
+    io.emit("leave", { roomname: this.roomname, player: playername });
+    // to everyone
+    io.emit('playerList', {roomname: this.roomname, playerList : this.getPlayerList()});
     console.log(`${c.YELLOW}%s${c.RESET} left from ${c.GREEN}%s${c.RESET}.`, playername, this.roomname);
   }
 

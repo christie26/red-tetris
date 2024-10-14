@@ -40,6 +40,7 @@ h1 {
       background-color 0.3s ease,
       border-color 0.3s ease;
     font-size: 20px;
+    border-radius: 5px;
   }
   
   .button:hover {
@@ -65,7 +66,7 @@ h1 {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 40px;
+    gap: 20px;
   }
   
   #myboard-wrapper {
@@ -97,9 +98,10 @@ h1 {
   }
   #under-wrapper {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
-    gap: 40px;
+    gap: 20px;
+    font-size: 20px;
   }
   #myboard {
     position: absolute;
@@ -113,12 +115,14 @@ h1 {
     outline: 4px solid #53484e;
     background-color: #faf6f0;
     box-shadow: 7px 7px 0px #b3a69f;
+    margin: 0px;
+    padding: 0px;
   }
   
   #myboard > li {
     width: 25px;
     height: 25px;
-    border: 1px solid #53484e;
+    outline: 1px solid #53484e;
   }
   
   #containerWrapper {
@@ -170,3 +174,64 @@ h1 {
   p {
     margin: 0px;
   }
+
+
+.O_BLOCK {
+  background-color: #fdffb6;
+}
+
+.T_BLOCK {
+  background-color: #bdb2ff;
+}
+
+.J_BLOCK {
+  background-color: #a0c4ff;
+}
+
+.L_BLOCK {
+  background-color: #ffd7a6;
+}
+
+.S_BLOCK {
+  background-color: #bdf2b1;
+}
+
+.Z_BLOCK {
+  background-color: #ffaead;
+}
+
+.I_BLOCK {
+  background-color: #c5faff;
+}
+
+.O_BLOCK_FIX {
+  background-color: #c96d6d;
+}
+
+.T_BLOCK_FIX {
+  background-color: #9e8eff;
+}
+
+.J_BLOCK_FIX {
+  background-color: #70a6ff;
+}
+
+.L_BLOCK_FIX {
+  background-color: #ffc783;
+}
+
+.S_BLOCK_FIX {
+  background-color: #a0f08e;
+}
+
+.Z_BLOCK_FIX {
+  background-color: #ff8180;
+}
+
+.I_BLOCK_FIX {
+  background-color: #8df5ff;
+}
+
+.PENALTY {
+  background-color: darkred;
+}

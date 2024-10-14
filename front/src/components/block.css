@@ -1,0 +1,61 @@
+
+.O_BLOCK {
+    background-color: #fdffb6;
+  }
+  
+  .T_BLOCK {
+    background-color: #bdb2ff;
+  }
+  
+  .J_BLOCK {
+    background-color: #a0c4ff;
+  }
+  
+  .L_BLOCK {
+    background-color: #ffd7a6;
+  }
+  
+  .S_BLOCK {
+    background-color: #bdf2b1;
+  }
+  
+  .Z_BLOCK {
+    background-color: #ffaead;
+  }
+  
+  .I_BLOCK {
+    background-color: #c5faff;
+  }
+  
+  .O_BLOCK_FIX {
+    background-color: #c96d6d;
+  }
+  
+  .T_BLOCK_FIX {
+    background-color: #9e8eff;
+  }
+  
+  .J_BLOCK_FIX {
+    background-color: #70a6ff;
+  }
+  
+  .L_BLOCK_FIX {
+    background-color: #ffc783;
+  }
+  
+  .S_BLOCK_FIX {
+    background-color: #a0f08e;
+  }
+  
+  .Z_BLOCK_FIX {
+    background-color: #ff8180;
+  }
+  
+  .I_BLOCK_FIX {
+    background-color: #8df5ff;
+  }
+  
+  .PENALTY {
+    background-color: darkred;
+  }
+  

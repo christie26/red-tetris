@@ -22,7 +22,6 @@ body {
   transition:
     background-color 0.3s ease,
     border-color 0.3s ease;
-  font-size: 20px;
 }
 
 .button:hover {
@@ -79,9 +78,10 @@ body {
 }
 #under-wrapper {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
-  gap: 40px;
+  gap: 20px;
+  font-size: 20px;
 }
 #myboard {
   position: absolute;
