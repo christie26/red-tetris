@@ -1,9 +1,3 @@
-body {
-  margin: 0;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
@@ -26,6 +20,9 @@ h1 {
   }
   
 body {
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   background-color: #fdf0d5;
   font-family: "Jersey 25", sans-serif;
 }
@@ -59,7 +56,9 @@ body {
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  margin: 15px;
+  margin: auto;
+  width: 80%;
+  gap: 120px;
 }
 
 #myboard-container {
@@ -91,18 +90,11 @@ body {
   background-color: rgba(250, 246, 240, 0.5);
   font-size: 20px;
 }
-
 #player-info {
   display: flex;
   flex-direction: column;
 }
-#under-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-  font-size: 20px;
-}
+
 #myboard {
   position: absolute;
   z-index: 1;
@@ -116,7 +108,6 @@ body {
   background-color: #faf6f0;
   box-shadow: 7px 7px 0px #b3a69f;
 }
-
 #myboard > li {
   width: 25px;
   height: 25px;
@@ -124,9 +115,14 @@ body {
   border: 1px solid #53484e;
 }
 
-#containerWrapper {
-  margin-right: 100px;
+#under-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  font-size: 20px;
 }
+
 
 .otherboard-container {
   display: flex;
@@ -144,7 +140,6 @@ body {
   box-shadow: 2px 2px 0px #b3a69f;
   background-color: #dec9b6;
 }
-
 .otherboard > li {
   width: 10px;
   height: 10px;

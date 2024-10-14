@@ -5,9 +5,10 @@ import { io, Socket } from "socket.io-client";
 import { Myboard } from "./components/Myboard";
 import StartButton from "./components/StartButton";
 import InfoBox from "./components/InfoBox";
+import OtherBoardsContainer from "./components/OtherBoardsContainer";
 
 function Tetris() {
-  const { room, player } = useParams();
+  const { room: myroom, player: myname } = useParams();
   const [socket, setSocket] = useState<Socket | null>(null);
   const [players, setPlayers] = useState<string[]>([]);
   const [isButtonVisible, setButtonVisible] = useState<boolean>(false);
@@ -20,14 +21,14 @@ function Tetris() {
     setPlayers(newPlayers);
   };
   useEffect(() => {
-    if (!room || !player) {
+    if (!myroom || !myname) {
       console.error("Room or player is undefined");
       return;
     }
-    fetch(`http://localhost:8000/${room}/${player}`).then((res) => {
+    fetch(`http://localhost:8000/${myroom}/${myname}`).then((res) => {
       if (res.status === 200) {
         const newSocket = io("http://localhost:8000", {
-          query: { room: room, player: player },
+          query: { room: myroom, player: myname },
           reconnection: false,
         });
         setSocket(newSocket);
@@ -36,7 +37,7 @@ function Tetris() {
           console.log("Connected to server");
         });
         newSocket.on("join", (data) => {
-          if (data.roomname !== room || data.player !== player) return;
+          if (data.roomname !== myroom || data.player !== myname) return;
           console.log(`Joined as ${data.player}`);
           setInfoVisible(true);
           if (data.type == "leader") {
@@ -44,7 +45,7 @@ function Tetris() {
           }
         });
         newSocket.on("playerList", (data) => {
-          if (data.roomname !== room) return;
+          if (data.roomname !== myroom) return;
           if (data.playerList) {
             updatePlayers(data.playerList);
           } else {
@@ -52,18 +53,19 @@ function Tetris() {
           }
         });
         newSocket.on("startgame", (data) => {
-          if (data.roomname !== room) return;
-          if (data.playerList.find((pl: string) => pl === player)) {
+          if (data.roomname !== myroom) return;
+          if (data.playerList.find((pl: string) => pl === myname)) {
             setButtonVisible(false);
             setInfoVisible(false);
           }
         });
         newSocket.on("updateboard", (data) => {
-          if (data.roomname !== room) return;
-          if (data.player == player) {
+          if (data.roomname !== myroom) return;
+          if (data.player == myname) {
             myboardRef.current?.updateBoard(data.board);
           }
-          // else if (data.type == "fixed") renderOtherBoard(data);
+          //  else if (data.type == "fixed")
+          //   otherboardRef.current?.updateBoard(data.board, data.player);
         });
         newSocket.on("disconnect", () => {
           console.log("disconnected from server");
@@ -75,34 +77,31 @@ function Tetris() {
         console.log("bad");
       }
     });
-  }, [room, player]);
+  }, [myroom, myname]);
 
+  if (!myroom || !myname || !socket) return null;
   return (
     <div>
       <h1>Red-Tetris</h1>
       <div className="container">
-        <div id="containerWrapper"></div>
+        <OtherBoardsContainer players={players} myname={myname} />
         <div id="myboard-container">
           <div id="myboard-wrapper">
-            {room && (
-              <InfoBox
-                roomname={room}
-                players={players}
-                visible={infoVisible}
-              />
-            )}
+            <InfoBox
+              roomname={myroom}
+              players={players}
+              visible={infoVisible}
+            />
             <Myboard ref={myboardRef} />
           </div>
           <div id="under-wrapper">
-            {player}
-            {room && player && socket && (
-              <StartButton
-                socket={socket}
-                roomname={room}
-                playername={player}
-                visible={isButtonVisible}
-              ></StartButton>
-            )}
+            {myname}
+            <StartButton
+              socket={socket}
+              roomname={myroom}
+              playername={myname}
+              visible={isButtonVisible}
+            ></StartButton>
           </div>
         </div>
       </div>
