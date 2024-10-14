@@ -6,7 +6,6 @@ interface StartButtonProps {
   roomname: string;
   playername: string;
   visible: boolean;
-  setButtonVisible: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const StartButton: React.FC<StartButtonProps> = ({
@@ -14,12 +13,10 @@ const StartButton: React.FC<StartButtonProps> = ({
   roomname,
   playername,
   visible,
-  setButtonVisible,
 }) => {
   const handleClick = () => {
     console.log("Leader button clicked");
     socket.emit("leaderClick", { roomname: roomname, playername: playername });
-    setButtonVisible(false);
   };
   if (visible)
     return (

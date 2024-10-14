@@ -1,5 +1,4 @@
 import React from "react";
-import { PlayerInfo } from "./PlayerInfo";
 
 interface InfoBoxProps {
   roomname: string;
@@ -11,8 +10,13 @@ const InfoBox: React.FC<InfoBoxProps> = ({ roomname, players, visible }) => {
   if (visible)
     return (
       <div id="info">
-        <p id="room_info">{`Room: ${roomname}`}</p>{" "}
-        {visible && <PlayerInfo players={players} />}
+        <div id="room-info">{`Room: ${roomname}`}</div>{" "}
+        <div id="player-info">
+          <div>Players:</div>
+          {players.map((player, index) => (
+            <div key={index}>{player}</div>
+          ))}
+        </div>
       </div>
     );
   else return null;

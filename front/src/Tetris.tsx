@@ -3,21 +3,22 @@ import { useParams } from "react-router-dom";
 import "./App.css";
 import { io, Socket } from "socket.io-client";
 import { Myboard } from "./components/Myboard";
-import { PlayerInfo } from "./components/PlayerInfo";
 import StartButton from "./components/StartButton";
 import InfoBox from "./components/InfoBox";
 
 function Tetris() {
   const { room, player } = useParams();
-  const [isButtonVisible, setButtonVisible] = useState<boolean>(false);
   const [socket, setSocket] = useState<Socket | null>(null);
-  const [infoVisible, setInfoVisible] = useState<boolean>(false);
   const [players, setPlayers] = useState<string[]>([]);
+  const [isButtonVisible, setButtonVisible] = useState<boolean>(false);
+  const [infoVisible, setInfoVisible] = useState<boolean>(false);
 
   const myboardRef = useRef<{
     updateBoard: (newBoard: number[][]) => void;
   } | null>(null);
-
+  const updatePlayers = (newPlayers: string[]) => {
+    setPlayers(newPlayers);
+  };
   useEffect(() => {
     if (!room || !player) {
       console.error("Room or player is undefined");
@@ -37,6 +38,7 @@ function Tetris() {
         newSocket.on("join", (data) => {
           if (data.roomname !== room || data.player !== player) return;
           console.log(`Joined as ${data.player}`);
+          setInfoVisible(true);
           if (data.type == "leader") {
             setButtonVisible(true);
           }
@@ -44,7 +46,7 @@ function Tetris() {
         newSocket.on("playerList", (data) => {
           if (data.roomname !== room) return;
           if (data.playerList) {
-            setPlayers(data.playerList);
+            updatePlayers(data.playerList);
           } else {
             console.log("Player list is not available.");
           }
@@ -99,7 +101,6 @@ function Tetris() {
                 roomname={room}
                 playername={player}
                 visible={isButtonVisible}
-                setButtonVisible={setButtonVisible}
               ></StartButton>
             )}
           </div>
