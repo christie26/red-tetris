@@ -50,7 +50,7 @@ app.use(cors({
   credentials: true // Allow credentials (optional, depending on your needs)
 }));
 
-app.get('/favicon.ico', (req: Request, res: Response) => {
+app.get('/redtetris.ico', (req: Request, res: Response) => {
   res.send();
 });
 
@@ -80,7 +80,7 @@ io.on('connection', (socket) => {
     if (room) {
       room.playerDisconnect(queryParams.player);
       if (room.players.length === 0 && room.waiters.length === 0) {
-        console.log(`${c.GREEN}%s${c.RESET} is destroyed`, room.roomname);
+        console.log(`[${c.GREEN}%s${c.RESET}] destroyed`, room.roomname);
         rooms = rooms.filter(p => p !== room);
       }
     }
@@ -158,14 +158,13 @@ function checkUserUnique(playername: string, roomname: string): boolean {
   if (myroom) {
     const userExists = myroom.players.some(player => player.playername === playername);
     if (userExists) {
-      console.log(`${c.YELLOW}%s${c.RESET} ${c.RED}already existed${c.RESET} in ${c.GREEN}%s${c.RESET}.`, playername, roomname);
+      console.log(`[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} ${c.RED}already existed.`, roomname, playername);
       return false;
     } else {
-      console.log(`${c.YELLOW}%s${c.RESET} is unique in ${c.GREEN}%s${c.RESET}.`, playername, roomname);
+      console.log(`[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} is unique.`, roomname, playername);
       return true;
     }
   } else {
-    console.log(`${c.GREEN}%s${c.RESET} is empty.`, roomname)
     return true;
   }
 }

@@ -102,9 +102,10 @@ function Tetris() {
     if (data.roomname !== myroom || !isPlaying) return;
     otherboardRef.current?.updateStatus("died", data.dier);
   });
-  // socket?.on("endgame", (data) => {
-  //   console.log("endgame", data);
-  // });
+  socket?.on("endgame", (data) => {
+    console.log("endgame", data);
+    // TODO:show toaster with the game result.
+  });
   function keyDownHandler(e: globalThis.KeyboardEvent, type: string) {
     if (socket) {
       socket.emit("keyboard", { type: type, key: e.key });

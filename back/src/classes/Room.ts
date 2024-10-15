@@ -19,7 +19,7 @@ class Room {
 
   constructor(roomname: string) {
     this.roomname = roomname;
-    console.log(`${c.GREEN}%s${c.RESET} is created`, roomname);
+    console.log(`[${c.GREEN}%s${c.RESET}] is created`, roomname);
   }
 
   getPlayerlist(): string[] {
@@ -37,7 +37,7 @@ class Room {
     }
     const role = this.isPlaying ? 'waiter' : (isLeader ? 'leader' : 'player');
     io.emit("join", { roomname: this.roomname, player: playername, type: role });
-    console.log(`${c.YELLOW}%s${c.RESET} joined ${c.GREEN}%s${c.RESET} as a ${role}.`, playername, this.roomname);
+    console.log(`[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} joined as a ${role}.`, this.roomname, playername);
 
     // to everyone
     io.emit('playerlist', {roomname: this.roomname, playerlist : this.getPlayerlist()});
@@ -57,7 +57,7 @@ class Room {
     if (newLeader) {
       newLeader.isLeader = true;
       io.emit('newleader', { roomname: this.roomname, playername: newLeader.playername });
-      console.log(`${c.YELLOW}%s${c.RESET} became new leader.`, newLeader.playername);
+      console.log(`[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} became new leader.`, this.roomname, newLeader.playername);
     }
   }
 
@@ -87,7 +87,7 @@ class Room {
     io.emit("leave", { roomname: this.roomname, player: playername });
     // to everyone
     io.emit('playerlist', {roomname: this.roomname, playerlist : this.getPlayerlist()});
-    console.log(`${c.YELLOW}%s${c.RESET} left from ${c.GREEN}%s${c.RESET}.`, playername, this.roomname);
+    console.log(`[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} left.`, this.roomname, playername);
   }
 
   private freezeIfPlaying(playername: string): void {
@@ -100,7 +100,7 @@ class Room {
 
   startGame(): void {
     const player = this.players[0];
-    console.log(`${c.YELLOW}%s${c.RESET} began a game.`, player.playername);
+    console.log(`[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} began a game.`, this.roomname, player.playername);
     io.emit("startgame", { roomname: this.roomname, playerlist: this.getPlayerlist() });
     this.isPlaying = true;
 
@@ -111,6 +111,7 @@ class Room {
   }
 
   endgame(winner: string): void {
+    console.log(`[${c.GREEN}%s${c.RESET}] game ends.`, this.roomname);
     this.isPlaying = false;
     for (const player of this.players) {
       player.Board.freezeBoard();
@@ -129,7 +130,7 @@ class Room {
   onePlayerDied(dier: Player): void {
     this.updateBoard(dier.playername, dier.Board.fixedTiles, 'died');
     io.emit("gameover", { roomname: this.roomname, dier: dier.playername });
-    console.log(`${c.YELLOW}%s${c.RESET} gameover in ${c.GREEN}%s${c.RESET}.`, dier.playername, this.roomname);
+    console.log(`[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} gameover.`, this.roomname, dier.playername);
 
     const winner = this.players.filter(player => !player.Board.gameover);
     if (winner.length === 1) {
@@ -147,7 +148,7 @@ class Room {
       if (player.playername === sender) continue;
       player.Board.getPenalty(lines);
     }
-    console.log(`${c.YELLOW}%s${c.RESET} sent ${c.RED}%d${c.RESET} lines penalty in ${c.GREEN}%s${c.RESET}.`, sender, lines, this.roomname);
+    console.log(`[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} sent ${c.RED}%d${c.RESET} lines penalty.`, this.roomname, sender, lines);
   }
 
   private createBoard() {
