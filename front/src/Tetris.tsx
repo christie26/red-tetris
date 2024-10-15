@@ -59,7 +59,7 @@ function Tetris() {
     }
   });
   socket?.on("playerlist", (data) => {
-    if (data.roomname !== myroom || !isPlayingRef) return;
+    if (data.roomname !== myroom || isPlayingRef.current) return;
     if (data.playerlist) {
       setPlayers(data.playerlist);
     } else {
@@ -83,7 +83,6 @@ function Tetris() {
     if (data.player === myname) {
       myboardRef.current?.updateBoard(data.board);
     } else if (data.type === "fixed") {
-      console.log("updateboard", data);
       otherboardRef.current?.updateBoard(data.board, data.player);
     }
   });
