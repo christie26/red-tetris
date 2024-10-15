@@ -22,7 +22,7 @@ class Room {
     console.log(`${c.GREEN}%s${c.RESET} is created`, roomname);
   }
 
-  getPlayerList(): string[] {
+  getPlayerlist(): string[] {
     return this.players.map(player => player.playername);
   }
 
@@ -40,7 +40,7 @@ class Room {
     console.log(`${c.YELLOW}%s${c.RESET} joined ${c.GREEN}%s${c.RESET} as a ${role}.`, playername, this.roomname);
 
     // to everyone
-    io.emit('playerList', {roomname: this.roomname, playerList : this.getPlayerList()});
+    io.emit('playerlist', {roomname: this.roomname, playerlist : this.getPlayerlist()});
   }
 
   setNewLeader(): void {
@@ -81,12 +81,12 @@ class Room {
     this.players = this.players.filter(p => p.playername !== playername);
 
     if (this.players.length === 1 && this.isPlaying) {
-      this.endGame(this.players[0].playername);
+      this.endgame(this.players[0].playername);
     }
 
     io.emit("leave", { roomname: this.roomname, player: playername });
     // to everyone
-    io.emit('playerList', {roomname: this.roomname, playerList : this.getPlayerList()});
+    io.emit('playerlist', {roomname: this.roomname, playerlist : this.getPlayerlist()});
     console.log(`${c.YELLOW}%s${c.RESET} left from ${c.GREEN}%s${c.RESET}.`, playername, this.roomname);
   }
 
@@ -101,7 +101,7 @@ class Room {
   startGame(): void {
     const player = this.players[0];
     console.log(`${c.YELLOW}%s${c.RESET} began a game.`, player.playername);
-    io.emit("startgame", { roomname: this.roomname, playerList: this.getPlayerList() });
+    io.emit("startgame", { roomname: this.roomname, playerlist: this.getPlayerlist() });
     this.isPlaying = true;
 
     this.players.forEach(player => {
@@ -110,10 +110,13 @@ class Room {
     });
   }
 
-  endGame(winner: string): void {
+  endgame(winner: string): void {
     this.isPlaying = false;
-    io.emit("endGame", { roomname: this.roomname, winner: winner, type: 'player' });
-    io.emit("endGame", { roomname: this.roomname, winner: winner, type: 'waiter' });
+    for (const player of this.players) {
+      player.Board.freezeBoard();
+    }
+    io.emit("endgame", { roomname: this.roomname, winner: winner, type: 'player' });
+    io.emit("endgame", { roomname: this.roomname, winner: winner, type: 'waiter' });
     this.players.push(...this.waiters);
     this.waiters.length = 0;
 
@@ -131,7 +134,7 @@ class Room {
     const winner = this.players.filter(player => !player.Board.gameover);
     if (winner.length === 1) {
       winner[0].Board.freezeBoard();
-      this.endGame(winner[0].playername);
+      this.endgame(winner[0].playername);
     }
   }
 

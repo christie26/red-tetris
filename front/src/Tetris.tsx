@@ -58,22 +58,22 @@ function Tetris() {
       setButtonVisible(true);
     }
   });
-  socket?.on("playerList", (data) => {
+  socket?.on("playerlist", (data) => {
     if (data.roomname !== myroom || !isPlayingRef) return;
-    if (data.playerList) {
-      setPlayers(data.playerList);
+    if (data.playerlist) {
+      setPlayers(data.playerlist);
     } else {
       console.log("Player list is not available.");
     }
   });
   socket?.on("startgame", (data) => {
     if (data.roomname !== myroom) return;
-    if (data.playerList.find((pl: string) => pl === myname)) {
+    if (data.playerlist.find((pl: string) => pl === myname)) {
       setButtonVisible(false);
       setInfoVisible(false);
       setIsPlaying(true);
     }
-    for (const player of data.playerList) {
+    for (const player of data.playerlist) {
       const empty = Array.from({ length: 20 }, () => Array(10).fill(0));
       otherboardRef.current?.updateBoard(empty, player);
     }
@@ -83,6 +83,7 @@ function Tetris() {
     if (data.player === myname) {
       myboardRef.current?.updateBoard(data.board);
     } else if (data.type === "fixed") {
+      console.log("updateboard", data);
       otherboardRef.current?.updateBoard(data.board, data.player);
     }
   });
@@ -95,8 +96,16 @@ function Tetris() {
   });
   socket?.on("leave", (data) => {
     if (data.roomname !== myroom || !isPlaying) return;
-    otherboardRef.current?.updateStatus("leave", data.player);
+    otherboardRef.current?.updateStatus("offline", data.player);
   });
+  socket?.on("gameover", (data) => {
+    console.log("gameover", data);
+    if (data.roomname !== myroom || !isPlaying) return;
+    otherboardRef.current?.updateStatus("died", data.player);
+  });
+  // socket?.on("endgame", (data) => {
+  //   console.log("endgame", data);
+  // });
   function keyDownHandler(e: globalThis.KeyboardEvent, type: string) {
     if (socket) {
       socket.emit("keyboard", { type: type, key: e.key });

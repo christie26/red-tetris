@@ -142,8 +142,8 @@ body {
   background-color: #dc7872;
 }
 
-.leave {
-  background-color: #80615f;
+.offline {
+  background-color: lightgray;
 }
 
 .win {
@@ -151,11 +151,8 @@ body {
 }
 
 .filled {
-  background-color: #b3a69f;
-}
-
-.left {
-  background-color: darkblue;
+  /* background-color: #b3a69f; */
+  background-color: darkgray;
 }
 
 p {
