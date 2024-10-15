@@ -12,13 +12,16 @@ function Tetris() {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [players, setPlayers] = useState<string[]>([]);
   const [isButtonVisible, setButtonVisible] = useState<boolean>(false);
-  const [infoVisible, setInfoVisible] = useState<boolean>(false);
+  const [infoVisible, setInfoVisible] = useState<boolean>(true);
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const isPlayingRef = useRef(isPlaying);
 
   const myboardRef = useRef<{
     updateBoard: (newBoard: number[][]) => void;
   } | null>(null);
   const otherboardRef = useRef<{
     updateBoard: (newBoard: number[][], playername: string) => void;
+    updateStatus: (newStatus: string, playername: string) => void;
   } | null>(null);
 
   useEffect(() => {
@@ -41,6 +44,9 @@ function Tetris() {
       }
     });
   }, [myroom, myname]);
+  useEffect(() => {
+    isPlayingRef.current = isPlaying;
+  }, [isPlaying]);
 
   socket?.on("connect", () => {
     console.log("Connected to server");
@@ -48,13 +54,12 @@ function Tetris() {
   socket?.on("join", (data) => {
     if (data.roomname !== myroom || data.player !== myname) return;
     console.log(`Joined as ${data.player}`);
-    setInfoVisible(true);
     if (data.type === "leader") {
       setButtonVisible(true);
     }
   });
   socket?.on("playerList", (data) => {
-    if (data.roomname !== myroom) return;
+    if (data.roomname !== myroom || !isPlayingRef) return;
     if (data.playerList) {
       setPlayers(data.playerList);
     } else {
@@ -66,6 +71,7 @@ function Tetris() {
     if (data.playerList.find((pl: string) => pl === myname)) {
       setButtonVisible(false);
       setInfoVisible(false);
+      setIsPlaying(true);
     }
     for (const player of data.playerList) {
       const empty = Array.from({ length: 20 }, () => Array(10).fill(0));
@@ -86,6 +92,10 @@ function Tetris() {
   socket?.on("newleader", (data) => {
     if (data.roomname === myroom && data.playername === myname)
       setButtonVisible(true);
+  });
+  socket?.on("leave", (data) => {
+    if (data.roomname !== myroom || !isPlaying) return;
+    otherboardRef.current?.updateStatus("leave", data.player);
   });
   function keyDownHandler(e: globalThis.KeyboardEvent, type: string) {
     if (socket) {
