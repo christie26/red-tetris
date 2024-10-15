@@ -141,9 +141,14 @@ body {
 .died {
   background-color: #dc7872;
 }
-
+.died > .filled {
+  background-color: #e58f8a;
+}
 .offline {
   background-color: lightgray;
+}
+.offline > .filled {
+  background-color: darkgray;
 }
 
 .win {

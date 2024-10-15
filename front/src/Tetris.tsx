@@ -100,7 +100,7 @@ function Tetris() {
   socket?.on("gameover", (data) => {
     console.log("gameover", data);
     if (data.roomname !== myroom || !isPlaying) return;
-    otherboardRef.current?.updateStatus("died", data.player);
+    otherboardRef.current?.updateStatus("died", data.dier);
   });
   // socket?.on("endgame", (data) => {
   //   console.log("endgame", data);
