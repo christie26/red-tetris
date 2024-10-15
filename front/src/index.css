@@ -39,7 +39,6 @@ body {
   font-size: 20px;
   border-radius: 5px;
 }
-
 .button:hover {
   background-color: #bfa08c;
   border-color: #3d3236;
@@ -47,9 +46,6 @@ body {
 
 .leader {
   background-color: #dec9b6;
-}
-.big {
-  font-size: 30px;
 }
 .container {
   display: flex;
@@ -67,7 +63,6 @@ body {
   align-items: center;
   gap: 20px;
 }
-
 #myboard-wrapper {
   position: relative;
   width: 250px;
@@ -123,14 +118,12 @@ body {
   font-size: 20px;
 }
 
-
 .otherboard-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 }
-
 .otherboard {
   list-style-type: none;
   display: grid;
@@ -171,7 +164,7 @@ p {
 
 
 .O_BLOCK {
-  background-color: #fdffb6;
+  background-color: #AD947B;
 }
 
 .T_BLOCK {
@@ -199,7 +192,7 @@ p {
 }
 
 .O_BLOCK_FIX {
-  background-color: #c96d6d;
+  background-color: #C5BAA6;
 }
 
 .T_BLOCK_FIX {

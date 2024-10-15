@@ -56,7 +56,7 @@ class Room {
 
     if (newLeader) {
       newLeader.isLeader = true;
-      io.emit('newLeader', { roomname: this.roomname, playername: newLeader.playername });
+      io.emit('newleader', { roomname: this.roomname, playername: newLeader.playername });
       console.log(`${c.YELLOW}%s${c.RESET} became new leader.`, newLeader.playername);
     }
   }
@@ -98,8 +98,9 @@ class Room {
     }
   }
 
-  startGame(playername: string): void {
-    console.log(`${c.YELLOW}%s${c.RESET} began a game.`, playername);
+  startGame(): void {
+    const player = this.players[0];
+    console.log(`${c.YELLOW}%s${c.RESET} began a game.`, player.playername);
     io.emit("startgame", { roomname: this.roomname, playerList: this.getPlayerList() });
     this.isPlaying = true;
 

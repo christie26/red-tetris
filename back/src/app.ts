@@ -3,6 +3,7 @@ import http from 'http';
 import { Server } from 'socket.io';
 import Room from './classes/Room.js';
 import cors from 'cors';
+import Player from './classes/Player.js';
 
 function isQueryParams(query: any): query is QueryParams {
     return typeof query.room === 'string' && typeof query.player === 'string';
@@ -12,12 +13,13 @@ interface PressedKeys {
   [key: string]: boolean;
 }
 
+const playerKeyStates: { [socketId: string]: PressedKeys } = {};
+
 interface QueryParams {
   room: string;
   player: string;
 }
 
-let pressedKeys: PressedKeys = {};
 let rooms: Room[] = [];
 
 const c = {
@@ -66,7 +68,6 @@ app.get('/error', (req: Request, res: Response) => {
 
 io.on('connection', (socket) => {
   const queryParams = socket.handshake.query;
-  
   if (!isQueryParams(queryParams)) {
     socket.emit('redirect', '/error');
     socket.disconnect();
@@ -85,63 +86,73 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('leaderClick', (data: { roomname: string; playername: string }) => {
-    const room = rooms.find(room => room.roomname === data.roomname);
-    if (!room) {
-      console.error(`${data.roomname} doesn't exist.`);
-      return;
-    }
-    if (!room.isPlaying) {
-      room.startGame(data.playername);
+  socket.on('leaderClick', () => {
+    const room = findRoom(socket.id)
+    const player = findPlayer(socket.id)
+    if (room && player && player === room.players[0]) {
+      if (!room.isPlaying) {
+        room.startGame();
+      }
+    } else {
+        console.error("Something wrong with leader click.");
     }
   });
 
   socket.on('keyboard', (data: { type: string; key: string }) => {
-    const room = rooms.find(room => room.roomname === queryParams.room);
-    const player = room?.players.find(player => player.playername === queryParams.player);
-    if (!player?.isPlaying) return;
+    const player = findPlayer(socket.id);
+    if (!player || !player.isPlaying) return;
 
-    if (data.type === 'keydown') {
+    if (!playerKeyStates[socket.id]) {
+      playerKeyStates[socket.id] = {};
+    }
+
+    const pressedKeys = playerKeyStates[socket.id];
+
+    if (data.type === 'down') {
       if (!pressedKeys[data.key]) {
         pressedKeys[data.key] = true;
       } else {
         return;
       }
-
       switch (data.key) {
-        case 'left':
-            if(player.Board.fallingPiece)
-                player.Board.fallingPiece.moveSide('left');
-            break;
-        case 'right':
-            if(player.Board.fallingPiece)
-                player.Board.fallingPiece.moveSide('right');
+        case 'ArrowLeft':
+          player.Board.fallingPiece?.moveSide('left');
           break;
-        case 'down':
-            if(player.Board.fallingPiece)
-                player.Board.fallingPiece.fasterSpeed();
+          case 'ArrowRight':
+          player.Board.fallingPiece?.moveSide('right');
+          player.Board.fallingPiece?.moveSide('right');
           break;
-        case 'rotate':
-            if(player.Board.fallingPiece)
-                player.Board.fallingPiece.rotatePiece();
+        case 'ArrowDown':
+          player.Board.fallingPiece?.fasterSpeed();
           break;
-        case 'sprint':
-            if(player.Board.fallingPiece)
-                player.Board.fallingPiece.fallSprint();
+        case 'ArrowUp':
+          player.Board.fallingPiece?.rotatePiece();
+          break;
+        case ' ':
+          player.Board.fallingPiece?.fallSprint();
           break;
       }
     }
-
-    if (data.type === 'keyup') {
+  
+    if (data.type === 'up') {
       pressedKeys[data.key] = false;
-      if (data.key === 'down') {
-        if(player.Board.fallingPiece)
-            player.Board.fallingPiece.resetSpeed();
+      if (data.key === 'ArrowDown') {
+        player.Board.fallingPiece?.resetSpeed();
       }
     }
   });
 });
 
+function findRoom(socketId: string) : Room {
+  return rooms.find(room => room.players.find(player => player.socket === socketId))
+}
+function findPlayer(socketId: string) : Player {
+  for (const room of rooms) {
+    const player = room.players.find(player => player.socket === socketId)
+    if (player) return player;
+  }
+  return null;
+}
 function checkUserUnique(playername: string, roomname: string): boolean {
   const myroom = rooms.find(room => room.roomname === roomname);
   if (myroom) {

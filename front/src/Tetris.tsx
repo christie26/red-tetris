@@ -33,45 +33,6 @@ function Tetris() {
           reconnection: false,
         });
         setSocket(newSocket);
-
-        newSocket.on("connect", () => {
-          console.log("Connected to server");
-        });
-        newSocket.on("join", (data) => {
-          if (data.roomname !== myroom || data.player !== myname) return;
-          console.log(`Joined as ${data.player}`);
-          setInfoVisible(true);
-          if (data.type == "leader") {
-            setButtonVisible(true);
-          }
-        });
-        newSocket.on("playerList", (data) => {
-          if (data.roomname !== myroom) return;
-          if (data.playerList) {
-            setPlayers(data.playerList);
-          } else {
-            console.log("Player list is not available.");
-          }
-        });
-        newSocket.on("startgame", (data) => {
-          if (data.roomname !== myroom) return;
-          if (data.playerList.find((pl: string) => pl === myname)) {
-            setButtonVisible(false);
-            setInfoVisible(false);
-          }
-          // TODO:create other's boards.
-        });
-        newSocket.on("updateboard", (data) => {
-          if (data.roomname !== myroom) return;
-          if (data.player == myname) {
-            myboardRef.current?.updateBoard(data.board);
-          } else if (data.type == "fixed") {
-            otherboardRef.current?.updateBoard(data.board, data.player);
-          }
-        });
-        newSocket.on("disconnect", () => {
-          console.log("disconnected from server");
-        });
         return () => {
           newSocket.disconnect();
         };
@@ -80,6 +41,60 @@ function Tetris() {
       }
     });
   }, [myroom, myname]);
+
+  socket?.on("connect", () => {
+    console.log("Connected to server");
+  });
+  socket?.on("join", (data) => {
+    if (data.roomname !== myroom || data.player !== myname) return;
+    console.log(`Joined as ${data.player}`);
+    setInfoVisible(true);
+    if (data.type === "leader") {
+      setButtonVisible(true);
+    }
+  });
+  socket?.on("playerList", (data) => {
+    if (data.roomname !== myroom) return;
+    if (data.playerList) {
+      setPlayers(data.playerList);
+    } else {
+      console.log("Player list is not available.");
+    }
+  });
+  socket?.on("startgame", (data) => {
+    if (data.roomname !== myroom) return;
+    if (data.playerList.find((pl: string) => pl === myname)) {
+      setButtonVisible(false);
+      setInfoVisible(false);
+    }
+    for (const player of data.playerList) {
+      const empty = Array.from({ length: 20 }, () => Array(10).fill(0));
+      otherboardRef.current?.updateBoard(empty, player);
+    }
+  });
+  socket?.on("updateboard", (data) => {
+    if (data.roomname !== myroom) return;
+    if (data.player === myname) {
+      myboardRef.current?.updateBoard(data.board);
+    } else if (data.type === "fixed") {
+      otherboardRef.current?.updateBoard(data.board, data.player);
+    }
+  });
+  socket?.on("disconnect", () => {
+    console.log("disconnected from server");
+  });
+  socket?.on("newleader", (data) => {
+    if (data.roomname === myroom && data.playername === myname)
+      setButtonVisible(true);
+  });
+  function keyDownHandler(e: globalThis.KeyboardEvent, type: string) {
+    if (socket) {
+      socket.emit("keyboard", { type: type, key: e.key });
+    }
+  }
+
+  document.addEventListener("keydown", (e) => keyDownHandler(e, "down"));
+  document.addEventListener("keyup", (e) => keyDownHandler(e, "up"));
 
   if (!myroom || !myname || !socket) return null;
   return (
@@ -101,13 +116,7 @@ function Tetris() {
             <Myboard ref={myboardRef} />
           </div>
           <div id="under-wrapper">
-            {myname}
-            <StartButton
-              socket={socket}
-              roomname={myroom}
-              playername={myname}
-              visible={isButtonVisible}
-            />
+            <StartButton socket={socket} visible={isButtonVisible} />
           </div>
         </div>
       </div>

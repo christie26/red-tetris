@@ -3,20 +3,13 @@ import { Socket } from "socket.io-client";
 
 interface StartButtonProps {
   socket: Socket;
-  roomname: string;
-  playername: string;
   visible: boolean;
 }
 
-const StartButton: React.FC<StartButtonProps> = ({
-  socket,
-  roomname,
-  playername,
-  visible,
-}) => {
+const StartButton: React.FC<StartButtonProps> = ({ socket, visible }) => {
   const handleClick = () => {
     console.log("Leader button clicked");
-    socket.emit("leaderClick", { roomname: roomname, playername: playername });
+    socket.emit("leaderClick");
   };
   if (visible)
     return (
