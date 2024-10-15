@@ -6,15 +6,14 @@ import { Myboard } from "./components/Myboard";
 import StartButton from "./components/StartButton";
 import InfoBox from "./components/InfoBox";
 import OtherBoardsContainer from "./components/OtherBoardsContainer";
+import WaitBox from "./components/WaitBox";
 
 function Tetris() {
   const { room: myroom, player: myname } = useParams();
   const [socket, setSocket] = useState<Socket | null>(null);
   const [players, setPlayers] = useState<string[]>([]);
   const [isButtonVisible, setButtonVisible] = useState<boolean>(false);
-  const [infoVisible, setInfoVisible] = useState<boolean>(true);
-  const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const isPlayingRef = useRef(isPlaying);
+  const [status, setStatus] = useState<string>("ready");
 
   const myboardRef = useRef<{
     updateBoard: (newBoard: number[][]) => void;
@@ -44,9 +43,6 @@ function Tetris() {
       }
     });
   }, [myroom, myname]);
-  useEffect(() => {
-    isPlayingRef.current = isPlaying;
-  }, [isPlaying]);
 
   socket?.on("connect", () => {
     console.log("Connected to server");
@@ -56,10 +52,12 @@ function Tetris() {
     console.log(`Joined as ${data.player}`);
     if (data.type === "leader") {
       setButtonVisible(true);
+    } else if (data.type === "waiter") {
+      setStatus("waiting");
     }
   });
   socket?.on("playerlist", (data) => {
-    if (data.roomname !== myroom || isPlayingRef.current) return;
+    if (data.roomname !== myroom || status !== "ready") return;
     if (data.playerlist) {
       setPlayers(data.playerlist);
     } else {
@@ -70,8 +68,7 @@ function Tetris() {
     if (data.roomname !== myroom) return;
     if (data.playerlist.find((pl: string) => pl === myname)) {
       setButtonVisible(false);
-      setInfoVisible(false);
-      setIsPlaying(true);
+      setStatus("playing");
     }
     for (const player of data.playerlist) {
       const empty = Array.from({ length: 20 }, () => Array(10).fill(0));
@@ -94,12 +91,12 @@ function Tetris() {
       setButtonVisible(true);
   });
   socket?.on("leave", (data) => {
-    if (data.roomname !== myroom || !isPlaying) return;
+    if (data.roomname !== myroom || status === "ready") return;
     otherboardRef.current?.updateStatus("offline", data.player);
   });
   socket?.on("gameover", (data) => {
     console.log("gameover", data);
-    if (data.roomname !== myroom || !isPlaying) return;
+    if (data.roomname !== myroom || status === "ready") return;
     otherboardRef.current?.updateStatus("died", data.dier);
   });
   socket?.on("endgame", (data) => {
@@ -130,8 +127,9 @@ function Tetris() {
             <InfoBox
               roomname={myroom}
               players={players}
-              visible={infoVisible}
+              visible={status === "ready"}
             />
+            <WaitBox roomname={myroom} visible={status === "waiting"} />
             <Myboard ref={myboardRef} />
           </div>
           <div id="under-wrapper">
