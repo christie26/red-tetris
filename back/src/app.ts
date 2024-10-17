@@ -91,7 +91,7 @@ io.on('connection', (socket) => {
     const player = findPlayer(socket.id)
     if (room && player && player === room.players[0]) {
       if (!room.isPlaying) {
-        room.startGame();
+        room.startgame();
       }
     } else {
         console.error("Something wrong with leader click.");

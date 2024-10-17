@@ -21,12 +21,6 @@ class Player {
     this.Board = new Board(this.socket, key, this);
   }
 
-  clickStartButton(): void {
-    if (!this.Room.isPlaying) {
-      this.Room.startGame();
-    }
-  }
-
   gameover(): void {
     this.isPlaying = false;
     this.Room.onePlayerDied(this);

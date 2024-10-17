@@ -22,9 +22,73 @@ class Room {
     console.log(`[${c.GREEN}%s${c.RESET}] is created`, roomname);
   }
 
-  getPlayerlist(): string[] {
+  private getPlayerlist(): string[] {
     return this.players.map(player => player.playername);
   }
+  private freezeIfPlaying(targetplayer: Player): void {
+    if (targetplayer.isPlaying) {
+      console.log(`[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} board freeze.`, this.roomname, targetplayer.playername);
+      targetplayer.Board.freezeBoard();
+      targetplayer.isPlaying = false;
+      targetplayer.Board.gameover = true;
+    }
+  }
+  private checkEndgame(): void {
+    const winner = this.players.filter(player => !player.Board.gameover);
+    if (winner.length === 1) {
+      winner[0].Board.freezeBoard();
+      this.endgame(winner[0].playername);
+    }
+  }
+  private endgame(winner: string): void {
+    console.log(`[${c.GREEN}%s${c.RESET}] game ends.`, this.roomname);
+    this.isPlaying = false;
+    for (const player of this.players) {
+      player.Board.freezeBoard();
+    }
+    if (winner) {
+      this.socketToPlayers("endgame", { winner: winner, type: 'player' })
+      this.socketToWaiters("endgame", { winner: winner, type: 'waiter' })
+    } else {
+      this.socketToPlayers("endgame", { winner: winner, type: 'solo' })
+      this.socketToWaiters("endgame", { winner: winner, type: 'solo' })
+    }
+    this.players.push(...this.waiters);
+    this.waiters.length = 0;
+    io.emit('setleader', { roomname: this.roomname, playername: this.players[0].playername });
+
+    this.key = uuidv4();
+    this.players.forEach(player => {
+      player.updateKey(this.key);
+    });
+  }
+  private socketToPlayers(event:string, data: any) {
+    for (const player of this.players) {
+      io.to(player.socket).emit(event, data);
+    }
+  }
+  private socketToWaiters(event:string, data: any) {
+    for (const waiter of this.waiters) {
+      io.to(waiter.socket).emit(event, data);
+    }
+  }
+  // private setNewLeader(): void {
+  //   let newLeader: Player | undefined;
+
+  //   if (this.players.length > 1) {
+  //     newLeader = this.players[1];
+  //   } else if (this.waiters.length) {
+  //     newLeader = this.waiters[0];
+  //   } else {
+  //     return;
+  //   }
+
+  //   if (newLeader) {
+  //     newLeader.isLeader = true;
+  //     io.emit('setleader', { roomname: this.roomname, playername: newLeader.playername });
+  //     console.log(`[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} became new leader.`, this.roomname, newLeader.playername);
+  //   }
+  // }
 
   addPlayer(playername: string, socketId: string): void {
     const isLeader = this.players.length === 0;
@@ -40,27 +104,7 @@ class Room {
     }
     console.log(`[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} joined as a ${role}.`, this.roomname, playername);
   }
-
-  setNewLeader(): void {
-    let newLeader: Player | undefined;
-
-    if (this.players.length > 1) {
-      newLeader = this.players[1];
-    } else if (this.waiters.length) {
-      newLeader = this.waiters[0];
-    } else {
-      return;
-    }
-
-    if (newLeader) {
-      newLeader.isLeader = true;
-      io.emit('setleader', { roomname: this.roomname, playername: newLeader.playername });
-      console.log(`[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} became new leader.`, this.roomname, newLeader.playername);
-    }
-  }
-
   playerDisconnect(playername: string): void {
-    // TODO-if someone leave, freeze their board! 
     if (!this.players) {
       console.error(`Attempt to disconnect, currently no one in ${this.roomname}`);
       return;
@@ -72,73 +116,17 @@ class Room {
       return;
     }
 
-    if (targetPlayer.isLeader) this.setNewLeader();
-
-    this.freezeIfPlaying(playername);
+    // if (targetPlayer.isLeader) this.setNewLeader();
     this.players = this.players.filter(p => p.playername !== playername);
 
     this.socketToPlayers("leave", { roomname: this.roomname, player: playername, playerlist : this.getPlayerlist() });
     if (this.isPlaying) {
       this.socketToWaiters("leave", { roomname: this.roomname, player: playername, playerlist : this.getPlayerlist() });
-    }
-    if (this.players.length === 1 && this.isPlaying) {
-      this.endgame(this.players[0].playername);
+      this.freezeIfPlaying(targetPlayer);
+      this.checkEndgame();
     }
     console.log(`[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} left.`, this.roomname, playername);
   }
-
-  private freezeIfPlaying(playername: string): void {
-    const targetPlayer = this.players.find(player => player.playername === playername);
-    if (this.isPlaying && targetPlayer && targetPlayer.isPlaying) {
-      targetPlayer.Board.freezeBoard();
-      targetPlayer.isPlaying = false;
-    }
-  }
-  private socketToPlayers(event:string, data: any) {
-    for (const player of this.players) {
-      io.to(player.socket).emit(event, data);
-    }
-  }
-  private socketToWaiters(event:string, data: any) {
-    for (const waiter of this.waiters) {
-      io.to(waiter.socket).emit(event, data);
-    }
-  }
-  startGame(): void {
-    const player = this.players[0];
-    console.log(`[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} began a game.`, this.roomname, player.playername);
-    io.emit("startgame", { roomname: this.roomname, playerlist: this.getPlayerlist() });
-    this.isPlaying = true;
-
-    this.players.forEach(player => {
-      player.isPlaying = true;
-      player.Board.newPiece();
-    });
-  }
-
-  endgame(winner: string): void {
-    console.log(`[${c.GREEN}%s${c.RESET}] game ends.`, this.roomname);
-    this.isPlaying = false;
-    for (const player of this.players) {
-      player.Board.freezeBoard();
-    }
-    if (winner) {
-      this.socketToPlayers("endgame", { winner: winner, type: 'player' })
-      this.socketToWaiters("endgame", { winner: winner, type: 'waiter' })
-    } else {
-      this.socketToPlayers("endgame", { winner: winner, type: 'solo' })
-      this.socketToWaiters("endgame", { winner: winner, type: 'solo' })
-    }
-    io.emit('setleader', { roomname: this.roomname, playername: this.players[0].playername });
-    this.players.push(...this.waiters);
-    this.waiters.length = 0;
-
-    this.key = uuidv4();
-    this.players.forEach(player => {
-      player.updateKey(this.key);
-    });
-  }
-
   onePlayerDied(dier: Player): void {
     this.updateBoard(dier.playername, dier.Board.fixedTiles, 'died');
     io.emit("gameover", { roomname: this.roomname, dier: dier.playername });
@@ -149,17 +137,22 @@ class Room {
       return;
     }
 
-    const winner = this.players.filter(player => !player.Board.gameover);
-    if (winner.length === 1) {
-      winner[0].Board.freezeBoard();
-      this.endgame(winner[0].playername);
-    }
+    this.checkEndgame();
   }
+  startgame(): void {
+    const player = this.players[0];
+    console.log(`[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} began a game.`, this.roomname, player.playername);
+    io.emit("startgame", { roomname: this.roomname, playerlist: this.getPlayerlist() });
+    this.isPlaying = true;
 
+    this.players.forEach(player => {
+      player.isPlaying = true;
+      player.Board.newPiece();
+    });
+  }
   updateBoard(playername: string, board: any, type: string): void {
     io.emit('updateboard', { roomname: this.roomname, player: playername, board: board, type: type });
   }
-
   sendPenalty(sender: string, lines: number): void {
     for (const player of this.players) {
       if (player.playername === sender) continue;
