@@ -35,16 +35,16 @@ class Room {
   }
   private checkEndgame(): void {
     const winner = this.players.filter(player => !player.Board.gameover);
-    if (winner.length === 1) {
-      winner[0].Board.freezeBoard();
-      this.endgame(winner[0].playername);
-    }
+    if (winner.length === 1) this.endgame(winner[0].playername);
   }
   private endgame(winner: string): void {
     console.log(`[${c.GREEN}%s${c.RESET}] game ends.`, this.roomname);
     this.isPlaying = false;
     for (const player of this.players) {
-      player.Board.freezeBoard();
+      if (player.isPlaying) {
+        player.Board.freezeBoard();
+        console.log(`[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} board freeze.`, this.roomname, player.playername);
+      }
     }
     if (winner) {
       this.socketToPlayers("endgame", { winner: winner, type: 'player' })
@@ -72,23 +72,20 @@ class Room {
       io.to(waiter.socket).emit(event, data);
     }
   }
-  // private setNewLeader(): void {
-  //   let newLeader: Player | undefined;
+  private setNewLeader(): void {
+    let newLeader: Player | undefined;
 
-  //   if (this.players.length > 1) {
-  //     newLeader = this.players[1];
-  //   } else if (this.waiters.length) {
-  //     newLeader = this.waiters[0];
-  //   } else {
-  //     return;
-  //   }
-
-  //   if (newLeader) {
-  //     newLeader.isLeader = true;
-  //     io.emit('setleader', { roomname: this.roomname, playername: newLeader.playername });
-  //     console.log(`[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} became new leader.`, this.roomname, newLeader.playername);
-  //   }
-  // }
+    if (this.players.length > 1) {
+      newLeader = this.players[1];
+    } else if (this.waiters.length) {
+      newLeader = this.waiters[0];
+    } else {
+      return;
+    }
+    newLeader.isLeader = true;
+    io.to(newLeader.socket).emit('setleader', { roomname: this.roomname, playername: newLeader.playername });
+    console.log(`[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} became new leader.`, this.roomname, newLeader.playername);
+  }
 
   addPlayer(playername: string, socketId: string): void {
     const isLeader = this.players.length === 0;
@@ -109,15 +106,16 @@ class Room {
       console.error(`Attempt to disconnect, currently no one in ${this.roomname}`);
       return;
     }
-
     const targetPlayer = this.players.find(player => player.playername === playername);
     if (!targetPlayer) {
       this.waiters = this.waiters.filter(p => p.playername !== playername);
+      console.log(`[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} left.`, this.roomname, playername);
       return;
     }
 
-    // if (targetPlayer.isLeader) this.setNewLeader();
+    if (targetPlayer.isLeader) this.setNewLeader();
     this.players = this.players.filter(p => p.playername !== playername);
+    console.log(`[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} left.`, this.roomname, playername);
 
     this.socketToPlayers("leave", { roomname: this.roomname, player: playername, playerlist : this.getPlayerlist() });
     if (this.isPlaying) {
@@ -125,7 +123,6 @@ class Room {
       this.freezeIfPlaying(targetPlayer);
       this.checkEndgame();
     }
-    console.log(`[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} left.`, this.roomname, playername);
   }
   onePlayerDied(dier: Player): void {
     this.updateBoard(dier.playername, dier.Board.fixedTiles, 'died');

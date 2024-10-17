@@ -152,7 +152,7 @@ class Board {
   }
 
   freezeBoard(): void {
-    if(this.fallingPiece)
+    if (this.fallingPiece)
         this.fallingPiece.stopPiece();
   }
 

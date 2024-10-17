@@ -83,6 +83,7 @@ function Tetris() {
     socket.on("startgame", (data) => {
       if (data.roomname !== myroom) return;
       setWinner(null);
+      setPlayers(data.playerlist);
       if (data.playerlist.includes(myname)) {
         setButtonVisible(false);
         setStatus("playing");
