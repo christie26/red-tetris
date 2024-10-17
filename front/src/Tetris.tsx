@@ -62,26 +62,23 @@ function Tetris() {
       console.log("Connected to server");
     });
     socket.on("join", (data) => {
-      if (data.roomname !== myroom || data.player !== myname) return;
-      console.log(`Joined as ${data.player}`);
-      if (data.type === "leader") {
-        setButtonVisible(true);
-      } else if (data.type === "waiter") {
+      if (data.roomname !== myroom) return;
+      setPlayers(data.playerlist);
+      if (data.type === "waiter") {
+        console.log("join as waiter", data.playerlist);
         setStatus("waiting");
-        // now we don't send this data..
         for (const player of data.playerlist) {
-          otherboardRef.current?.updateStatus("", player);
-          // TODO-draw players' board to spectate
+          const empty = Array.from({ length: 20 }, () => Array(10).fill(0));
+          otherboardRef.current?.updateBoard(empty, player);
         }
       }
+      if (data.type === "leader") setButtonVisible(true);
     });
-    socket.on("playerlist", (data) => {
-      if (data.roomname !== myroom || status !== "ready") return;
-      if (data.playerlist) {
+    socket.on("leave", (data) => {
+      if (data.roomname !== myroom) return;
+      if (status === "ready") {
         setPlayers(data.playerlist);
-      } else {
-        console.log("Player list is not available.");
-      }
+      } else otherboardRef.current?.updateStatus("offline", data.player);
     });
     socket.on("startgame", (data) => {
       if (data.roomname !== myroom) return;
@@ -111,10 +108,7 @@ function Tetris() {
       if (data.roomname === myroom && data.playername === myname)
         setButtonVisible(true);
     });
-    socket.on("leave", (data) => {
-      if (data.roomname !== myroom || status === "ready") return;
-      otherboardRef.current?.updateStatus("offline", data.player);
-    });
+
     socket.on("gameover", (data) => {
       if (data.roomname !== myroom || status === "ready") return;
       otherboardRef.current?.updateStatus("died", data.dier);
@@ -128,7 +122,6 @@ function Tetris() {
     return () => {
       socket.off("connect");
       socket.off("join");
-      socket.off("playerlist");
       socket.off("startgame");
       socket.off("updateboard");
       socket.off("disconnect");
@@ -162,6 +155,7 @@ function Tetris() {
           ref={otherboardRef}
           players={players}
           myname={myname}
+          gamestatus={status}
         />
         <div id="myboard-container">
           <div id="myboard-wrapper">

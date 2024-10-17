@@ -29,18 +29,16 @@ class Room {
   addPlayer(playername: string, socketId: string): void {
     const isLeader = this.players.length === 0;
     const newPlayer = new Player(playername, socketId, this.key, isLeader, this);
+    const role = this.isPlaying ? 'waiter' : (isLeader ? 'leader' : 'player');
 
     if (this.isPlaying) {
       this.waiters.push(newPlayer);
+      io.to(newPlayer.socket).emit("join", { roomname: this.roomname, player: playername, type: role, playerlist : this.getPlayerlist() })
     } else {
       this.players.push(newPlayer);
+      this.socketToPlayers("join", { roomname: this.roomname, player: playername, type: role, playerlist : this.getPlayerlist() })
     }
-    const role = this.isPlaying ? 'waiter' : (isLeader ? 'leader' : 'player');
-    io.emit("join", { roomname: this.roomname, player: playername, type: role });
     console.log(`[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} joined as a ${role}.`, this.roomname, playername);
-
-    // to everyone
-    io.emit('playerlist', {roomname: this.roomname, playerlist : this.getPlayerlist()});
   }
 
   setNewLeader(): void {
@@ -62,8 +60,9 @@ class Room {
   }
 
   playerDisconnect(playername: string): void {
+    // TODO-if someone leave, freeze their board! 
     if (!this.players) {
-      console.error(`Attempt to disconnect, no player in ${this.roomname}`);
+      console.error(`Attempt to disconnect, currently no one in ${this.roomname}`);
       return;
     }
 
@@ -73,20 +72,18 @@ class Room {
       return;
     }
 
-    if (targetPlayer.isLeader) {
-      this.setNewLeader();
-    }
+    if (targetPlayer.isLeader) this.setNewLeader();
 
     this.freezeIfPlaying(playername);
     this.players = this.players.filter(p => p.playername !== playername);
 
+    this.socketToPlayers("leave", { roomname: this.roomname, player: playername, playerlist : this.getPlayerlist() });
+    if (this.isPlaying) {
+      this.socketToWaiters("leave", { roomname: this.roomname, player: playername, playerlist : this.getPlayerlist() });
+    }
     if (this.players.length === 1 && this.isPlaying) {
       this.endgame(this.players[0].playername);
     }
-
-    io.emit("leave", { roomname: this.roomname, player: playername });
-    // to everyone
-    io.emit('playerlist', {roomname: this.roomname, playerlist : this.getPlayerlist()});
     console.log(`[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} left.`, this.roomname, playername);
   }
 
@@ -97,7 +94,16 @@ class Room {
       targetPlayer.isPlaying = false;
     }
   }
-
+  private socketToPlayers(event:string, data: any) {
+    for (const player of this.players) {
+      io.to(player.socket).emit(event, data);
+    }
+  }
+  private socketToWaiters(event:string, data: any) {
+    for (const waiter of this.waiters) {
+      io.to(waiter.socket).emit(event, data);
+    }
+  }
   startGame(): void {
     const player = this.players[0];
     console.log(`[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} began a game.`, this.roomname, player.playername);
@@ -117,19 +123,11 @@ class Room {
       player.Board.freezeBoard();
     }
     if (winner) {
-      for (const player of this.players) {
-        io.to(player.socket).emit("endgame", { winner: winner, type: 'player' });
-      }
-      for (const waiter of this.waiters) {
-        io.to(waiter.socket).emit("endgame", { winner: winner, type: 'waiter' });
-      }
+      this.socketToPlayers("endgame", { winner: winner, type: 'player' })
+      this.socketToWaiters("endgame", { winner: winner, type: 'waiter' })
     } else {
-      for (const player of this.players) {
-        io.to(player.socket).emit("endgame", { winner: winner, type: 'solo' });
-      }
-      for (const waiter of this.waiters) {
-        io.to(waiter.socket).emit("endgame", { winner: winner, type: 'solo' });
-      }
+      this.socketToPlayers("endgame", { winner: winner, type: 'solo' })
+      this.socketToWaiters("endgame", { winner: winner, type: 'solo' })
     }
     io.emit('setleader', { roomname: this.roomname, playername: this.players[0].playername });
     this.players.push(...this.waiters);

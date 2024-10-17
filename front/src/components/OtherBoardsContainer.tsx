@@ -4,9 +4,10 @@ import { OtherBoard } from "./OtherBoard";
 interface OtherBoardsContainerProps {
   players: string[];
   myname: string;
+  gamestatus: string;
 }
 const OtherBoardsContainer = forwardRef(
-  ({ players, myname }: OtherBoardsContainerProps, ref) => {
+  ({ players, myname, gamestatus }: OtherBoardsContainerProps, ref) => {
     const [boards, setBoards] = useState<{ [key: string]: number[][] }>({});
     const [status, setStatus] = useState<{ [key: string]: string }>({});
 
@@ -36,7 +37,7 @@ const OtherBoardsContainer = forwardRef(
       updateBoard,
       updateStatus,
     }));
-    if (players.length > 1)
+    if (players.length > 1 && gamestatus !== "ready")
       return (
         <div className="otherboard-container">
           {players
