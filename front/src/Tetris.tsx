@@ -6,16 +6,7 @@ import { Myboard } from "./components/Myboard";
 import StartButton from "./components/StartButton";
 import InfoBox from "./components/InfoBox";
 import OtherBoardsContainer from "./components/OtherBoardsContainer";
-import WaitBox from "./components/WaitBox";
-// import toast, { Toaster } from "react-hot-toast";
-import ResultBox from "./components/ResultBox";
-
-// function handleGameOver(winnerName: string) {
-//   toast.success(`${winnerName} is the winner! 🎉`, {
-//     duration: 5000,
-//     position: "top-center",
-//   });
-// }
+import MessageBox from "./components/MessageBox";
 
 function keyDownHandler(
   e: globalThis.KeyboardEvent,
@@ -77,6 +68,11 @@ function Tetris() {
         setButtonVisible(true);
       } else if (data.type === "waiter") {
         setStatus("waiting");
+        // now we don't send this data..
+        for (const player of data.playerlist) {
+          otherboardRef.current?.updateStatus("", player);
+          // TODO-draw players' board to spectate
+        }
       }
     });
     socket.on("playerlist", (data) => {
@@ -97,6 +93,7 @@ function Tetris() {
       for (const player of data.playerlist) {
         const empty = Array.from({ length: 20 }, () => Array(10).fill(0));
         otherboardRef.current?.updateBoard(empty, player);
+        otherboardRef.current?.updateStatus("", player);
       }
     });
     socket.on("updateboard", (data) => {
@@ -110,7 +107,7 @@ function Tetris() {
     socket.on("disconnect", () => {
       console.log("disconnected from server");
     });
-    socket.on("newleader", (data) => {
+    socket.on("setleader", (data) => {
       if (data.roomname === myroom && data.playername === myname)
         setButtonVisible(true);
     });
@@ -119,12 +116,14 @@ function Tetris() {
       otherboardRef.current?.updateStatus("offline", data.player);
     });
     socket.on("gameover", (data) => {
-      console.log("gameover", data);
       if (data.roomname !== myroom || status === "ready") return;
       otherboardRef.current?.updateStatus("died", data.dier);
     });
     socket.on("endgame", (data) => {
-      setWinner(data.winner);
+      if (data.type === "solo") {
+        if (status === "playing") setStatus("solo-play");
+        else if (status === "waiting") setStatus("solo-wait");
+      } else setWinner(data.winner);
     });
     return () => {
       socket.off("connect");
@@ -133,7 +132,7 @@ function Tetris() {
       socket.off("startgame");
       socket.off("updateboard");
       socket.off("disconnect");
-      socket.off("newleader");
+      socket.off("setleader");
       socket.off("leave");
       socket.off("gameover");
       socket.off("endgame");
@@ -158,7 +157,6 @@ function Tetris() {
   return (
     <div>
       <h1>Red-Tetris</h1>
-      {/* <Toaster /> */}
       <div className="container">
         <OtherBoardsContainer
           ref={otherboardRef}
@@ -172,8 +170,7 @@ function Tetris() {
               players={players}
               visible={status === "ready"}
             />
-            <WaitBox roomname={myroom} visible={status === "waiting"} />
-            <ResultBox roomname={myroom} winner={winner} />
+            <MessageBox roomname={myroom} winner={winner} status={status} />
             <Myboard ref={myboardRef} />
           </div>
           <div id="under-wrapper">

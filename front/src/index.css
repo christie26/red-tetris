@@ -113,7 +113,7 @@ body {
   grid-template-rows: repeat(20, 25px);
   outline: 4px solid #53484e;
   background-color: #faf6f0;
-  box-shadow: 7px 7px 0px #b3a69f;
+  box-shadow: 15px 12px 0px #b3a69f;
 }
 #myboard > li {
   width: 25px;

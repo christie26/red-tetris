@@ -56,7 +56,7 @@ class Room {
 
     if (newLeader) {
       newLeader.isLeader = true;
-      io.emit('newleader', { roomname: this.roomname, playername: newLeader.playername });
+      io.emit('setleader', { roomname: this.roomname, playername: newLeader.playername });
       console.log(`[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} became new leader.`, this.roomname, newLeader.playername);
     }
   }
@@ -116,8 +116,22 @@ class Room {
     for (const player of this.players) {
       player.Board.freezeBoard();
     }
-    io.emit("endgame", { roomname: this.roomname, winner: winner, type: 'player' });
-    io.emit("endgame", { roomname: this.roomname, winner: winner, type: 'waiter' });
+    if (winner) {
+      for (const player of this.players) {
+        io.to(player.socket).emit("endgame", { winner: winner, type: 'player' });
+      }
+      for (const waiter of this.waiters) {
+        io.to(waiter.socket).emit("endgame", { winner: winner, type: 'waiter' });
+      }
+    } else {
+      for (const player of this.players) {
+        io.to(player.socket).emit("endgame", { winner: winner, type: 'solo' });
+      }
+      for (const waiter of this.waiters) {
+        io.to(waiter.socket).emit("endgame", { winner: winner, type: 'solo' });
+      }
+    }
+    io.emit('setleader', { roomname: this.roomname, playername: this.players[0].playername });
     this.players.push(...this.waiters);
     this.waiters.length = 0;
 
@@ -131,6 +145,11 @@ class Room {
     this.updateBoard(dier.playername, dier.Board.fixedTiles, 'died');
     io.emit("gameover", { roomname: this.roomname, dier: dier.playername });
     console.log(`[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} gameover.`, this.roomname, dier.playername);
+
+    if (this.players.length === 1) {
+      this.endgame(null);
+      return;
+    }
 
     const winner = this.players.filter(player => !player.Board.gameover);
     if (winner.length === 1) {
@@ -151,16 +170,6 @@ class Room {
     console.log(`[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} sent ${c.RED}%d${c.RESET} lines penalty.`, this.roomname, sender, lines);
   }
 
-  private createBoard() {
-    // Implement this method to return the board structure required for each player
-    return {
-      freezeBoard: () => {},
-      newPiece: () => {},
-      getPenalty: (lines: number) => {},
-      gameover: false,
-      fixedTiles: [],
-    };
-  }
 }
 
 export default Room;
