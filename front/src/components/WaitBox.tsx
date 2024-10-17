@@ -8,10 +8,10 @@ interface WaitBoxProps {
 const WaitBox: React.FC<WaitBoxProps> = ({ roomname, visible }) => {
   if (visible)
     return (
-      <div id="info">
-        <div id="room-info">{`Room: ${roomname}`}</div>{" "}
-        <div id="player-info">
-          <div>They are playing. You should wait until it finishes.</div>
+      <div className="info-wrapper">
+        <div className="info">
+          <div>Room: {roomname}</div>
+          <div>They are playing. You should wait until it ends.</div>
         </div>
       </div>
     );

@@ -9,13 +9,15 @@ interface InfoBoxProps {
 const InfoBox: React.FC<InfoBoxProps> = ({ roomname, players, visible }) => {
   if (visible)
     return (
-      <div id="info">
-        <div id="room-info">{`Room: ${roomname}`}</div>{" "}
-        <div id="player-info">
-          <div>Players:</div>
-          {players.map((player, index) => (
-            <div key={index}>{player}</div>
-          ))}
+      <div className="info-wrapper">
+        <div className="info">
+          <div>Room: {roomname}</div>
+          <div>
+            <div>Players:</div>
+            {players.map((player, index) => (
+              <div key={index}>{player}</div>
+            ))}
+          </div>
         </div>
       </div>
     );

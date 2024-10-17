@@ -36,21 +36,22 @@ const OtherBoardsContainer = forwardRef(
       updateBoard,
       updateStatus,
     }));
-
-    return (
-      <div className="otherboard-container">
-        {players
-          .filter((player) => player !== myname)
-          .map((player) => (
-            <OtherBoard
-              key={player}
-              playername={player}
-              board={boards[player]}
-              status={status[player]}
-            />
-          ))}
-      </div>
-    );
+    if (players.length > 1)
+      return (
+        <div className="otherboard-container">
+          {players
+            .filter((player) => player !== myname)
+            .map((player) => (
+              <OtherBoard
+                key={player}
+                playername={player}
+                board={boards[player]}
+                status={status[player]}
+              />
+            ))}
+        </div>
+      );
+    else return null;
   },
 );
 

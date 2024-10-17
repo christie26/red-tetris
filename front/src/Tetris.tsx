@@ -7,12 +7,32 @@ import StartButton from "./components/StartButton";
 import InfoBox from "./components/InfoBox";
 import OtherBoardsContainer from "./components/OtherBoardsContainer";
 import WaitBox from "./components/WaitBox";
+// import toast, { Toaster } from "react-hot-toast";
+import ResultBox from "./components/ResultBox";
+
+// function handleGameOver(winnerName: string) {
+//   toast.success(`${winnerName} is the winner! 🎉`, {
+//     duration: 5000,
+//     position: "top-center",
+//   });
+// }
+
+function keyDownHandler(
+  e: globalThis.KeyboardEvent,
+  type: string,
+  socket: Socket | null,
+) {
+  if (socket) {
+    socket.emit("keyboard", { type: type, key: e.key });
+  }
+}
 
 function Tetris() {
   const { room: myroom, player: myname } = useParams();
   const [socket, setSocket] = useState<Socket | null>(null);
   const [players, setPlayers] = useState<string[]>([]);
   const [isButtonVisible, setButtonVisible] = useState<boolean>(false);
+  const [winner, setWinner] = useState<string | null>(null);
   const [status, setStatus] = useState<string>("ready");
 
   const myboardRef = useRef<{
@@ -22,7 +42,7 @@ function Tetris() {
     updateBoard: (newBoard: number[][], playername: string) => void;
     updateStatus: (newStatus: string, playername: string) => void;
   } | null>(null);
-
+  // fetch
   useEffect(() => {
     if (!myroom || !myname) {
       console.error("Room or player is undefined");
@@ -43,79 +63,102 @@ function Tetris() {
       }
     });
   }, [myroom, myname]);
+  // socket event listener
+  useEffect(() => {
+    if (!socket) return;
 
-  socket?.on("connect", () => {
-    console.log("Connected to server");
-  });
-  socket?.on("join", (data) => {
-    if (data.roomname !== myroom || data.player !== myname) return;
-    console.log(`Joined as ${data.player}`);
-    if (data.type === "leader") {
-      setButtonVisible(true);
-    } else if (data.type === "waiter") {
-      setStatus("waiting");
-    }
-  });
-  socket?.on("playerlist", (data) => {
-    if (data.roomname !== myroom || status !== "ready") return;
-    if (data.playerlist) {
-      setPlayers(data.playerlist);
-    } else {
-      console.log("Player list is not available.");
-    }
-  });
-  socket?.on("startgame", (data) => {
-    if (data.roomname !== myroom) return;
-    if (data.playerlist.find((pl: string) => pl === myname)) {
-      setButtonVisible(false);
-      setStatus("playing");
-    }
-    for (const player of data.playerlist) {
-      const empty = Array.from({ length: 20 }, () => Array(10).fill(0));
-      otherboardRef.current?.updateBoard(empty, player);
-    }
-  });
-  socket?.on("updateboard", (data) => {
-    if (data.roomname !== myroom) return;
-    if (data.player === myname) {
-      myboardRef.current?.updateBoard(data.board);
-    } else if (data.type === "fixed") {
-      otherboardRef.current?.updateBoard(data.board, data.player);
-    }
-  });
-  socket?.on("disconnect", () => {
-    console.log("disconnected from server");
-  });
-  socket?.on("newleader", (data) => {
-    if (data.roomname === myroom && data.playername === myname)
-      setButtonVisible(true);
-  });
-  socket?.on("leave", (data) => {
-    if (data.roomname !== myroom || status === "ready") return;
-    otherboardRef.current?.updateStatus("offline", data.player);
-  });
-  socket?.on("gameover", (data) => {
-    console.log("gameover", data);
-    if (data.roomname !== myroom || status === "ready") return;
-    otherboardRef.current?.updateStatus("died", data.dier);
-  });
-  socket?.on("endgame", (data) => {
-    console.log("endgame", data);
-    // TODO:show toaster with the game result.
-  });
-  function keyDownHandler(e: globalThis.KeyboardEvent, type: string) {
-    if (socket) {
-      socket.emit("keyboard", { type: type, key: e.key });
-    }
-  }
+    socket.on("connect", () => {
+      console.log("Connected to server");
+    });
+    socket.on("join", (data) => {
+      if (data.roomname !== myroom || data.player !== myname) return;
+      console.log(`Joined as ${data.player}`);
+      if (data.type === "leader") {
+        setButtonVisible(true);
+      } else if (data.type === "waiter") {
+        setStatus("waiting");
+      }
+    });
+    socket.on("playerlist", (data) => {
+      if (data.roomname !== myroom || status !== "ready") return;
+      if (data.playerlist) {
+        setPlayers(data.playerlist);
+      } else {
+        console.log("Player list is not available.");
+      }
+    });
+    socket.on("startgame", (data) => {
+      if (data.roomname !== myroom) return;
+      setWinner(null);
+      if (data.playerlist.includes(myname)) {
+        setButtonVisible(false);
+        setStatus("playing");
+      }
+      for (const player of data.playerlist) {
+        const empty = Array.from({ length: 20 }, () => Array(10).fill(0));
+        otherboardRef.current?.updateBoard(empty, player);
+      }
+    });
+    socket.on("updateboard", (data) => {
+      if (data.roomname !== myroom) return;
+      if (data.player === myname) {
+        myboardRef.current?.updateBoard(data.board);
+      } else if (data.type === "fixed") {
+        otherboardRef.current?.updateBoard(data.board, data.player);
+      }
+    });
+    socket.on("disconnect", () => {
+      console.log("disconnected from server");
+    });
+    socket.on("newleader", (data) => {
+      if (data.roomname === myroom && data.playername === myname)
+        setButtonVisible(true);
+    });
+    socket.on("leave", (data) => {
+      if (data.roomname !== myroom || status === "ready") return;
+      otherboardRef.current?.updateStatus("offline", data.player);
+    });
+    socket.on("gameover", (data) => {
+      console.log("gameover", data);
+      if (data.roomname !== myroom || status === "ready") return;
+      otherboardRef.current?.updateStatus("died", data.dier);
+    });
+    socket.on("endgame", (data) => {
+      setWinner(data.winner);
+    });
+    return () => {
+      socket.off("connect");
+      socket.off("join");
+      socket.off("playerlist");
+      socket.off("startgame");
+      socket.off("updateboard");
+      socket.off("disconnect");
+      socket.off("newleader");
+      socket.off("leave");
+      socket.off("gameover");
+      socket.off("endgame");
+    };
+  }, [socket, myname, myroom, status]);
 
-  document.addEventListener("keydown", (e) => keyDownHandler(e, "down"));
-  document.addEventListener("keyup", (e) => keyDownHandler(e, "up"));
+  useEffect(() => {
+    const keyDownListener = (e: KeyboardEvent) =>
+      keyDownHandler(e, "down", socket);
+    const keyUpListener = (e: KeyboardEvent) => keyDownHandler(e, "up", socket);
+
+    document.addEventListener("keydown", keyDownListener);
+    document.addEventListener("keyup", keyUpListener);
+
+    return () => {
+      document.removeEventListener("keydown", keyDownListener);
+      document.removeEventListener("keyup", keyUpListener);
+    };
+  }, [socket]);
 
   if (!myroom || !myname || !socket) return null;
   return (
     <div>
       <h1>Red-Tetris</h1>
+      {/* <Toaster /> */}
       <div className="container">
         <OtherBoardsContainer
           ref={otherboardRef}
@@ -130,6 +173,7 @@ function Tetris() {
               visible={status === "ready"}
             />
             <WaitBox roomname={myroom} visible={status === "waiting"} />
+            <ResultBox roomname={myroom} winner={winner} />
             <Myboard ref={myboardRef} />
           </div>
           <div id="under-wrapper">
