@@ -12,6 +12,7 @@ class Board {
   createRandom: () => number;
   gameover: boolean;
   Player: any; // Specify the correct type for Player, if known
+  penaltyLine: number;
 
   constructor(socket: any, key: string, Player: any) {
     this.socket = socket;
@@ -24,12 +25,14 @@ class Board {
     this.createRandom = seedrandom(key);
     this.gameover = false;
     this.Player = Player;
+    this.penaltyLine = 0;
   }
 
   newPiece(): void {
     if (this.gameover) return;
 
-    let type: number = Math.floor(this.createRandom() * 7);
+    // let type: number = Math.floor(this.createRandom() * 7);
+    let type: number = 6;
     let left: number = 3 + Math.floor(this.createRandom() * 4);
     let direction: number = Math.floor(this.createRandom() * 4);
     
@@ -121,23 +124,25 @@ class Board {
       this.Player.Room.sendPenalty(this.Player.playername, lineNumber - 1);
     }
   }
+  getPenalty(line: number): void {
+    const top = 0;
+    const bottom = 19 - this.penaltyLine;
 
-  getPenalty(numberOfLine: number): void {
-    for (let offset = 0; offset < numberOfLine; offset++) {
-      if (this.fixedTiles[19 - offset].some(element => element > 0)) {
+    for (let row = top; row <= line; row++) {
+      if (this.fixedTiles[row].some(element => element > 0)) {
         this.gameover = true;
       }
     }
-
-    for (let row = 19 - numberOfLine; row >= 0; row--) {
-      this.fixedTiles[row] = [...this.fixedTiles[row + numberOfLine]];
+    for (let row = top; row + line <= bottom; row++) {
+        this.fixedTiles[row] = [...this.fixedTiles[row + line]];
     }
-    for (let row = 19; row >= 19 - numberOfLine; row--) {
+    for (let row = bottom; row > bottom - line; row--) {
       this.fixedTiles[row].forEach((_, colIndex) => {
         this.fixedTiles[row][colIndex] = 20;
       });
     }
     if (this.gameover) this.Player.gameover();
+    this.penaltyLine += line;
   }
 
   printBoard(board: number[][]): void {

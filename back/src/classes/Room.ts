@@ -151,11 +151,11 @@ class Room {
     io.emit('updateboard', { roomname: this.roomname, player: playername, board: board, type: type });
   }
   sendPenalty(sender: string, lines: number): void {
+    console.log(`[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} sent ${c.RED}%d${c.RESET} lines penalty.`, this.roomname, sender, lines);
     for (const player of this.players) {
       if (player.playername === sender) continue;
       player.Board.getPenalty(lines);
     }
-    console.log(`[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} sent ${c.RED}%d${c.RESET} lines penalty.`, this.roomname, sender, lines);
   }
 
 }
