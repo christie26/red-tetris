@@ -169,6 +169,7 @@ function Tetris() {
             <Myboard ref={myboardRef} />
           </div>
           <div id="under-wrapper">
+            <div>{myname}</div>
             <StartButton socket={socket} visible={isButtonVisible} />
           </div>
         </div>

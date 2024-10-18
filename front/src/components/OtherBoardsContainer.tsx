@@ -39,7 +39,7 @@ const OtherBoardsContainer = forwardRef(
     }));
     if (players.length > 1 && gamestatus !== "ready")
       return (
-        <div className="otherboard-container">
+        <div className="otherboard-group">
           {players
             .filter((player) => player !== myname)
             .map((player) => (

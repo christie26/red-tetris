@@ -97,10 +97,6 @@ body {
   font-size: 20px;
   overflow: hidden;
 }
-/* .player-info {
-  display: flex;
-  flex-direction: column;
-} */
 
 #myboard {
   position: absolute;
@@ -130,11 +126,19 @@ body {
   font-size: 20px;
 }
 
+.otherboard-group {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
 .otherboard-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  gap: 5px;
+  font-size: 20px;
 }
 .otherboard {
   list-style-type: none;

@@ -13,7 +13,7 @@ const OtherBoard: React.FC<OtherBoardProps> = ({
   if (!board) return null;
 
   return (
-    <div>
+    <div className="otherboard-container">
       <div className={"otherboard " + status} id={playername}>
         {board.flat().map((cell, index) => (
           <li key={index} className={cell ? "filled" : undefined} />
