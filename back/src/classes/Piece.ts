@@ -1,6 +1,6 @@
-import Pieces from '../Pieces.js';
-import Tile from './Tile.js';
-import Board from './Board.js';
+import Pieces from "../Pieces.js";
+import Tile from "./Tile.js";
+import Board from "./Board.js";
 
 class Piece {
   board: Board;
@@ -24,7 +24,7 @@ class Piece {
 
     for (let i = 0; i < 4; i++) {
       const index = Pieces[type][direction][i];
-      this.addTile(index % 10 + left, Math.floor(index / 10));
+      this.addTile((index % 10) + left, Math.floor(index / 10));
     }
 
     this.board.fallingPiece = this;
@@ -43,16 +43,16 @@ class Piece {
   }
 
   dupTiles(tiles: Tile[]): Tile[] {
-    return tiles.map(tile => new Tile(tile.x, tile.y, tile.type));
+    return tiles.map((tile) => new Tile(tile.x, tile.y, tile.type));
   }
 
-  moveTiles(tiles: Tile[], direction: 'left' | 'right' | 'down'|'up'): void {
-    tiles.forEach(tile => {
-      if (direction === 'left') {
+  moveTiles(tiles: Tile[], direction: "left" | "right" | "down" | "up"): void {
+    tiles.forEach((tile) => {
+      if (direction === "left") {
         tile.x--;
-      } else if (direction === 'right') {
+      } else if (direction === "right") {
         tile.x++;
-      } else if (direction === 'down') {
+      } else if (direction === "down") {
         tile.y++;
       }
     });
@@ -72,7 +72,7 @@ class Piece {
   }
 
   /* manage a piece */
-  moveSide(direction: 'left' | 'right'): void {
+  moveSide(direction: "left" | "right"): void {
     if (this.lock) return;
 
     let tempTiles = this.dupTiles(this.tiles);
@@ -81,7 +81,7 @@ class Piece {
     if (this.board.isFree(tempTiles)) {
       this.moveTiles(this.tiles, direction);
       this.board.renderPiece();
-      this.moveTiles(tempTiles, 'down');
+      this.moveTiles(tempTiles, "down");
 
       if (this.fixxing && this.board.isFree(tempTiles)) {
         this.fixxing = false;
@@ -93,11 +93,12 @@ class Piece {
 
   moveDown(): void {
     let tempTiles = this.dupTiles(this.tiles);
-    this.moveTiles(tempTiles, 'down');
+    this.moveTiles(tempTiles, "down");
 
     if (this.board.isFree(tempTiles)) {
-      this.moveTiles(this.tiles, 'down');
+      this.moveTiles(this.tiles, "down");
       this.board.renderPiece();
+      this.board.getPenalty();
     } else {
       this.fixPiece();
     }
@@ -110,14 +111,14 @@ class Piece {
     this.rotateTiles(tempTiles);
 
     if (!this.board.isFree(tempTiles)) {
-      const directions = ['left', 'right', 'down', 'up'] as const;
+      const directions = ["left", "right", "down", "up"] as const;
       const successfulMove = this.tryMoveInDirections(tempTiles, directions);
       if (!successfulMove) return;
     }
 
     this.rotateTiles(this.tiles);
     this.board.renderPiece();
-    this.moveTiles(tempTiles, 'down');
+    this.moveTiles(tempTiles, "down");
 
     if (this.fixxing && this.board.isFree(tempTiles)) {
       this.fixxing = false;
@@ -126,7 +127,10 @@ class Piece {
     }
   }
 
-  tryMoveInDirections(tempTiles: Tile[], directions: readonly ('left' | 'right' | 'down'|'up')[]): boolean {
+  tryMoveInDirections(
+    tempTiles: Tile[],
+    directions: readonly ("left" | "right" | "down" | "up")[],
+  ): boolean {
     for (const direction of directions) {
       let doubleTemp = this.dupTiles(tempTiles);
       this.moveTiles(doubleTemp, direction);
@@ -201,20 +205,25 @@ class Piece {
     if (!this.areTilesEqual(this.tiles, dropTiles)) {
       this.tiles = dropTiles;
     }
-}
+  }
 
-private areTilesEqual(tiles1: Tile[], tiles2: { x: number; y: number; type: number }[]): boolean {
+  private areTilesEqual(
+    tiles1: Tile[],
+    tiles2: { x: number; y: number; type: number }[],
+  ): boolean {
     if (tiles1.length !== tiles2.length) {
-        return false;
+      return false;
     }
 
     return tiles1.every((tile, index) => {
-        const dropTile = tiles2[index];
-        return tile.x === dropTile.x && tile.y === dropTile.y && tile.type === dropTile.type;
+      const dropTile = tiles2[index];
+      return (
+        tile.x === dropTile.x &&
+        tile.y === dropTile.y &&
+        tile.type === dropTile.type
+      );
     });
-}
-
-
+  }
 }
 
 export default Piece;

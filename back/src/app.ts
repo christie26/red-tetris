@@ -1,13 +1,13 @@
-import express, { Request, Response } from 'express';
-import http from 'http';
-import { Server } from 'socket.io';
-import Room from './classes/Room.js';
-import cors from 'cors';
-import Player from './classes/Player.js';
+import express, { Request, Response } from "express";
+import http from "http";
+import { Server } from "socket.io";
+import Room from "./classes/Room.js";
+import cors from "cors";
+import Player from "./classes/Player.js";
 
 function isQueryParams(query: any): query is QueryParams {
-    return typeof query.room === 'string' && typeof query.player === 'string';
-  }
+  return typeof query.room === "string" && typeof query.player === "string";
+}
 
 interface PressedKeys {
   [key: string]: boolean;
@@ -23,82 +23,84 @@ interface QueryParams {
 let rooms: Room[] = [];
 
 const c = {
-  RED: '\x1b[31m',
-  GREEN: '\x1b[32m',
-  YELLOW: '\x1b[33m',
-  RESET: '\x1b[0m'
+  RED: "\x1b[31m",
+  GREEN: "\x1b[32m",
+  YELLOW: "\x1b[33m",
+  RESET: "\x1b[0m",
 };
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:3000', // Specify your client URL
-    methods: ['GET', 'POST'],
-    allowedHeaders: ['my-custom-header'],
-    credentials: true // Optional
-  }
+    origin: "http://localhost:3000", // Specify your client URL
+    methods: ["GET", "POST"],
+    allowedHeaders: ["my-custom-header"],
+    credentials: true, // Optional
+  },
 });
 
 server.listen(8000, function () {
-  console.log('red-tetris server listening on port 8000');
+  console.log("red-tetris server listening on port 8000");
 });
 
-app.use(cors({
-  origin: 'http://localhost:3000', // Allow your client URL
-  methods: ['GET', 'POST'], // Allow specific HTTP methods
-  credentials: true // Allow credentials (optional, depending on your needs)
-}));
+app.use(
+  cors({
+    origin: "http://localhost:3000", // Allow your client URL
+    methods: ["GET", "POST"], // Allow specific HTTP methods
+    credentials: true, // Allow credentials (optional, depending on your needs)
+  }),
+);
 
-app.get('/redtetris.ico', (req: Request, res: Response) => {
+app.get("/redtetris.ico", (req: Request, res: Response) => {
   res.send();
 });
 
-app.get('/:room/:player', (req: Request, res: Response) => {
+app.get("/:room/:player", (req: Request, res: Response) => {
   if (checkUserUnique(req.params.player, req.params.room)) {
-    res.status(200).send('Good');
+    res.status(200).send("Good");
   } else {
-    res.status(400).send('Player name is not unique.');
+    res.status(400).send("Player name is not unique.");
   }
 });
 
-app.get('/error', (req: Request, res: Response) => {
-  res.status(403).send('Forbidden: Access denied');
+app.get("/error", (req: Request, res: Response) => {
+  res.status(403).send("Forbidden: Access denied");
 });
 
-io.on('connection', (socket) => {
+io.on("connection", (socket) => {
   const queryParams = socket.handshake.query;
   if (!isQueryParams(queryParams)) {
-    socket.emit('redirect', '/error');
+    socket.emit("redirect", "/error");
     socket.disconnect();
     return;
   }
   addUserToRoom(queryParams.room, queryParams.player, socket.id);
 
-  socket.on('disconnect', () => {
-    const room = rooms.find(room => room.roomname === queryParams.room);
+  socket.on("disconnect", () => {
+    const room = rooms.find((room) => room.roomname === queryParams.room);
     if (room) {
       room.playerDisconnect(queryParams.player);
       if (room.players.length === 0 && room.waiters.length === 0) {
         console.log(`[${c.GREEN}%s${c.RESET}] destroyed`, room.roomname);
-        rooms = rooms.filter(p => p !== room);
+        rooms = rooms.filter((p) => p !== room);
       }
     }
   });
 
-  socket.on('leaderClick', () => {
-    const room = findRoom(socket.id)
-    const player = findPlayer(socket.id)
+  socket.on("leaderClick", () => {
+    const room = findRoom(socket.id);
+    const player = findPlayer(socket.id);
     if (room && player && player === room.players[0]) {
       if (!room.isPlaying) {
         room.startgame();
       }
     } else {
-        console.error("Something wrong with leader click.");
+      console.error("Something wrong with leader click.");
     }
   });
 
-  socket.on('keyboard', (data: { type: string; key: string }) => {
+  socket.on("keyboard", (data: { type: string; key: string }) => {
     const player = findPlayer(socket.id);
     if (!player || !player.isPlaying) return;
 
@@ -108,59 +110,71 @@ io.on('connection', (socket) => {
 
     const pressedKeys = playerKeyStates[socket.id];
 
-    if (data.type === 'down') {
+    if (data.type === "down") {
       if (!pressedKeys[data.key]) {
         pressedKeys[data.key] = true;
       } else {
         return;
       }
       switch (data.key) {
-        case 'ArrowLeft':
-          player.Board.fallingPiece?.moveSide('left');
+        case "ArrowLeft":
+          player.Board.fallingPiece?.moveSide("left");
           break;
-        case 'ArrowRight':
-          player.Board.fallingPiece?.moveSide('right');
+        case "ArrowRight":
+          player.Board.fallingPiece?.moveSide("right");
           break;
-        case 'ArrowDown':
+        case "ArrowDown":
           player.Board.fallingPiece?.fasterSpeed();
           break;
-        case 'ArrowUp':
+        case "ArrowUp":
           player.Board.fallingPiece?.rotatePiece();
           break;
-        case ' ':
+        case " ":
           player.Board.fallingPiece?.fallSprint();
           break;
       }
     }
-  
-    if (data.type === 'up') {
+
+    if (data.type === "up") {
       pressedKeys[data.key] = false;
-      if (data.key === 'ArrowDown') {
+      if (data.key === "ArrowDown") {
         player.Board.fallingPiece?.resetSpeed();
       }
     }
   });
 });
 
-function findRoom(socketId: string) : Room {
-  return rooms.find(room => room.players.find(player => player.socket === socketId))
+function findRoom(socketId: string): Room {
+  return rooms.find((room) =>
+    room.players.find((player) => player.socket === socketId),
+  );
 }
-function findPlayer(socketId: string) : Player {
+function findPlayer(socketId: string): Player {
   for (const room of rooms) {
-    const player = room.players.find(player => player.socket === socketId)
+    const player = room.players.find((player) => player.socket === socketId);
     if (player) return player;
   }
   return null;
 }
 function checkUserUnique(playername: string, roomname: string): boolean {
-  const myroom = rooms.find(room => room.roomname === roomname);
+  const myroom = rooms.find((room) => room.roomname === roomname);
   if (myroom) {
-    const userExists = myroom.players.some(player => player.playername === playername);
+    const userExists = myroom.players.some(
+      (player) => player.playername === playername,
+    );
     if (userExists) {
-      console.log(`[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} ${c.RED}already existed.`, roomname, playername);
+      console.log(
+        `[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} ${c.RED}already existed.`,
+        roomname,
+        playername,
+      );
       return false;
     } else {
-      console.log(`[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} is unique.`, roomname, playername);
+      console.log(
+        `[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} is unique.`,
+        roomname,
+        playername,
+      );
       return true;
     }
   } else {
@@ -168,8 +182,12 @@ function checkUserUnique(playername: string, roomname: string): boolean {
   }
 }
 
-function addUserToRoom(roomname: string, playername: string, socketId: string): void {
-  let room = rooms.find(room => room.roomname === roomname);
+function addUserToRoom(
+  roomname: string,
+  playername: string,
+  socketId: string,
+): void {
+  let room = rooms.find((room) => room.roomname === roomname);
   if (!room) {
     room = new Room(roomname);
     rooms.push(room);

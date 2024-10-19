@@ -1,4 +1,4 @@
-import Board from './Board.js';
+import Board from "./Board.js";
 
 class Player {
   playername: string;
@@ -8,7 +8,13 @@ class Player {
   isPlaying: boolean;
   Room: any; // Specify the correct type for Room, if known
 
-  constructor(playername: string, socket: string, key: string, isLeader: boolean, Room: any) {
+  constructor(
+    playername: string,
+    socket: string,
+    key: string,
+    isLeader: boolean,
+    Room: any,
+  ) {
     this.playername = playername;
     this.socket = socket;
     this.isLeader = isLeader;

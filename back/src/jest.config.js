@@ -1,6 +1,6 @@
 export default {
-    transform: {
-      '\\.[jt]sx?$': 'babel-jest',
-    },
-    moduleFileExtensions: ['js', 'mjs', 'json', 'node'],
-  };
+  transform: {
+    "\\.[jt]sx?$": "babel-jest",
+  },
+  moduleFileExtensions: ["js", "mjs", "json", "node"],
+};
