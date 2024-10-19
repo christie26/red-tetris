@@ -1,12 +1,14 @@
 import Piece from "./Piece.js";
 import seedrandom from "seedrandom";
 import Player from "./Player.js";
+import Tile from "./Tile.js";
 
 class Board {
-  socket: any; // Specify the correct type for socket, if known
+  socket: string;
   width: number;
   height: number;
   public fallingStatus: number;
+  intervalId: NodeJS.Timeout | null;
   fixedStatus: number;
   fallingPiece: Piece | null;
   fixedTiles: number[][];
@@ -16,7 +18,7 @@ class Board {
   penaltyLine: number;
   unpaidPenalties: number;
 
-  constructor(socket: any, key: string, Player: Player) {
+  constructor(socket: string, key: string, Player: Player) {
     this.socket = socket;
     this.width = 10;
     this.height = 20;
@@ -29,6 +31,7 @@ class Board {
     this.Player = Player;
     this.penaltyLine = 0;
     this.unpaidPenalties = 0;
+    this.intervalId = null;
   }
 
   newPiece(): void {
@@ -40,19 +43,59 @@ class Board {
     let direction: number = Math.floor(this.createRandom() * 4);
 
     this.fallingPiece = new Piece(this, type, left, direction);
-    if (this.gameover) {
+    if (this.touchOtherPiece(this.fallingPiece.tiles)) {
+      this.gameover = true;
       for (const tile of this.fallingPiece.tiles) {
         this.fixedTiles[tile.y][tile.x] = tile.type;
       }
       this.Player.gameover();
+      return;
     }
+
+    this.renderPiece();
+    this.intervalId = setInterval(() => this.routine(), 500);
+  }
+  routine() {
+    this.applyPenalty();
+    
+    console.log("after penalty", this.Player.playername);
+    this.printBoard(this.fixedTiles);
+    
+    let tempTiles = this.dupTiles(this.fallingPiece.tiles);
+    this.fallingPiece.moveTiles(tempTiles, "down");
+
+    if (this.isFree(tempTiles)) {
+      this.fallingPiece.moveTiles(this.fallingPiece.tiles, "down");
+      this.renderPiece();
+    } else {
+      this.renderFixedPiece();
+      const line = this.clearLines();
+      if (line > 1) {
+        this.Player.Room.sendPenalty(this.Player.playername, line - 1);
+      }
+
+      this.Player.Room.updateBoard(
+        this.Player.playername,
+        this.fixedTiles,
+        "fixed",
+      );
+
+      this.fallingPiece = null;
+      clearInterval(this.intervalId!);
+      this.newPiece();
+    }
+  }
+  changeSpeed(speed: number) {
+    clearInterval(this.intervalId!);
+    this.intervalId = setInterval(() => {
+      this.routine();
+    }, speed);
   }
 
   /* check board */
   isFree(tiles: { x: number; y: number; type: number }[]): boolean {
     return !this.touchBorder(tiles) && !this.touchOtherPiece(tiles);
   }
-
   touchBorder(tempTiles: { x: number; y: number; type: number }[]): boolean {
     for (const tile of tempTiles) {
       if (
@@ -66,7 +109,6 @@ class Board {
     }
     return false;
   }
-
   touchOtherPiece(
     tempTiles: { x: number; y: number; type: number }[],
   ): boolean {
@@ -88,49 +130,21 @@ class Board {
     }
     this.Player.Room.updateBoard(this.Player.playername, board, "falling");
   }
-
   renderFixedPiece(): void {
     console.log("from render1", this.Player.playername);
     this.printBoard(this.fixedTiles);
-    let moveUp = 0;
     if (this.fallingPiece) {
-      for (let i = 0; i < this.penaltyLine; i++) {
-        for (const tile of this.fallingPiece.tiles) {
-          if (tile.y === 19 - i) {
-            moveUp++;
-            break;
-          }
-        }
-      }
-      if (moveUp) console.log("moveup", moveUp);
       for (const tile of this.fallingPiece.tiles) {
-        const newY = tile.y - moveUp;
-        if (moveUp) console.log("tile", tile.x, tile.y, newY);
-        if (newY >= 0) {
-          this.fixedTiles[newY][tile.x] = tile.type + 10;
-        } else {
-          console.log("oops gameover");
-          this.Player.gameover();
-          return;
-        }
+        this.fixedTiles[tile.y][tile.x] = tile.type + 10;
       }
     }
-    this.clearLines();
-    console.log("from render2", this.Player.playername);
-    this.printBoard(this.fixedTiles);
-    this.Player.Room.updateBoard(
-      this.Player.playername,
-      this.fixedTiles,
-      "fixed",
-    );
-
-    this.fallingPiece = null;
-    this.newPiece();
   }
+
+  /* penalty */
   recievePenalty(line: number): void {
     this.unpaidPenalties += line;
   }
-  getPenalty(): void {
+  applyPenalty(): void {
     if (this.unpaidPenalties === 0) return;
 
     const line = this.unpaidPenalties;
@@ -153,11 +167,11 @@ class Board {
     }
     console.log("from penalty", this.Player.playername);
     this.printBoard(this.fixedTiles);
-    this.Player.Room.updateBoard(
-      this.Player.playername,
-      this.fixedTiles,
-      "fixed",
-    );
+    // this.Player.Room.updateBoard(
+    //   this.Player.playername,
+    //   this.fixedTiles,
+    //   "fixed",
+    // );
 
     this.unpaidPenalties = 0;
 
@@ -165,18 +179,10 @@ class Board {
       this.Player.gameover();
     }
   }
-  isLineFull(y: number): boolean {
-    if (y < 19 - this.penaltyLine) return false;
-    for (let x = 0; x < 10; x++) {
-      if (!this.fixedTiles[y][x]) {
-        return false;
-      }
-    }
-    return true;
-  }
 
-  clearLines(): void {
-    let lineNumber = 0;
+  /* clear line */
+  clearLines(): number {
+    let line = 0;
     if (this.fallingPiece) {
       for (const tile of this.fallingPiece.tiles) {
         const y = tile.y;
@@ -189,15 +195,32 @@ class Board {
           for (let x = 0; x < this.width; x++) {
             this.fixedTiles[0][x] = 0;
           }
-          lineNumber++;
+          line++;
         }
       }
     }
-    if (lineNumber > 1) {
-      this.Player.Room.sendPenalty(this.Player.playername, lineNumber - 1);
+    return line;
+  }
+  isLineFull(y: number): boolean {
+    if (y < 19 - this.penaltyLine) return false;
+    for (let x = 0; x < 10; x++) {
+      if (!this.fixedTiles[y][x]) {
+        return false;
+      }
     }
+    return true;
   }
 
+  /* freeze board */
+  freezeBoard(): void {
+    clearInterval(this.intervalId!);
+  }
+
+
+  /* utilities */
+  dupTiles(tiles: Tile[]): Tile[] {
+    return tiles.map((tile) => new Tile(tile.x, tile.y, tile.type));
+  }
   printBoard(board: number[][]): void {
     for (let row = 15; row <= 19; row++) {
       let rowString = "";
@@ -208,15 +231,10 @@ class Board {
     }
     console.log("----");
   }
-
-  freezeBoard(): void {
-    if (this.fallingPiece) this.fallingPiece.stopPiece();
-  }
-
   dropLocation(): { x: number; y: number; type: number }[] {
     if (this.fallingPiece) {
-      let tiles = this.fallingPiece.dupTiles(this.fallingPiece.tiles);
-      let testTiles = this.fallingPiece.dupTiles(this.fallingPiece.tiles);
+      let tiles = this.dupTiles(this.fallingPiece.tiles);
+      let testTiles = this.dupTiles(this.fallingPiece.tiles);
 
       this.fallingPiece.moveTiles(testTiles, "down");
       while (this.isFree(testTiles)) {
