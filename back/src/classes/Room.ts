@@ -183,7 +183,7 @@ class Room {
     }
   }
   onePlayerDied(dier: Player): void {
-    this.updateBoard(dier.playername, dier.Board.fixedTiles, "died");
+    this.updateBoard(dier, dier.Board.fixedTiles, "died");
     io.emit("gameover", { roomname: this.roomname, dier: dier.playername });
     console.log(
       `[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} gameover.`,
@@ -216,10 +216,10 @@ class Room {
       player.Board.newPiece();
     });
   }
-  updateBoard(playername: string, board: any, type: string): void {
+  updateBoard(player: Player, board: any, type: string): void {
     io.emit("updateboard", {
       roomname: this.roomname,
-      player: playername,
+      player: player.playername,
       board: board,
       type: type,
     });

@@ -33,10 +33,10 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000", // Specify your client URL
+    origin: "http://localhost:3000",
     methods: ["GET", "POST"],
     allowedHeaders: ["my-custom-header"],
-    credentials: true, // Optional
+    credentials: true,
   },
 });
 
@@ -46,9 +46,9 @@ server.listen(8000, function () {
 
 app.use(
   cors({
-    origin: "http://localhost:3000", // Allow your client URL
-    methods: ["GET", "POST"], // Allow specific HTTP methods
-    credentials: true, // Allow credentials (optional, depending on your needs)
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+    credentials: true,
   }),
 );
 

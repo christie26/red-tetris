@@ -36,9 +36,11 @@ class Board {
 
   newPiece(): void {
     if (this.gameover) return;
+    this.fallingPiece = null;
+    clearInterval(this.intervalId!);
 
-    // let type: number = Math.floor(this.createRandom() * 7);
-    let type: number = 6;
+    let type: number = Math.floor(this.createRandom() * 7);
+    // let type: number = 6;
     let left: number = 3 + Math.floor(this.createRandom() * 4);
     let direction: number = Math.floor(this.createRandom() * 4);
 
@@ -55,35 +57,30 @@ class Board {
     this.renderPiece();
     this.intervalId = setInterval(() => this.routine(), 500);
   }
+  /* routine */
   routine() {
-    this.applyPenalty();
-    
-    console.log("after penalty", this.Player.playername);
-    this.printBoard(this.fixedTiles);
-    
-    let tempTiles = this.dupTiles(this.fallingPiece.tiles);
-    this.fallingPiece.moveTiles(tempTiles, "down");
-
-    if (this.isFree(tempTiles)) {
+    if (this.canGoDown()) {
       this.fallingPiece.moveTiles(this.fallingPiece.tiles, "down");
       this.renderPiece();
+
+      this.applyPenalty();
+      return;
     } else {
-      this.renderFixedPiece();
-      const line = this.clearLines();
-      if (line > 1) {
-        this.Player.Room.sendPenalty(this.Player.playername, line - 1);
-      }
-
-      this.Player.Room.updateBoard(
-        this.Player.playername,
-        this.fixedTiles,
-        "fixed",
-      );
-
-      this.fallingPiece = null;
-      clearInterval(this.intervalId!);
+      this.fixPieceToBoard();
+      this.Player.Room.updateBoard(this.Player, this.fixedTiles, "fixed");
+      
+      this.clearLinesAndSendPenalty();
+      this.Player.Room.updateBoard(this.Player, this.fixedTiles, "fixed");
+      
+      this.applyPenalty();
+      
       this.newPiece();
     }
+  }
+  canGoDown(): boolean {
+    let tempTiles = this.dupTiles(this.fallingPiece.tiles);
+    this.fallingPiece.moveTiles(tempTiles, "down");
+    return this.isFree(tempTiles);
   }
   changeSpeed(speed: number) {
     clearInterval(this.intervalId!);
@@ -103,9 +100,8 @@ class Board {
         tile.x >= this.width ||
         tile.y >= this.height ||
         tile.y < 0
-      ) {
+      )
         return true;
-      }
     }
     return false;
   }
@@ -128,15 +124,11 @@ class Board {
         board[tile.y][tile.x] = tile.type;
       }
     }
-    this.Player.Room.updateBoard(this.Player.playername, board, "falling");
+    this.Player.Room.updateBoard(this.Player, board, "falling");
   }
-  renderFixedPiece(): void {
-    console.log("from render1", this.Player.playername);
-    this.printBoard(this.fixedTiles);
-    if (this.fallingPiece) {
-      for (const tile of this.fallingPiece.tiles) {
-        this.fixedTiles[tile.y][tile.x] = tile.type + 10;
-      }
+  fixPieceToBoard(): void {
+    for (const tile of this.fallingPiece.tiles) {
+      this.fixedTiles[tile.y][tile.x] = tile.type + 10;
     }
   }
 
@@ -165,14 +157,7 @@ class Board {
         this.fixedTiles[row][colIndex] = 20;
       });
     }
-    console.log("from penalty", this.Player.playername);
-    this.printBoard(this.fixedTiles);
-    // this.Player.Room.updateBoard(
-    //   this.Player.playername,
-    //   this.fixedTiles,
-    //   "fixed",
-    // );
-
+    this.Player.Room.updateBoard(this.Player, this.fixedTiles, "fixed");
     this.unpaidPenalties = 0;
 
     if (this.gameover) {
@@ -181,28 +166,33 @@ class Board {
   }
 
   /* clear line */
-  clearLines(): number {
-    let line = 0;
+  clearLinesAndSendPenalty(): void {
+    const linesToClear: Set<number> = new Set();
+
     if (this.fallingPiece) {
       for (const tile of this.fallingPiece.tiles) {
-        const y = tile.y;
-        if (this.isLineFull(y)) {
-          for (let row = y; row > 0; row--) {
-            for (let x = 0; x < this.width; x++) {
-              this.fixedTiles[row][x] = this.fixedTiles[row - 1][x];
-            }
-          }
-          for (let x = 0; x < this.width; x++) {
-            this.fixedTiles[0][x] = 0;
-          }
-          line++;
+        if (linesToClear.has(tile.y)) continue;
+        if (this.isLineFull(tile.y)) {
+          linesToClear.add(tile.y);
         }
       }
+      linesToClear.forEach((y) => {
+        for (let row = y; row > 0; row--) {
+          for (let x = 0; x < this.width; x++) {
+            this.fixedTiles[row][x] = this.fixedTiles[row - 1][x];
+          }
+        }
+        for (let x = 0; x < this.width; x++) {
+          this.fixedTiles[0][x] = 0;
+        }
+      });
     }
-    return line;
+    if (linesToClear.size > 1) {
+        this.Player.Room.sendPenalty(this.Player.playername, linesToClear.size - 1);
+      }
   }
   isLineFull(y: number): boolean {
-    if (y < 19 - this.penaltyLine) return false;
+    if (y > 19 - this.penaltyLine) return false;
     for (let x = 0; x < 10; x++) {
       if (!this.fixedTiles[y][x]) {
         return false;
@@ -215,7 +205,6 @@ class Board {
   freezeBoard(): void {
     clearInterval(this.intervalId!);
   }
-
 
   /* utilities */
   dupTiles(tiles: Tile[]): Tile[] {
