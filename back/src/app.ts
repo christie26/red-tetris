@@ -118,16 +118,16 @@ io.on("connection", (socket) => {
       }
       switch (data.key) {
         case "ArrowLeft":
-          player.Board.fallingPiece?.moveSide("left");
+          player.Board.moveSide("left");
           break;
         case "ArrowRight":
-          player.Board.fallingPiece?.moveSide("right");
+          player.Board.moveSide("right");
           break;
         case "ArrowDown":
           player.Board.changeSpeed(50);
           break;
         case "ArrowUp":
-          player.Board.fallingPiece?.rotatePiece();
+          player.Board.rotatePiece();
           break;
         case " ":
           player.Board.changeSpeed(5);

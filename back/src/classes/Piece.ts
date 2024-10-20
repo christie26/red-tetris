@@ -1,14 +1,11 @@
 import Pieces from "../Pieces.js";
 import Tile from "./Tile.js";
-import Board from "./Board.js";
 
 class Piece {
-  board: Board;
   type: number;
   tiles: Tile[];
 
-  constructor(board: Board, type: number, left: number, direction: number) {
-    this.board = board;
+  constructor(type: number, left: number, direction: number) {
     this.type = type;
     this.tiles = [];
 
@@ -44,56 +41,13 @@ class Piece {
       tile.y = center.y - center.x + tmp_x;
     }
   }
-  moveSide(direction: "left" | "right"): void {
-    let tempTiles = this.board.dupTiles(this.tiles);
-    this.moveTiles(tempTiles, direction);
 
-    if (this.board.isFree(tempTiles)) {
-      this.moveTiles(this.tiles, direction);
-      this.board.renderPiece();
-      this.moveTiles(tempTiles, "down");
-    }
-  }
-
-  /* rotate a piece */
-  rotatePiece(): void {
-    if (this.tiles[0].type === 7) return;
-
-    let tempTiles = this.board.dupTiles(this.tiles);
-    this.rotateTiles(tempTiles);
-
-    if (!this.board.isFree(tempTiles)) {
-      const directions = ["left", "right", "down", "up"] as const;
-      const successfulMove = this.tryMoveInDirections(tempTiles, directions);
-      if (!successfulMove) return;
-    }
-
-    this.rotateTiles(this.tiles);
-    this.board.renderPiece();
-    this.moveTiles(tempTiles, "down");
-  }
-  tryMoveInDirections(
-    tempTiles: Tile[],
-    directions: readonly ("left" | "right" | "down" | "up")[],
-  ): boolean {
-    for (const direction of directions) {
-      let doubleTemp = this.board.dupTiles(tempTiles);
-      this.moveTiles(doubleTemp, direction);
-
-      if (this.board.isFree(doubleTemp)) {
-        this.moveTiles(this.tiles, direction);
-        return true;
-      }
-    }
-    return false;
-  }
-
-  checkFloating(): void {
-    const dropTiles = this.board.dropLocation();
-    if (!this.areTilesEqual(this.tiles, dropTiles)) {
-      this.tiles = dropTiles;
-    }
-  }
+//   checkFloating(): void {
+//     const dropTiles = this.board.dropLocation();
+//     if (!this.areTilesEqual(this.tiles, dropTiles)) {
+//       this.tiles = dropTiles;
+//     }
+//   }
 
   /* utilities */
   private areTilesEqual(

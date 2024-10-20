@@ -22,89 +22,6 @@ class Room {
     console.log(`[${c.GREEN}%s${c.RESET}] is created`, roomname);
   }
 
-  private getPlayerlist(): string[] {
-    return this.players.map((player) => player.playername);
-  }
-  private freezeIfPlaying(targetplayer: Player): void {
-    if (targetplayer.isPlaying) {
-      console.log(
-        `[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} board freeze.`,
-        this.roomname,
-        targetplayer.playername,
-      );
-      targetplayer.Board.freezeBoard();
-      targetplayer.isPlaying = false;
-      targetplayer.Board.gameover = true;
-    }
-  }
-  private checkEndgame(): void {
-    const winner = this.players.filter((player) => !player.Board.gameover);
-    if (winner.length === 1) this.endgame(winner[0].playername);
-  }
-  private endgame(winner: string): void {
-    console.log(`[${c.GREEN}%s${c.RESET}] game ends.`, this.roomname);
-    this.isPlaying = false;
-    for (const player of this.players) {
-      if (player.isPlaying) {
-        player.Board.freezeBoard();
-        console.log(
-          `[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} board freeze.`,
-          this.roomname,
-          player.playername,
-        );
-      }
-    }
-    if (winner) {
-      this.socketToPlayers("endgame", { winner: winner, type: "player" });
-      this.socketToWaiters("endgame", { winner: winner, type: "waiter" });
-    } else {
-      this.socketToPlayers("endgame", { winner: winner, type: "solo" });
-      this.socketToWaiters("endgame", { winner: winner, type: "solo" });
-    }
-    this.players.push(...this.waiters);
-    this.waiters.length = 0;
-    io.emit("setleader", {
-      roomname: this.roomname,
-      playername: this.players[0].playername,
-    });
-
-    this.key = uuidv4();
-    this.players.forEach((player) => {
-      player.updateKey(this.key);
-    });
-  }
-  private socketToPlayers(event: string, data: any) {
-    for (const player of this.players) {
-      io.to(player.socket).emit(event, data);
-    }
-  }
-  private socketToWaiters(event: string, data: any) {
-    for (const waiter of this.waiters) {
-      io.to(waiter.socket).emit(event, data);
-    }
-  }
-  private setNewLeader(): void {
-    let newLeader: Player | undefined;
-
-    if (this.players.length > 1) {
-      newLeader = this.players[1];
-    } else if (this.waiters.length) {
-      newLeader = this.waiters[0];
-    } else {
-      return;
-    }
-    newLeader.isLeader = true;
-    io.to(newLeader.socket).emit("setleader", {
-      roomname: this.roomname,
-      playername: newLeader.playername,
-    });
-    console.log(
-      `[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} became new leader.`,
-      this.roomname,
-      newLeader.playername,
-    );
-  }
-
   addPlayer(playername: string, socketId: string): void {
     const isLeader = this.players.length === 0;
     const newPlayer = new Player(
@@ -213,7 +130,7 @@ class Room {
 
     this.players.forEach((player) => {
       player.isPlaying = true;
-      player.Board.newPiece();
+      player.Board.startgame();
     });
   }
   updateBoard(player: Player, board: any, type: string): void {
@@ -236,6 +153,90 @@ class Room {
       player.Board.recievePenalty(lines);
     }
   }
+  
+  private getPlayerlist(): string[] {
+    return this.players.map((player) => player.playername);
+  }
+  private freezeIfPlaying(targetplayer: Player): void {
+    if (targetplayer.isPlaying) {
+      console.log(
+        `[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} board freeze.`,
+        this.roomname,
+        targetplayer.playername,
+      );
+      targetplayer.Board.freezeBoard();
+      targetplayer.isPlaying = false;
+    }
+  }
+  private checkEndgame(): void {
+    const winner = this.players.filter((player) => player.isPlaying);
+    if (winner.length === 1) this.endgame(winner[0].playername);
+  }
+  private endgame(winner: string): void {
+    console.log(`[${c.GREEN}%s${c.RESET}] game ends.`, this.roomname);
+    this.isPlaying = false;
+    for (const player of this.players) {
+      if (player.isPlaying) {
+        player.Board.freezeBoard();
+        console.log(
+          `[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} board freeze.`,
+          this.roomname,
+          player.playername,
+        );
+      }
+    }
+    if (winner) {
+      this.socketToPlayers("endgame", { winner: winner, type: "player" });
+      this.socketToWaiters("endgame", { winner: winner, type: "waiter" });
+    } else {
+      this.socketToPlayers("endgame", { winner: winner, type: "solo" });
+      this.socketToWaiters("endgame", { winner: winner, type: "solo" });
+    }
+    this.players.push(...this.waiters);
+    this.waiters.length = 0;
+    io.emit("setleader", {
+      roomname: this.roomname,
+      playername: this.players[0].playername,
+    });
+
+    this.key = uuidv4();
+    this.players.forEach((player) => {
+      player.updateKey(this.key);
+    });
+  }
+  private socketToPlayers(event: string, data: any) {
+    for (const player of this.players) {
+      io.to(player.socket).emit(event, data);
+    }
+  }
+  private socketToWaiters(event: string, data: any) {
+    for (const waiter of this.waiters) {
+      io.to(waiter.socket).emit(event, data);
+    }
+  }
+  private setNewLeader(): void {
+    let newLeader: Player | undefined;
+
+    if (this.players.length > 1) {
+      newLeader = this.players[1];
+    } else if (this.waiters.length) {
+      newLeader = this.waiters[0];
+    } else {
+      return;
+    }
+    newLeader.isLeader = true;
+    io.to(newLeader.socket).emit("setleader", {
+      roomname: this.roomname,
+      playername: newLeader.playername,
+    });
+    console.log(
+      `[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} became new leader.`,
+      this.roomname,
+      newLeader.playername,
+    );
+  }
+
+
 }
 
 export default Room;
