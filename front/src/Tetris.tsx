@@ -142,6 +142,7 @@ function Tetris() {
         if (status === "playing") setStatus("solo-play");
         else if (status === "waiting") setStatus("solo-wait");
       } else setWinner(data.winner);
+      setStatus("ready");
     });
     return () => {
       socket.off("connect");

@@ -9,7 +9,9 @@ class Board {
   height: number = 20;
   intervalId: NodeJS.Timeout | null = null;
   fallingPiece: Piece | null = null;
-  fixedTiles: number[][] = Array.from({ length: 20 }, () => new Array(10).fill(0));
+  fixedTiles: number[][] = Array.from({ length: 20 }, () =>
+    new Array(10).fill(0),
+  );
   Player: Player;
   penaltyLine: number = 0;
   unpaidPenalties: number = 0;
@@ -75,14 +77,17 @@ class Board {
 
   /* change speed */
   changeSpeedMode(speedMode: string) {
-    let speed;
+    let speed: number;
     switch (speedMode) {
       case "normal":
         speed = 500 / this.speedLevel;
+        break;
       case "fast":
         speed = 50 / this.speedLevel;
+        break;
       case "sprint":
         speed = 5;
+        break;
     }
     clearInterval(this.intervalId);
     this.intervalId = setInterval(() => {
