@@ -180,7 +180,9 @@ p {
   margin: 0px;
 }
 
-
+.drop {
+  background-color: lightgray;
+}
 .O_BLOCK {
   background-color: #C5BAA6;
 }

@@ -1,5 +1,7 @@
 const getTypeString = (cell: number): string => {
   switch (cell) {
+    case 10:
+      return "drop";
     case 1:
       return "I_BLOCK";
     case 2:

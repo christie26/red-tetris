@@ -153,7 +153,7 @@ class Room {
       player.Board.recievePenalty(lines);
     }
   }
-  
+
   private getPlayerlist(): string[] {
     return this.players.map((player) => player.playername);
   }
@@ -235,8 +235,6 @@ class Room {
       newLeader.playername,
     );
   }
-
-
 }
 
 export default Room;
