@@ -5,26 +5,20 @@ import Tile from "./Tile.js";
 
 class Board {
   socket: string;
-  width: number;
-  height: number;
-  intervalId: NodeJS.Timeout | null;
-  fallingPiece: Piece | null;
-  fixedTiles: number[][];
+  width: number = 10;
+  height: number = 20;
+  intervalId: NodeJS.Timeout | null = null;
+  fallingPiece: Piece | null = null;
+  fixedTiles: number[][] = Array.from({ length: 20 }, () => new Array(10).fill(0));
   Player: Player;
-  penaltyLine: number;
-  unpaidPenalties: number;
+  penaltyLine: number = 0;
+  unpaidPenalties: number = 0;
   createRandom: () => number;
+  speedLevel: number = 1;
 
   constructor(socket: string, key: string, Player: Player) {
     this.socket = socket;
-    this.width = 10;
-    this.height = 20;
-    this.fallingPiece = null;
-    this.fixedTiles = Array.from({ length: 20 }, () => new Array(10).fill(0));
     this.Player = Player;
-    this.penaltyLine = 0;
-    this.unpaidPenalties = 0;
-    this.intervalId = null;
     this.createRandom = seedrandom(key);
   }
 
@@ -34,7 +28,6 @@ class Board {
   /* routine */
   private newPiece(): void {
     this.fallingPiece = null;
-    clearInterval(this.intervalId!);
 
     // let type: number = 6;
     let type: number = Math.floor(this.createRandom() * 7);
@@ -52,7 +45,8 @@ class Board {
     }
 
     this.renderPiece();
-    this.intervalId = setInterval(() => this.routine(), 500);
+    clearInterval(this.intervalId);
+    this.intervalId = setInterval(() => this.routine(), 500 / this.speedLevel);
   }
   private routine() {
     if (this.canGoDown()) {
@@ -80,11 +74,27 @@ class Board {
   }
 
   /* change speed */
-  changeSpeed(speed: number) {
-    clearInterval(this.intervalId!);
+  changeSpeedMode(speedMode: string) {
+    let speed;
+    switch (speedMode) {
+      case "normal":
+        speed = 500 / this.speedLevel;
+      case "fast":
+        speed = 50 / this.speedLevel;
+      case "sprint":
+        speed = 5;
+    }
+    clearInterval(this.intervalId);
     this.intervalId = setInterval(() => {
       this.routine();
     }, speed);
+  }
+  changeSpeedLevel(newSpeedLevel: number) {
+    this.speedLevel = newSpeedLevel;
+    clearInterval(this.intervalId);
+    this.intervalId = setInterval(() => {
+      this.routine();
+    }, 500 / this.speedLevel);
   }
 
   /* move & rotate piece */
@@ -152,7 +162,7 @@ class Board {
       tile.y = center.y - center.x + tmp_x;
     }
   }
-  
+
   /* check board */
   private isFree(tiles: Tile[]): boolean {
     return !this.touchBorder(tiles) && !this.touchOtherPiece(tiles);

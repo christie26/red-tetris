@@ -7,6 +7,7 @@ import StartButton from "./components/StartButton";
 import InfoBox from "./components/InfoBox";
 import OtherBoardsContainer from "./components/OtherBoardsContainer";
 import MessageBox from "./components/MessageBox";
+import SpeedControl from "./components/SpeedControl";
 
 function keyDownHandler(
   e: globalThis.KeyboardEvent,
@@ -22,7 +23,7 @@ function Tetris() {
   const { room: myroom, player: myname } = useParams();
   const [socket, setSocket] = useState<Socket | null>(null);
   const [players, setPlayers] = useState<string[]>([]);
-  const [isButtonVisible, setButtonVisible] = useState<boolean>(false);
+  const [isLeader, SetIsLeader] = useState<boolean>(false);
   const [winner, setWinner] = useState<string | null>(null);
   const [status, setStatus] = useState<string>("ready");
 
@@ -33,27 +34,50 @@ function Tetris() {
     updateBoard: (newBoard: number[][], playername: string) => void;
     updateStatus: (newStatus: string, playername: string) => void;
   } | null>(null);
-  // fetch
+  // fetch from server
   useEffect(() => {
     if (!myroom || !myname) {
       console.error("Room or player is undefined");
       return;
     }
-    fetch(`http://localhost:8000/${myroom}/${myname}`).then((res) => {
-      if (res.status === 200) {
-        const newSocket = io("http://localhost:8000", {
-          query: { room: myroom, player: myname },
-          reconnection: false,
-        });
-        setSocket(newSocket);
-        return () => {
-          newSocket.disconnect();
-        };
-      } else if (res.status === 400) {
-        console.log("bad");
+
+    const fetchData = async () => {
+      try {
+        const res = await fetch(`http://localhost:8000/${myroom}/${myname}`);
+
+        if (res.status === 200) {
+          const newSocket = io("http://localhost:8000", {
+            query: { room: myroom, player: myname },
+            reconnection: false,
+          });
+
+          newSocket.on("connect_error", (error) => {
+            console.error("Socket connection error:", error);
+          });
+
+          newSocket.on("disconnect", (reason) => {
+            console.warn("Socket disconnected:", reason);
+          });
+
+          setSocket(newSocket);
+
+          return () => {
+            newSocket.disconnect();
+          };
+        } else if (res.status === 400) {
+          console.error("Bad request: Room or player invalid");
+        } else {
+          console.error(`Unexpected response status: ${res.status}`);
+        }
+      } catch (error) {
+        setStatus("waitServer");
+        console.log("Fetch or connection error:", error);
       }
-    });
+    };
+
+    fetchData();
   }, [myroom, myname]);
+
   // socket event listener
   useEffect(() => {
     if (!socket) return;
@@ -72,7 +96,7 @@ function Tetris() {
           otherboardRef.current?.updateBoard(empty, player);
         }
       }
-      if (data.type === "leader") setButtonVisible(true);
+      if (data.type === "leader") SetIsLeader(true);
     });
     socket.on("leave", (data) => {
       if (data.roomname !== myroom) return;
@@ -85,7 +109,6 @@ function Tetris() {
       setWinner(null);
       setPlayers(data.playerlist);
       if (data.playerlist.includes(myname)) {
-        setButtonVisible(false);
         setStatus("playing");
       }
       for (const player of data.playerlist) {
@@ -107,7 +130,7 @@ function Tetris() {
     });
     socket.on("setleader", (data) => {
       if (data.roomname === myroom && data.playername === myname)
-        setButtonVisible(true);
+        SetIsLeader(true);
     });
 
     socket.on("gameover", (data) => {
@@ -147,7 +170,7 @@ function Tetris() {
     };
   }, [socket]);
 
-  if (!myroom || !myname || !socket) return null;
+  if (!myroom || !myname) return "wait for server";
   return (
     <div>
       <h1>Red-Tetris</h1>
@@ -168,10 +191,19 @@ function Tetris() {
             <MessageBox roomname={myroom} winner={winner} status={status} />
             <Myboard ref={myboardRef} />
           </div>
-          <div id="under-wrapper">
-            <div>{myname}</div>
-            <StartButton socket={socket} visible={isButtonVisible} />
-          </div>
+          {socket && (
+            <div id="under-wrapper">
+              <div>{myname}</div>
+              <StartButton
+                socket={socket}
+                visible={isLeader && status === "ready"}
+              />
+              <SpeedControl
+                socket={socket}
+                visible={isLeader && status === "playing"}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>

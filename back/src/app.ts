@@ -124,13 +124,13 @@ io.on("connection", (socket) => {
           player.Board.moveSide("right");
           break;
         case "ArrowDown":
-          player.Board.changeSpeed(50);
+          player.Board.changeSpeedMode("fast");
           break;
         case "ArrowUp":
           player.Board.rotatePiece();
           break;
         case " ":
-          player.Board.changeSpeed(5);
+          player.Board.changeSpeedMode("sprint");
           break;
       }
     }
@@ -138,9 +138,13 @@ io.on("connection", (socket) => {
     if (data.type === "up") {
       pressedKeys[data.key] = false;
       if (data.key === "ArrowDown") {
-        player.Board.changeSpeed(500);
+        player.Board.changeSpeedMode("normal");
       }
     }
+  });
+  socket.on("changespeed", (data) => {
+    const room = findRoom(socket.id);
+    if (room.isPlaying) room.changeRoomSpeed(data.speed);
   });
 });
 

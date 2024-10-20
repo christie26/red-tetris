@@ -26,6 +26,8 @@ const MessageBox: React.FC<MessageBoxProps> = ({
   } else if (status === "solo-wait") {
     message =
       "The game has ended. Please wait until the leader starts the game again.";
+  } else if (status === "waitServer") {
+    message = "waiting for server ...";
   }
 
   if (message)

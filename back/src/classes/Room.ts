@@ -16,6 +16,7 @@ class Room {
   public isPlaying: boolean = false;
   public key: string = uuidv4();
   public winner: string | null = null;
+  speedLevel: number = 1;
 
   constructor(roomname: string) {
     this.roomname = roomname;
@@ -116,6 +117,7 @@ class Room {
     this.checkEndgame();
   }
   startgame(): void {
+    this.speedLevel = 1;
     const player = this.players[0];
     console.log(
       `[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} began a game.`,
@@ -153,7 +155,12 @@ class Room {
       player.Board.recievePenalty(lines);
     }
   }
-
+  changeRoomSpeed(speed: number): void {
+    this.speedLevel = speed;
+    for (const player of this.players) {
+      player.Board.changeSpeedLevel(speed);
+    }
+  }
   private getPlayerlist(): string[] {
     return this.players.map((player) => player.playername);
   }
