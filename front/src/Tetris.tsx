@@ -167,7 +167,7 @@ function Tetris() {
     };
   }, [socket]);
 
-  if (!myroom || !myname) return "wait for server";
+  if (!myroom || !myname) return <div>{"wait for server"}</div>;
   return (
     <div>
       <h1>Red-Tetris</h1>
@@ -194,7 +194,7 @@ function Tetris() {
               <div>{myname}</div>
               <StartButton
                 socket={socket}
-                visible={isLeader && status != "playing"}
+                visible={isLeader && status !== "playing"}
               />
               <SpeedControl
                 socket={socket}
