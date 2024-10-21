@@ -83,20 +83,24 @@ body {
   height: 100%;
   background-color: rgba(250, 246, 240, 0.9);
 }
-.info {
-  padding: 10px;
-  margin: 10px;
-  letter-spacing: 2px;
-  line-height: 25px;
-  color: #53484e;
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-  border-radius: 3px;
+.info-box {
+    padding: 10px;
+    margin: 10px;
+    border-radius: 3px;
   border-color: #3d3236;
   border: #3d3236 solid 2px;
   background-color: rgba(250, 246, 240);
   font-size: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  letter-spacing: 2px;
+  line-height: 25px;
   overflow: hidden;
 }
 

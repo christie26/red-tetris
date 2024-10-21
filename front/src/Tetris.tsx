@@ -6,7 +6,6 @@ import { Myboard } from "./components/Myboard";
 import StartButton from "./components/StartButton";
 import InfoBox from "./components/InfoBox";
 import OtherBoardsContainer from "./components/OtherBoardsContainer";
-import MessageBox from "./components/MessageBox";
 import SpeedControl from "./components/SpeedControl";
 
 function keyDownHandler(
@@ -132,17 +131,21 @@ function Tetris() {
       if (data.roomname === myroom && data.playername === myname)
         SetIsLeader(true);
     });
-
     socket.on("gameover", (data) => {
       if (data.roomname !== myroom || status === "ready") return;
       otherboardRef.current?.updateStatus("died", data.dier);
     });
     socket.on("endgame", (data) => {
-      if (data.type === "solo") {
-        if (status === "playing") setStatus("solo-play");
-        else if (status === "waiting") setStatus("solo-wait");
-      } else setWinner(data.winner);
-      setStatus("ready");
+      if (status === "playing") setStatus("end-play");
+      else if (status === "waiting") setStatus("end-wait");
+      //   if (data.type === "solo") {
+      //     if (status === "playing") setStatus("solo-play");
+      //     else if (status === "waiting") setStatus("solo-wait");
+      //   } else {
+      //     if (status === "playing") setStatus("end-play");
+      //     else if (status === "waiting") setStatus("end-wait");
+      //   }
+      if (data.winner) setWinner(data.winner);
     });
     return () => {
       socket.off("connect");
@@ -187,9 +190,10 @@ function Tetris() {
             <InfoBox
               roomname={myroom}
               players={players}
-              visible={status === "ready"}
+              winner={winner}
+              isLeader={isLeader}
+              status={status}
             />
-            <MessageBox roomname={myroom} winner={winner} status={status} />
             <Myboard ref={myboardRef} />
           </div>
           {socket && (
@@ -197,7 +201,7 @@ function Tetris() {
               <div>{myname}</div>
               <StartButton
                 socket={socket}
-                visible={isLeader && status === "ready"}
+                visible={isLeader && status != "playing"}
               />
               <SpeedControl
                 socket={socket}
