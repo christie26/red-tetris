@@ -7,6 +7,7 @@ import StartButton from "./components/StartButton";
 import InfoBox from "./components/InfoBox";
 import OtherBoardsContainer from "./components/OtherBoardsContainer";
 import SpeedControl from "./components/SpeedControl";
+import ScoreBoard from "./components/ScoreBoard";
 
 function keyDownHandler(
   e: globalThis.KeyboardEvent,
@@ -25,6 +26,7 @@ function Tetris() {
   const [isLeader, SetIsLeader] = useState<boolean>(false);
   const [winner, setWinner] = useState<string | null>(null);
   const [status, setStatus] = useState<string>("ready");
+  const [scores, setScores] = useState<Map<string, number>>(new Map());
 
   const myboardRef = useRef<{
     updateBoard: (newBoard: number[][]) => void;
@@ -136,11 +138,19 @@ function Tetris() {
       if (data.roomname !== myroom || status === "ready") return;
       otherboardRef.current?.updateStatus("died", data.dier);
     });
-    socket.on("endgame", (data) => {
-      if (status === "playing") setStatus("end-play");
-      else if (status === "waiting") setStatus("end-wait");
-      if (data.winner) setWinner(data.winner);
-    });
+    socket.on(
+      "endgame",
+      (data: { winner: string; score: Map<string, number> }) => {
+        if (status === "playing") setStatus("end-play");
+        else if (status === "waiting") setStatus("end-wait");
+        if (data.winner) setWinner(data.winner);
+        // console.log(data);
+        if (data.score) {
+          console.log(console.log(Array.from(scores.entries())));
+          setScores(data.score);
+        }
+      },
+    );
     return () => {
       socket.off("connect");
       socket.off("join");
@@ -204,6 +214,7 @@ function Tetris() {
             </div>
           )}
         </div>
+        <ScoreBoard scores={scores} />
       </div>
     </div>
   );
