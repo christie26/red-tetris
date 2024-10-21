@@ -166,11 +166,6 @@ class Room {
   }
   private freezeIfPlaying(targetplayer: Player): void {
     if (targetplayer.isPlaying) {
-      console.log(
-        `[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} board freeze.`,
-        this.roomname,
-        targetplayer.playername,
-      );
       targetplayer.Board.freezeBoard();
       targetplayer.isPlaying = false;
     }
@@ -185,11 +180,6 @@ class Room {
     for (const player of this.players) {
       if (player.isPlaying) {
         player.Board.freezeBoard();
-        console.log(
-          `[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} board freeze.`,
-          this.roomname,
-          player.playername,
-        );
       }
     }
     if (winner) {

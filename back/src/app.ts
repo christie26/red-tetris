@@ -116,6 +116,7 @@ io.on("connection", (socket) => {
       } else {
         return;
       }
+      if (!player.isPlaying) return;
       switch (data.key) {
         case "ArrowLeft":
           player.Board.moveSide("left");

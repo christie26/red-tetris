@@ -23,21 +23,21 @@ const InfoBox: React.FC<InfoBoxProps> = ({
     if (isLeader) {
       message += "You can click button to start a game.";
     } else {
-      message += " Please wait until the leader starts the game again.";
+      message += " Please wait until the leader starts a game.";
     }
   } else if (status === "end-play") {
     message = "Thanks for playing! ";
     if (isLeader) {
       message += "You can click button to start a game.";
     } else {
-      message += " Please wait until the leader starts the game again.";
+      message += " Please wait until the leader starts a game.";
     }
   } else if (status === "end-wait") {
     message = "Thanks for waiting! ";
     if (isLeader) {
       message += "You can click button to start a game.";
     } else {
-      message += " Please wait until the leader starts the game again.";
+      message += " Please wait until the leader starts a game.";
     }
   } else if (status === "waitServer") {
     message = "waiting for server ... refresh the page in a second";

@@ -3,6 +3,13 @@ import seedrandom from "seedrandom";
 import Player from "./Player.js";
 import Tile from "./Tile.js";
 
+const c = {
+  RED: "\x1b[31m",
+  GREEN: "\x1b[32m",
+  YELLOW: "\x1b[33m",
+  RESET: "\x1b[0m",
+};
+
 class Board {
   socket: string;
   width: number = 10;
@@ -41,7 +48,6 @@ class Board {
       for (const tile of this.fallingPiece.tiles) {
         this.fixedTiles[tile.y][tile.x] = tile.type;
       }
-      this.freezeBoard();
       this.Player.gameover();
       return;
     }
@@ -70,6 +76,7 @@ class Board {
     }
   }
   private canGoDown(): boolean {
+    if (!this.fallingPiece) return;
     let tempTiles = this.dupTiles(this.fallingPiece.tiles);
     this.moveTiles(tempTiles, "down");
     return this.isFree(tempTiles);
@@ -104,6 +111,7 @@ class Board {
 
   /* move & rotate piece */
   moveSide(direction: "left" | "right"): void {
+    if (!this.fallingPiece) return;
     let tempTiles = this.dupTiles(this.fallingPiece.tiles);
     this.moveTiles(tempTiles, direction);
 
@@ -113,6 +121,7 @@ class Board {
     }
   }
   rotatePiece(): void {
+    if (!this.fallingPiece) return;
     if (this.fallingPiece.tiles[0].type === 7) return;
 
     let tempTiles = this.dupTiles(this.fallingPiece.tiles);
@@ -131,6 +140,7 @@ class Board {
     tempTiles: Tile[],
     directions: readonly ("left" | "right" | "down" | "up")[],
   ): boolean {
+    if (!this.fallingPiece) return;
     for (const direction of directions) {
       let doubleTemp = this.dupTiles(tempTiles);
       this.moveTiles(doubleTemp, direction);
@@ -243,7 +253,6 @@ class Board {
     this.unpaidPenalties = 0;
 
     if (gameover) {
-      this.freezeBoard();
       this.Player.gameover();
     }
   }
@@ -254,11 +263,12 @@ class Board {
 
     if (this.fallingPiece) {
       for (const tile of this.fallingPiece.tiles) {
-        if (linesToClear.has(tile.y)) continue;
         if (this.isLineFull(tile.y)) {
+          console.log("from", this.Player.playername, tile.y, "is complete")
           linesToClear.add(tile.y);
         }
       }
+      if (linesToClear.size) console.log(linesToClear);
       linesToClear.forEach((y) => {
         for (let row = y; row > 0; row--) {
           for (let x = 0; x < this.width; x++) {
@@ -289,7 +299,14 @@ class Board {
 
   /* freeze board */
   freezeBoard(): void {
+    console.log(
+      `[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} board freeze.`,
+      this.Player.Room.roomname,
+      this.Player.playername,
+      );
     clearInterval(this.intervalId!);
+    this.intervalId = null;
+    this.fallingPiece = null;
   }
 
   /* utilities */
