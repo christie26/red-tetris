@@ -32,13 +32,27 @@ class Board {
   }
 
   startgame(): void {
+    // this.forTest();
     this.newPiece();
+  }
+  forTest() {
+    let y = 17;
+    for (let x = 0; x < 8; x++) {
+      this.fixedTiles[y][x] = 1;
+    }
+    y = 18;
+    for (let x = 0; x < 9; x++) {
+      this.fixedTiles[y][x] = 1;
+    }
+    y = 19;
+    for (let x = 0; x < 9; x++) {
+      this.fixedTiles[y][x] = 1;
+    }
   }
   /* routine */
   private newPiece(): void {
     this.fallingPiece = null;
 
-    // let type: number = 6;
     let type: number = Math.floor(this.createRandom() * 7);
     let left: number = 3 + Math.floor(this.createRandom() * 4);
     let direction: number = Math.floor(this.createRandom() * 4);
@@ -259,16 +273,16 @@ class Board {
 
   /* clear line */
   private clearLinesAndSendPenalty(): void {
-    const linesToClear: Set<number> = new Set();
+    const linesToClear: number[] = new Array(0).fill(0);
 
     if (this.fallingPiece) {
       for (const tile of this.fallingPiece.tiles) {
         if (this.isLineFull(tile.y)) {
-          console.log("from", this.Player.playername, tile.y, "is complete")
-          linesToClear.add(tile.y);
+          if (linesToClear.includes(tile.y)) continue;
+          linesToClear.push(tile.y);
         }
       }
-      if (linesToClear.size) console.log(linesToClear);
+      linesToClear.sort();
       linesToClear.forEach((y) => {
         for (let row = y; row > 0; row--) {
           for (let x = 0; x < this.width; x++) {
@@ -280,10 +294,10 @@ class Board {
         }
       });
     }
-    if (linesToClear.size > 1) {
+    if (linesToClear.length > 1) {
       this.Player.Room.sendPenalty(
         this.Player.playername,
-        linesToClear.size - 1,
+        linesToClear.length - 1,
       );
     }
   }
