@@ -138,13 +138,6 @@ function Tetris() {
     socket.on("endgame", (data) => {
       if (status === "playing") setStatus("end-play");
       else if (status === "waiting") setStatus("end-wait");
-      //   if (data.type === "solo") {
-      //     if (status === "playing") setStatus("solo-play");
-      //     else if (status === "waiting") setStatus("solo-wait");
-      //   } else {
-      //     if (status === "playing") setStatus("end-play");
-      //     else if (status === "waiting") setStatus("end-wait");
-      //   }
       if (data.winner) setWinner(data.winner);
     });
     return () => {
