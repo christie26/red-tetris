@@ -64,6 +64,7 @@ function Tetris() {
             newSocket.disconnect();
           };
         } else if (res.status === 400) {
+          setStatus("error");
           console.error("Bad request: Room or player invalid");
         } else {
           console.error(`Unexpected response status: ${res.status}`);

@@ -41,8 +41,12 @@ const InfoBox: React.FC<InfoBoxProps> = ({
     }
   } else if (status === "waitServer") {
     message = "waiting for server ... refresh the page in a second";
+  } else if (status === "error") {
+    message =
+      "There is already a player with same name. Choose different name and try again.";
   }
-  if (status !== "ready" && message.length === 0) return null;
+  if (status !== "ready" && status !== "error" && message.length === 0)
+    return null;
   return (
     <div className="info-wrapper">
       <div className="info-box">
@@ -50,10 +54,14 @@ const InfoBox: React.FC<InfoBoxProps> = ({
           <div className="info">
             <div>Room: {roomname}</div>
             <div>
-              <div>Players:</div>
-              {players.map((player, index) => (
-                <div key={index}>{player}</div>
-              ))}
+              {players.length > 0 && (
+                <>
+                  <div>Players:</div>
+                  {players.map((player, index) => (
+                    <div key={index}>{player}</div>
+                  ))}
+                </>
+              )}
             </div>
           </div>
         )}
