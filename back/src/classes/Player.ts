@@ -1,5 +1,5 @@
-import Board from "./Board";
-import Room from "./Room";
+import Board from "./Board.js";
+import Room from "./Room.js";
 
 class Player {
   playername: string;

@@ -1,6 +1,6 @@
-import Player from "./Player";
+import Player from "./Player.js";
 import { v4 as uuidv4 } from "uuid";
-import io from "../app";
+import io from "../app.js";
 
 const c = {
   RED: "\x1b[31m",

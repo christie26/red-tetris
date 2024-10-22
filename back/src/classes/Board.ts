@@ -1,7 +1,7 @@
-import Piece from "./Piece";
+import Piece from "./Piece.js";
 import seedrandom from "seedrandom";
-import Player from "./Player";
-import Tile from "./Tile";
+import Player from "./Player.js";
+import Tile from "./Tile.js";
 
 const c = {
   RED: "\x1b[31m",
@@ -50,7 +50,7 @@ class Board {
     }
   }
   /* routine */
-  newPiece(): void {
+  private newPiece(): void {
     this.fallingPiece = null;
 
     let type: number = Math.floor(this.createRandom() * 7);
@@ -70,7 +70,7 @@ class Board {
     clearInterval(this.intervalId);
     this.intervalId = setInterval(() => this.routine(), 500 / this.speedLevel);
   }
-    routine() {
+  private routine() {
     if (this.canGoDown()) {
       this.moveTiles(this.fallingPiece.tiles, "down");
       this.renderPiece();
@@ -89,7 +89,8 @@ class Board {
       this.newPiece();
     }
   }
-    canGoDown(): boolean {
+  private canGoDown(): boolean {
+    if (!this.fallingPiece) return;
     let tempTiles = this.dupTiles(this.fallingPiece.tiles);
     this.moveTiles(tempTiles, "down");
     return this.isFree(tempTiles);
@@ -149,7 +150,7 @@ class Board {
     this.rotateTiles(this.fallingPiece.tiles);
     this.renderPiece();
   }
-    tryMoveInDirections(
+  private tryMoveInDirections(
     tempTiles: Tile[],
     directions: readonly ("left" | "right" | "down" | "up")[],
   ): boolean {
@@ -192,10 +193,10 @@ class Board {
   }
 
   /* check board */
-    isFree(tiles: Tile[]): boolean {
+  private isFree(tiles: Tile[]): boolean {
     return !this.touchBorder(tiles) && !this.touchOtherPiece(tiles);
   }
-    touchBorder(tempTiles: Tile[]): boolean {
+  private touchBorder(tempTiles: Tile[]): boolean {
     for (const tile of tempTiles) {
       if (
         tile.x < 0 ||
@@ -207,7 +208,7 @@ class Board {
     }
     return false;
   }
-    touchOtherPiece(tempTiles: Tile[]): boolean {
+  private touchOtherPiece(tempTiles: Tile[]): boolean {
     for (const tile of tempTiles) {
       if (this.fixedTiles[tile.y][tile.x]) {
         return true;
@@ -217,7 +218,7 @@ class Board {
   }
 
   /* render piece */
-    renderPiece(): void {
+  private renderPiece(): void {
     let board = this.fixedTiles.map((row) => [...row]);
     if (this.fallingPiece) {
       const drop = this.dropLocation();
@@ -230,7 +231,7 @@ class Board {
     }
     this.Player.Room.updateBoard(this.Player, board, "falling");
   }
-    fixPieceToBoard(): void {
+  private fixPieceToBoard(): void {
     for (const tile of this.fallingPiece.tiles) {
       this.fixedTiles[tile.y][tile.x] = tile.type + 10;
     }
@@ -240,7 +241,7 @@ class Board {
   recievePenalty(line: number): void {
     this.unpaidPenalties += line;
   }
-    applyPenalty(): void {
+  private applyPenalty(): void {
     let gameover = false;
     if (this.unpaidPenalties === 0) return;
 
@@ -271,8 +272,8 @@ class Board {
   }
 
   /* clear line */
-    clearLinesAndSendPenalty(): void {
-    const linesToClear: Set<number> = new Set();
+  private clearLinesAndSendPenalty(): void {
+    const linesToClear: number[] = new Array(0).fill(0);
 
     if (this.fallingPiece) {
       for (const tile of this.fallingPiece.tiles) {
@@ -300,7 +301,7 @@ class Board {
       );
     }
   }
-    isLineFull(y: number): boolean {
+  private isLineFull(y: number): boolean {
     if (y > 19 - this.penaltyLine) return false;
     for (let x = 0; x < 10; x++) {
       if (!this.fixedTiles[y][x]) {
@@ -323,10 +324,10 @@ class Board {
   }
 
   /* utilities */
-    dupTiles(tiles: Tile[]): Tile[] {
+  private dupTiles(tiles: Tile[]): Tile[] {
     return tiles.map((tile) => new Tile(tile.x, tile.y, tile.type));
   }
-    dropLocation(): Tile[] {
+  private dropLocation(): Tile[] {
     let tiles = this.dupTiles(this.fallingPiece.tiles);
     let testTiles = this.dupTiles(this.fallingPiece.tiles);
 
@@ -337,7 +338,7 @@ class Board {
     }
     return tiles;
   }
-    printBoard(board: number[][]): void {
+  private printBoard(board: number[][]): void {
     for (let row = 15; row <= 19; row++) {
       let rowString = "";
       for (let col = 0; col < this.width; col++) {
