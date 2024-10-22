@@ -312,7 +312,14 @@ class Board {
 
   /* freeze board */
   freezeBoard(): void {
+    console.log(
+      `[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} board freeze.`,
+      this.Player.Room.roomname,
+      this.Player.playername,
+    );
     clearInterval(this.intervalId);
+    this.intervalId = null;
+    this.fallingPiece = null;
   }
 
   /* utilities */
