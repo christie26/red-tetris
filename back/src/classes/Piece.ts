@@ -15,6 +15,7 @@ class Piece {
         new Tile((index % 10) + left, Math.floor(index / 10), this.type + 1),
       );
     }
+    this.type++;
   }
 }
 

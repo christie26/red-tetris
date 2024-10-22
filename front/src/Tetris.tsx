@@ -9,6 +9,7 @@ import InfoBox from "./components/InfoBox";
 import OtherBoardsContainer from "./components/OtherBoardsContainer";
 import SpeedControl from "./components/SpeedControl";
 import ScoreBoard from "./components/ScoreBoard";
+import NextPiece from "./components/NextPiece";
 
 function keyDownHandler(
   e: globalThis.KeyboardEvent,
@@ -20,6 +21,17 @@ function keyDownHandler(
   }
 }
 
+interface Tile {
+  x: number;
+  y: number;
+  type: number;
+}
+
+interface NextPiece {
+  tiles: Tile[];
+  type: number;
+}
+
 function Tetris() {
   const { room: myroom, player: myname } = useParams();
   const [socket, setSocket] = useState<Socket | null>(null);
@@ -28,6 +40,7 @@ function Tetris() {
   const [winner, setWinner] = useState<string | null>(null);
   const [status, setStatus] = useState<string>("ready");
   const [scores, setScores] = useState<Map<string, number>>(new Map());
+  const [nextPiece, setNextPiece] = useState<NextPiece | null>(null);
 
   const myboardRef = useRef<{
     updateBoard: (newBoard: number[][]) => void;
@@ -36,6 +49,7 @@ function Tetris() {
     updateBoard: (newBoard: number[][], playername: string) => void;
     updateStatus: (newStatus: string, playername: string) => void;
   } | null>(null);
+
   // fetch from server
   useEffect(() => {
     if (!myroom || !myname) {
@@ -121,6 +135,10 @@ function Tetris() {
         otherboardRef.current?.updateBoard(empty, player);
         otherboardRef.current?.updateStatus("", player);
       }
+    });
+    socket.on("nextpiece", (data) => {
+      console.log(data.piece.tiles);
+      setNextPiece(data.piece);
     });
     socket.on("updateboard", (data) => {
       if (data.roomname !== myroom) return;
@@ -213,7 +231,10 @@ function Tetris() {
             </div>
           )}
         </div>
-        <ScoreBoard scores={scores} />
+        <div>
+          <NextPiece nextPiece={nextPiece} />
+          <ScoreBoard scores={scores} />
+        </div>
       </div>
     </div>
   );
