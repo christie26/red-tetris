@@ -178,7 +178,6 @@ class Room {
   private endgame(winner: Player | null): void {
     if (winner) {
       const winnerScore = this.score.get(winner.playername) + 1;
-      console.log("winnerScore", winnerScore);
       this.score.set(winner.playername, winnerScore);
     }
 
@@ -189,14 +188,14 @@ class Room {
         player.Board.freezeBoard();
       }
     }
-    console.log(this.score);
+    const scoreJson = JSON.stringify(Array.from(this.score));
     if (winner) {
       this.socketToAll("endgame", {
         winner: winner.playername,
-        score: this.score,
+        score: scoreJson,
       });
     } else {
-      this.socketToAll("endgame", { winner: null, score: this.score });
+      this.socketToAll("endgame", { winner: null, score: scoreJson });
     }
     for (const waiter of this.waiters) {
       this.score.set(waiter.playername, 0);

@@ -138,19 +138,15 @@ function Tetris() {
       if (data.roomname !== myroom || status === "ready") return;
       otherboardRef.current?.updateStatus("died", data.dier);
     });
-    socket.on(
-      "endgame",
-      (data: { winner: string; score: Map<string, number> }) => {
-        if (status === "playing") setStatus("end-play");
-        else if (status === "waiting") setStatus("end-wait");
-        if (data.winner) setWinner(data.winner);
-        // console.log(data);
-        if (data.score) {
-          console.log(console.log(Array.from(scores.entries())));
-          setScores(data.score);
-        }
-      },
-    );
+    socket.on("endgame", (data: { winner: string; score: string }) => {
+      if (status === "playing") setStatus("end-play");
+      else if (status === "waiting") setStatus("end-wait");
+      if (data.winner) setWinner(data.winner);
+      if (data.score) {
+        const scoreMap = new Map<string, number>(JSON.parse(data.score));
+        setScores(scoreMap);
+      }
+    });
     return () => {
       socket.off("connect");
       socket.off("join");
