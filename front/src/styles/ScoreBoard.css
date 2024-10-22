@@ -2,14 +2,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 20px;
   padding: 20px;
-  border-radius: 10px;
   border: 2px solid #53484e;
-  box-shadow: 2px 2px 0px #b3a69f;
+  box-shadow: 8px 6px 0px #b3a69f;
   background-color: whitesmoke;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 300px;
+  width: 200px;
 }
 
 .scoreboard-table {

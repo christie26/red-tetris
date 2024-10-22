@@ -8,6 +8,7 @@
     grid-template-rows: repeat(2, 1fr); /* Creates two rows of equal height */
     justify-items: center; /* Centers items horizontally */
     align-items: center;
+    width: 200px;
 }
 
 .otherboard-wrapper {
