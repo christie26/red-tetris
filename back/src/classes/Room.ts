@@ -103,7 +103,7 @@ class Room {
   }
   onePlayerDied(dier: Player): void {
     this.updateBoard(dier, dier.Board.fixedTiles, "died");
-    io.emit("gameover", { roomname: this.roomname, dier: dier.playername });
+    this.socketToAll("gameover", { roomname: this.roomname, dier: dier.playername });
     console.log(
       `[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} gameover.`,
       this.roomname,
@@ -125,7 +125,7 @@ class Room {
       this.roomname,
       player.playername,
     );
-    io.emit("startgame", {
+    this.socketToAll("startgame", {
       roomname: this.roomname,
       playerlist: this.getPlayerlist(),
     });
@@ -137,7 +137,7 @@ class Room {
     });
   }
   updateBoard(player: Player, board: any, type: string): void {
-    io.emit("updateboard", {
+    this.socketToAll("updateboard", {
       roomname: this.roomname,
       player: player.playername,
       board: board,
@@ -202,7 +202,7 @@ class Room {
     }
     this.players.push(...this.waiters);
     this.waiters.length = 0;
-    io.emit("setleader", {
+    io.to(this.players[0].socket).emit("setleader", {
       roomname: this.roomname,
       playername: this.players[0].playername,
     });

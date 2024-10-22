@@ -318,7 +318,7 @@ class Board {
       this.Player.Room.roomname,
       this.Player.playername,
     );
-    clearInterval(this.intervalId!);
+    clearInterval(this.intervalId);
     this.intervalId = null;
     this.fallingPiece = null;
   }
