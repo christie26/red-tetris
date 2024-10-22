@@ -92,11 +92,13 @@ function Tetris() {
       if (data.roomname !== myroom) return;
       setPlayers(data.playerlist);
       if (data.type === "waiter") {
-        console.log("join as waiter", data.playerlist);
         setStatus("waiting");
+        console.log("socket-join", data)
         for (const player of data.playerlist) {
           const empty = Array.from({ length: 20 }, () => Array(10).fill(0));
+          console.log("update", player)
           otherboardRef.current?.updateBoard(empty, player);
+          otherboardRef.current?.updateStatus("", player);
         }
       }
       if (data.type === "leader") SetIsLeader(true);
