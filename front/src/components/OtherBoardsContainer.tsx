@@ -1,5 +1,6 @@
 import React, { forwardRef, useImperativeHandle, useState } from "react";
 import { OtherBoard } from "./OtherBoard";
+import "../styles/OtherBoard.css";
 
 interface OtherBoardsContainerProps {
   players: string[];
@@ -39,7 +40,7 @@ const OtherBoardsContainer = forwardRef(
     }));
     if (players.length > 1 && gamestatus !== "ready")
       return (
-        <div className="otherboard-group">
+        <div className="otherboard-container">
           {players
             .filter((player) => player !== myname)
             .map((player) => (

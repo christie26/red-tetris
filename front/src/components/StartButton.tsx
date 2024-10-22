@@ -13,7 +13,7 @@ const StartButton: React.FC<StartButtonProps> = ({ socket, visible }) => {
   };
   if (visible)
     return (
-      <button id="leaderButton" className="button leader" onClick={handleClick}>
+      <button className="button" onClick={handleClick}>
         Start Game
       </button>
     );

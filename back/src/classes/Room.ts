@@ -16,13 +16,13 @@ class Room {
   public isPlaying: boolean = false;
   public key: string = uuidv4();
   public winner: string | null = null;
+  score: Map<string, number> = new Map();
   speedLevel: number = 1;
 
   constructor(roomname: string) {
     this.roomname = roomname;
     console.log(`[${c.GREEN}%s${c.RESET}] is created`, roomname);
   }
-
   addPlayer(playername: string, socketId: string): void {
     const isLeader = this.players.length === 0;
     const newPlayer = new Player(
@@ -50,6 +50,7 @@ class Room {
         type: role,
         playerlist: this.getPlayerlist(),
       });
+      this.score.set(newPlayer.playername, 0);
     }
     console.log(
       `[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} joined as a ${role}.`,
@@ -76,7 +77,7 @@ class Room {
       );
       return;
     }
-
+    this.score.delete(targetPlayer.playername);
     if (targetPlayer.isLeader) this.setNewLeader();
     this.players = this.players.filter((p) => p.playername !== playername);
     console.log(
@@ -166,38 +167,38 @@ class Room {
   }
   private freezeIfPlaying(targetplayer: Player): void {
     if (targetplayer.isPlaying) {
-      console.log(
-        `[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} board freeze.`,
-        this.roomname,
-        targetplayer.playername,
-      );
       targetplayer.Board.freezeBoard();
       targetplayer.isPlaying = false;
     }
   }
   private checkEndgame(): void {
     const winner = this.players.filter((player) => player.isPlaying);
-    if (winner.length === 1) this.endgame(winner[0].playername);
+    if (winner.length === 1) this.endgame(winner[0]);
   }
-  private endgame(winner: string): void {
+  private endgame(winner: Player | null): void {
+    if (winner) {
+      const winnerScore = this.score.get(winner.playername) + 1;
+      this.score.set(winner.playername, winnerScore);
+    }
+
     console.log(`[${c.GREEN}%s${c.RESET}] game ends.`, this.roomname);
     this.isPlaying = false;
     for (const player of this.players) {
       if (player.isPlaying) {
         player.Board.freezeBoard();
-        console.log(
-          `[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} board freeze.`,
-          this.roomname,
-          player.playername,
-        );
       }
     }
+    const scoreJson = JSON.stringify(Array.from(this.score));
     if (winner) {
-      this.socketToPlayers("endgame", { winner: winner, type: "player" });
-      this.socketToWaiters("endgame", { winner: winner, type: "waiter" });
+      this.socketToAll("endgame", {
+        winner: winner.playername,
+        score: scoreJson,
+      });
     } else {
-      this.socketToPlayers("endgame", { winner: winner, type: "solo" });
-      this.socketToWaiters("endgame", { winner: winner, type: "solo" });
+      this.socketToAll("endgame", { winner: null, score: scoreJson });
+    }
+    for (const waiter of this.waiters) {
+      this.score.set(waiter.playername, 0);
     }
     this.players.push(...this.waiters);
     this.waiters.length = 0;
@@ -210,6 +211,10 @@ class Room {
     this.players.forEach((player) => {
       player.updateKey(this.key);
     });
+  }
+  private socketToAll(event: string, data: any) {
+    this.socketToPlayers(event, data);
+    this.socketToWaiters(event, data);
   }
   private socketToPlayers(event: string, data: any) {
     for (const player of this.players) {

@@ -3,6 +3,13 @@ import seedrandom from "seedrandom";
 import Player from "./Player";
 import Tile from "./Tile";
 
+const c = {
+  RED: "\x1b[31m",
+  GREEN: "\x1b[32m",
+  YELLOW: "\x1b[33m",
+  RESET: "\x1b[0m",
+};
+
 class Board {
   socket: string;
   width: number = 10;
@@ -25,13 +32,27 @@ class Board {
   }
 
   startgame(): void {
+    // this.forTest();
     this.newPiece();
+  }
+  forTest() {
+    let y = 17;
+    for (let x = 0; x < 8; x++) {
+      this.fixedTiles[y][x] = 1;
+    }
+    y = 18;
+    for (let x = 0; x < 9; x++) {
+      this.fixedTiles[y][x] = 1;
+    }
+    y = 19;
+    for (let x = 0; x < 9; x++) {
+      this.fixedTiles[y][x] = 1;
+    }
   }
   /* routine */
   newPiece(): void {
     this.fallingPiece = null;
 
-    // let type: number = 6;
     let type: number = Math.floor(this.createRandom() * 7);
     let left: number = 3 + Math.floor(this.createRandom() * 4);
     let direction: number = Math.floor(this.createRandom() * 4);
@@ -41,7 +62,6 @@ class Board {
       for (const tile of this.fallingPiece.tiles) {
         this.fixedTiles[tile.y][tile.x] = tile.type;
       }
-      this.freezeBoard();
       this.Player.gameover();
       return;
     }
@@ -104,6 +124,7 @@ class Board {
 
   /* move & rotate piece */
   moveSide(direction: "left" | "right"): void {
+    if (!this.fallingPiece) return;
     let tempTiles = this.dupTiles(this.fallingPiece.tiles);
     this.moveTiles(tempTiles, direction);
 
@@ -113,6 +134,7 @@ class Board {
     }
   }
   rotatePiece(): void {
+    if (!this.fallingPiece) return;
     if (this.fallingPiece.tiles[0].type === 7) return;
 
     let tempTiles = this.dupTiles(this.fallingPiece.tiles);
@@ -131,6 +153,7 @@ class Board {
     tempTiles: Tile[],
     directions: readonly ("left" | "right" | "down" | "up")[],
   ): boolean {
+    if (!this.fallingPiece) return;
     for (const direction of directions) {
       let doubleTemp = this.dupTiles(tempTiles);
       this.moveTiles(doubleTemp, direction);
@@ -243,7 +266,6 @@ class Board {
     this.unpaidPenalties = 0;
 
     if (gameover) {
-      this.freezeBoard();
       this.Player.gameover();
     }
   }
@@ -254,11 +276,12 @@ class Board {
 
     if (this.fallingPiece) {
       for (const tile of this.fallingPiece.tiles) {
-        if (linesToClear.has(tile.y)) continue;
         if (this.isLineFull(tile.y)) {
-          linesToClear.add(tile.y);
+          if (linesToClear.includes(tile.y)) continue;
+          linesToClear.push(tile.y);
         }
       }
+      linesToClear.sort();
       linesToClear.forEach((y) => {
         for (let row = y; row > 0; row--) {
           for (let x = 0; x < this.width; x++) {
@@ -270,10 +293,10 @@ class Board {
         }
       });
     }
-    if (linesToClear.size > 1) {
+    if (linesToClear.length > 1) {
       this.Player.Room.sendPenalty(
         this.Player.playername,
-        linesToClear.size - 1,
+        linesToClear.length - 1,
       );
     }
   }

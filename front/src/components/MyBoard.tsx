@@ -1,5 +1,7 @@
 import React, { useState, useImperativeHandle, forwardRef } from "react";
 import { getTypeString } from "./functions";
+import "../styles/tile.css";
+import "../styles/MyBoard.css";
 
 const Myboard = forwardRef((_, ref) => {
   const [board, setBoard] = useState<number[][]>(

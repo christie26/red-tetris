@@ -1,6 +1,9 @@
 
-.O_BLOCK {
-    background-color: #fdffb6;
+.drop {
+    background-color: lightgray;
+  }
+  .O_BLOCK {
+    background-color: #C5BAA6;
   }
   
   .T_BLOCK {
@@ -28,7 +31,7 @@
   }
   
   .O_BLOCK_FIX {
-    background-color: #c96d6d;
+    background-color: #AD947B;
   }
   
   .T_BLOCK_FIX {

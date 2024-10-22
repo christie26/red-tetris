@@ -33,7 +33,7 @@ const getTypeString = (cell: number): string => {
     case 20:
       return "PENALTY";
   }
-  return "ERROR";
+  return "";
 };
 
 export { getTypeString };

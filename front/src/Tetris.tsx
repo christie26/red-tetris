@@ -1,12 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import "./App.css";
+import "./styles/MyBoardContainer.css";
 import { io, Socket } from "socket.io-client";
-import { Myboard } from "./components/Myboard";
+import { Myboard } from "./components/MyBoard";
 import StartButton from "./components/StartButton";
 import InfoBox from "./components/InfoBox";
 import OtherBoardsContainer from "./components/OtherBoardsContainer";
 import SpeedControl from "./components/SpeedControl";
+import ScoreBoard from "./components/ScoreBoard";
 
 function keyDownHandler(
   e: globalThis.KeyboardEvent,
@@ -25,6 +27,7 @@ function Tetris() {
   const [isLeader, SetIsLeader] = useState<boolean>(false);
   const [winner, setWinner] = useState<string | null>(null);
   const [status, setStatus] = useState<string>("ready");
+  const [scores, setScores] = useState<Map<string, number>>(new Map());
 
   const myboardRef = useRef<{
     updateBoard: (newBoard: number[][]) => void;
@@ -64,6 +67,7 @@ function Tetris() {
             newSocket.disconnect();
           };
         } else if (res.status === 400) {
+          setStatus("error");
           console.error("Bad request: Room or player invalid");
         } else {
           console.error(`Unexpected response status: ${res.status}`);
@@ -135,10 +139,14 @@ function Tetris() {
       if (data.roomname !== myroom || status === "ready") return;
       otherboardRef.current?.updateStatus("died", data.dier);
     });
-    socket.on("endgame", (data) => {
+    socket.on("endgame", (data: { winner: string; score: string }) => {
       if (status === "playing") setStatus("end-play");
       else if (status === "waiting") setStatus("end-wait");
       if (data.winner) setWinner(data.winner);
+      if (data.score) {
+        const scoreMap = new Map<string, number>(JSON.parse(data.score));
+        setScores(scoreMap);
+      }
     });
     return () => {
       socket.off("connect");
@@ -167,7 +175,7 @@ function Tetris() {
     };
   }, [socket]);
 
-  if (!myroom || !myname) return "wait for server";
+  if (!myroom || !myname) return <div>{"wait for server"}</div>;
   return (
     <div>
       <h1>Red-Tetris</h1>
@@ -194,7 +202,7 @@ function Tetris() {
               <div>{myname}</div>
               <StartButton
                 socket={socket}
-                visible={isLeader && status != "playing"}
+                visible={isLeader && status !== "playing"}
               />
               <SpeedControl
                 socket={socket}
@@ -203,6 +211,7 @@ function Tetris() {
             </div>
           )}
         </div>
+        <ScoreBoard scores={scores} />
       </div>
     </div>
   );
