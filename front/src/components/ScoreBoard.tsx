@@ -1,5 +1,5 @@
 import React from "react";
-import "./ScoreBoard.css";
+import "../styles/ScoreBoard.css";
 
 interface ScoreBoardProps {
   scores: Map<string, number>;

@@ -1,4 +1,5 @@
 import React from "react";
+import "../styles/tile.css";
 
 interface OtherBoardProps {
   playername: string;
@@ -13,7 +14,7 @@ const OtherBoard: React.FC<OtherBoardProps> = ({
   if (!board) return null;
 
   return (
-    <div className="otherboard-container">
+    <div className="otherboard-wrapper">
       <div className={"otherboard " + status} id={playername}>
         {board.flat().map((cell, index) => (
           <li key={index} className={cell ? "filled" : undefined} />

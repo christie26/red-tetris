@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import "./App.css";
+import "./styles/MyBoardContainer.css";
 import { io, Socket } from "socket.io-client";
-import { Myboard } from "./components/Myboard";
+import { Myboard } from "./components/MyBoard";
 import StartButton from "./components/StartButton";
 import InfoBox from "./components/InfoBox";
 import OtherBoardsContainer from "./components/OtherBoardsContainer";

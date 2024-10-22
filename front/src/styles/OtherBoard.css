@@ -1,0 +1,51 @@
+.otherboard-container {
+    /* display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center; */
+
+    display: grid;
+    grid-template-rows: repeat(2, 1fr); /* Creates two rows of equal height */
+    justify-items: center; /* Centers items horizontally */
+    align-items: center;
+}
+
+.otherboard-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  font-size: 20px;
+}
+
+.otherboard {
+  list-style-type: none;
+  display: grid;
+  grid-template-columns: repeat(10, 10px);
+  grid-template-rows: repeat(20, 10px);
+  border: 2px solid #53484e;
+  box-shadow: 2px 2px 0px #b3a69f;
+  background-color: #dec9b6;
+}
+
+.otherboard > li {
+  width: 10px;
+  height: 10px;
+}
+
+.died {
+  background-color: #dc7872;
+}
+
+.died > .filled {
+  background-color: #e58f8a;
+}
+
+.offline {
+  background-color: lightgray;
+}
+
+.offline > .filled {
+  background-color: darkgray;
+}

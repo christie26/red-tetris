@@ -7,7 +7,7 @@ code {
     font-family: "Jersey 25";
     src: local("Jersey25-Regular"),
       url("./fonts/Jersey25-Regular.ttf") format("truetype");
-  }
+}
 
 h1 {
     margin: 0 auto;
@@ -17,7 +17,7 @@ h1 {
     font-family: "Jersey 25", sans-serif;
     color: #c1121f;
     font-size: 80px;
-  }
+}
   
 body {
   margin: 0;
@@ -56,123 +56,14 @@ body {
   gap: 120px;
 }
 
-#myboard-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-}
-#myboard-wrapper {
-  position: relative;
-  width: 250px;
-  height: 500px;
-}
-.info-wrapper {
-  position: absolute;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 2;
-  top: 0px;
-  left: 0px;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(250, 246, 240, 0.9);
-}
-.info-box {
-    padding: 10px;
-    margin: 10px;
-    border-radius: 3px;
-  border-color: #3d3236;
-  border: #3d3236 solid 2px;
-  background-color: rgba(250, 246, 240);
-  font-size: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-}
-.info {
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-  letter-spacing: 2px;
-  line-height: 25px;
-  overflow: hidden;
-}
-
-#myboard {
-  position: absolute;
-  z-index: 1;
-  top: 0;
-  left: 0;
-  list-style-type: none;
-  display: grid;
-  grid-template-columns: repeat(10, 25px);
-  grid-template-rows: repeat(20, 25px);
-  outline: 4px solid #53484e;
-  background-color: #faf6f0;
-  box-shadow: 15px 12px 0px #b3a69f;
-}
-#myboard > li {
-  width: 25px;
-  height: 25px;
-  box-sizing: border-box;
-  border: 1px solid #53484e;
-}
-
-#under-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-  font-size: 20px;
-}
-
-.otherboard-group {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-.otherboard-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 5px;
-  font-size: 20px;
-}
-.otherboard {
-  list-style-type: none;
-  display: grid;
-  grid-template-columns: repeat(10, 10px);
-  grid-template-rows: repeat(20, 10px);
-  border: 2px solid #53484e;
-  box-shadow: 2px 2px 0px #b3a69f;
-  background-color: #dec9b6;
-}
-.otherboard > li {
-  width: 10px;
-  height: 10px;
-}
 .speedControl {
     display: flex;
     flex-direction: column;
     justify-content: center;
     width: 150px;
 }
-.died {
-  background-color: #dc7872;
-}
-.died > .filled {
-  background-color: #e58f8a;
-}
-.offline {
-  background-color: lightgray;
-}
-.offline > .filled {
-  background-color: darkgray;
+p {
+  margin: 0px;
 }
 
 .win {
@@ -180,73 +71,5 @@ body {
 }
 
 .filled {
-  /* background-color: #b3a69f; */
   background-color: darkgray;
-}
-
-p {
-  margin: 0px;
-}
-
-.drop {
-  background-color: lightgray;
-}
-.O_BLOCK {
-  background-color: #C5BAA6;
-}
-
-.T_BLOCK {
-  background-color: #bdb2ff;
-}
-
-.J_BLOCK {
-  background-color: #a0c4ff;
-}
-
-.L_BLOCK {
-  background-color: #ffd7a6;
-}
-
-.S_BLOCK {
-  background-color: #bdf2b1;
-}
-
-.Z_BLOCK {
-  background-color: #ffaead;
-}
-
-.I_BLOCK {
-  background-color: #c5faff;
-}
-
-.O_BLOCK_FIX {
-  background-color: #AD947B;
-}
-
-.T_BLOCK_FIX {
-  background-color: #9e8eff;
-}
-
-.J_BLOCK_FIX {
-  background-color: #70a6ff;
-}
-
-.L_BLOCK_FIX {
-  background-color: #ffc783;
-}
-
-.S_BLOCK_FIX {
-  background-color: #a0f08e;
-}
-
-.Z_BLOCK_FIX {
-  background-color: #ff8180;
-}
-
-.I_BLOCK_FIX {
-  background-color: #8df5ff;
-}
-
-.PENALTY {
-  background-color: darkred;
 }
