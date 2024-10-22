@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 import http from "http";
 import { Server } from "socket.io";
-import Room from "./classes/Room";
+import Room from "./classes/Room.js";
 import cors from "cors";
 import Player from "./classes/Player.js";
 

@@ -38,7 +38,7 @@ const OtherBoardsContainer = forwardRef(
       updateBoard,
       updateStatus,
     }));
-    if (gamestatus === "playing" && players.length < 1) return null;
+    if (gamestatus === "playing" && players.length < 2) return null;
     else
       return (
         <div className="otherboard-container">
