@@ -1,7 +1,7 @@
-import Piece from "./Piece.js";
+import Piece from "./Piece";
 import seedrandom from "seedrandom";
-import Player from "./Player.js";
-import Tile from "./Tile.js";
+import Player from "./Player";
+import Tile from "./Tile";
 
 class Board {
   socket: string;
@@ -28,7 +28,7 @@ class Board {
     this.newPiece();
   }
   /* routine */
-  private newPiece(): void {
+  newPiece(): void {
     this.fallingPiece = null;
 
     // let type: number = 6;

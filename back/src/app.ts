@@ -1,9 +1,9 @@
 import express, { Request, Response } from "express";
 import http from "http";
 import { Server } from "socket.io";
-import Room from "./classes/Room.js";
+import Room from "./classes/Room";
 import cors from "cors";
-import Player from "./classes/Player.js";
+import Player from "./classes/Player";
 
 function isQueryParams(query: any): query is QueryParams {
   return typeof query.room === "string" && typeof query.player === "string";

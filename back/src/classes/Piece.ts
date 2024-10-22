@@ -1,5 +1,5 @@
-import Pieces from "../Pieces.js";
-import Tile from "./Tile.js";
+import Pieces from "../Pieces";
+import Tile from "./Tile";
 
 class Piece {
   type: number;
