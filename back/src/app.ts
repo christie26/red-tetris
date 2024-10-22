@@ -3,7 +3,7 @@ import http from "http";
 import { Server } from "socket.io";
 import Room from "./classes/Room";
 import cors from "cors";
-import Player from "./classes/Player";
+import Player from "./classes/Player.js";
 
 function isQueryParams(query: any): query is QueryParams {
   return typeof query.room === "string" && typeof query.player === "string";
