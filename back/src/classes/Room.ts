@@ -23,6 +23,7 @@ class Room {
     this.roomname = roomname;
     console.log(`[${c.GREEN}%s${c.RESET}] is created`, roomname);
   }
+  /* manage player's join & leave */
   addPlayer(playername: string, socketId: string): void {
     const isLeader = this.players.length === 0;
     const newPlayer = new Player(
@@ -101,22 +102,8 @@ class Room {
       this.checkEndgame();
     }
   }
-  onePlayerDied(dier: Player): void {
-    this.updateBoard(dier, dier.Board.fixedTiles, "died");
-    this.socketToAll("gameover", { roomname: this.roomname, dier: dier.playername });
-    console.log(
-      `[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} gameover.`,
-      this.roomname,
-      dier.playername,
-    );
 
-    if (this.players.length === 1) {
-      this.endgame(null);
-      return;
-    }
-
-    this.checkEndgame();
-  }
+  /* start & end game */
   startgame(): void {
     this.speedLevel = 1;
     const player = this.players[0];
@@ -136,40 +123,21 @@ class Room {
       player.Board.startgame();
     });
   }
-  updateBoard(player: Player, board: any, type: string): void {
-    this.socketToAll("updateboard", {
-      roomname: this.roomname,
-      player: player.playername,
-      board: board,
-      type: type,
-    });
-  }
-  sendPenalty(sender: string, lines: number): void {
+  onePlayerDied(dier: Player): void {
+    this.updateBoard(dier, dier.Board.fixedTiles, "died");
+    this.socketToAll("gameover", { roomname: this.roomname, dier: dier.playername });
     console.log(
-      `[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} sent ${c.RED}%d${c.RESET} lines penalty.`,
+      `[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} gameover.`,
       this.roomname,
-      sender,
-      lines,
+      dier.playername,
     );
-    for (const player of this.players) {
-      if (player.playername === sender) continue;
-      player.Board.recievePenalty(lines);
+
+    if (this.players.length === 1) {
+      this.endgame(null);
+      return;
     }
-  }
-  changeRoomSpeed(speed: number): void {
-    this.speedLevel = speed;
-    for (const player of this.players) {
-      player.Board.changeSpeedLevel(speed);
-    }
-  }
-  private getPlayerlist(): string[] {
-    return this.players.map((player) => player.playername);
-  }
-  private freezeIfPlaying(targetplayer: Player): void {
-    if (targetplayer.isPlaying) {
-      targetplayer.Board.freezeBoard();
-      targetplayer.isPlaying = false;
-    }
+
+    this.checkEndgame();
   }
   private checkEndgame(): void {
     const winner = this.players.filter((player) => player.isPlaying);
@@ -212,18 +180,43 @@ class Room {
       player.updateKey(this.key);
     });
   }
-  private socketToAll(event: string, data: any) {
-    this.socketToPlayers(event, data);
-    this.socketToWaiters(event, data);
+
+  /* during a game */
+  updateBoard(player: Player, board: any, type: string): void {
+    this.socketToAll("updateboard", {
+      roomname: this.roomname,
+      player: player.playername,
+      board: board,
+      type: type,
+    });
   }
-  private socketToPlayers(event: string, data: any) {
+  sendPenalty(sender: string, lines: number): void {
+    console.log(
+      `[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} sent ${c.RED}%d${c.RESET} lines penalty.`,
+      this.roomname,
+      sender,
+      lines,
+    );
     for (const player of this.players) {
-      io.to(player.socket).emit(event, data);
+      if (player.playername === sender) continue;
+      player.Board.recievePenalty(lines);
     }
   }
-  private socketToWaiters(event: string, data: any) {
-    for (const waiter of this.waiters) {
-      io.to(waiter.socket).emit(event, data);
+  changeRoomSpeed(speed: number): void {
+    this.speedLevel = speed;
+    for (const player of this.players) {
+      player.Board.changeSpeedLevel(speed);
+    }
+  }
+
+  /* utilities */
+  private getPlayerlist(): string[] {
+    return this.players.map((player) => player.playername);
+  }
+  private freezeIfPlaying(targetplayer: Player): void {
+    if (targetplayer.isPlaying) {
+      targetplayer.Board.freezeBoard();
+      targetplayer.isPlaying = false;
     }
   }
   private setNewLeader(): void {
@@ -247,6 +240,23 @@ class Room {
       newLeader.playername,
     );
   }
+
+  /* send socket event */
+  private socketToAll(event: string, data: any) {
+    this.socketToPlayers(event, data);
+    this.socketToWaiters(event, data);
+  }
+  private socketToPlayers(event: string, data: any) {
+    for (const player of this.players) {
+      io.to(player.socket).emit(event, data);
+    }
+  }
+  private socketToWaiters(event: string, data: any) {
+    for (const waiter of this.waiters) {
+      io.to(waiter.socket).emit(event, data);
+    }
+  }
+
 }
 
 export default Room;
