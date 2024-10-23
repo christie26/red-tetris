@@ -144,17 +144,17 @@ class Room {
     if (winner.length === 1) this.endgame(winner[0].playername);
   }
   private endgame(winner: string | null): void {
-    if (winner) {
-      const winnerScore = this.score.get(winner) + 1;
-      this.score.set(winner, winnerScore);
-    }
-
     this.isPlaying = false;
     for (const player of this.players) {
       if (player.isPlaying) {
         player.Board.freezeBoard();
         player.isPlaying = false;
       }
+    }
+
+    if (winner) {
+      const winnerScore = this.score.get(winner) + 1;
+      this.score.set(winner, winnerScore);
     }
     const scoreJson = JSON.stringify(Array.from(this.score));
     this.socketToAll("endgame", { winner: winner, score: scoreJson });
