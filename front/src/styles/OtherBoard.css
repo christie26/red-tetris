@@ -34,7 +34,9 @@
   width: 10px;
   height: 10px;
 }
-
+.filled {
+  background-color: darkgray;
+}
 .win {
   background-color: #70a6ff;
 }
