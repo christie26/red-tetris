@@ -64,9 +64,9 @@ app.get("/:room/:player", (req: Request, res: Response) => {
   }
 });
 
-app.get("/error", (req: Request, res: Response) => {
-  res.status(403).send("Forbidden: Access denied");
-});
+// app.get("/error", (req: Request, res: Response) => {
+//   res.status(403).send("Forbidden: Access denied");
+// });
 
 io.on("connection", (socket) => {
   const queryParams = socket.handshake.query;

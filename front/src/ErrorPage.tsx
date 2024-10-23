@@ -1,11 +1,6 @@
-import React, { useEffect } from "react";
 import "./App.css";
 
 function ErrorPage() {
-  useEffect(() => {
-    fetch(`http://localhost:8000/error`).then((res) => res.json());
-    console.log("message from server");
-  }, []);
 
   return (
     <div>
