@@ -1,4 +1,4 @@
-#myboard {
+.myboard {
     position: absolute;
     z-index: 1;
     top: 0;
@@ -12,10 +12,9 @@
     box-shadow: 15px 12px 0px #b3a69f;
 }
   
-#myboard > li {
-width: 25px;
-height: 25px;
-box-sizing: border-box;
-border: 1px solid #53484e;
+.myboard > li {
+  width: 25px;
+  height: 25px;
+  box-sizing: border-box;
+  border: 1px solid #53484e;
 }
-  

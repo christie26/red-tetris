@@ -17,7 +17,7 @@ const Myboard = forwardRef((_, ref) => {
   }));
 
   return (
-    <div id="myboard">
+    <div className="myboard ">
       {board.flat().map((cell, index) => (
         <li key={index} className={getTypeString(cell)} />
       ))}
