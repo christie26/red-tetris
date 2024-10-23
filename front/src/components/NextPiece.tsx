@@ -22,7 +22,7 @@ const NextPiece: React.FC<NextPieceProps> = ({ nextPiece }) => {
     return (
       <div className="nextpiece-container">
         <h3>Next Piece</h3>
-        <div className="nextboard">
+        <div className="nextpiece">
           {empty.flat().map((cell, index) => (
             <li key={index} className={getTypeString(cell)} />
           ))}

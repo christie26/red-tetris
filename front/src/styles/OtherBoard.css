@@ -27,7 +27,7 @@
   grid-template-rows: repeat(20, 10px);
   border: 2px solid #53484e;
   box-shadow: 8px 6px 0px #b3a69f;
-  background-color: #dec9b6;
+  background-color: #faf6f0;
 }
 
 .otherboard > li {
