@@ -58,13 +58,30 @@ class Board {
 
     return new Piece(type, left, direction);
   }
+  private newPiece() {
+    this.currentPiece = this.nextPiece;
+    this.nextPiece = this.createPiece();
+    this.Player.sendNextPiece(this.nextPiece);
+
+    if (this.touchOtherPiece(this.currentPiece.tiles)) {
+      for (const tile of this.currentPiece.tiles) {
+        this.fixedTiles[tile.y][tile.x] = tile.type;
+      }
+      this.Player.gameover();
+      return;
+    }
+
+    this.renderPiece();
+    clearInterval(this.intervalId);
+    this.intervalId = setInterval(() => this.routine(), 500 / this.speedLevel);
+  }
   private routine() {
     if (this.canGoDown()) {
       this.moveTiles(this.currentPiece.tiles, "down");
       this.renderPiece();
 
-      this.applyPenalty();
-      return;
+      if (this.applyPenalty())
+        this.newPiece();
     } else {
       this.fixPieceToBoard();
       this.Player.Room.updateBoard(this.Player, this.fixedTiles, "fixed");
@@ -74,21 +91,7 @@ class Board {
 
       this.applyPenalty();
 
-      this.currentPiece = this.nextPiece;
-      this.nextPiece = this.createPiece();
-      this.Player.sendNextPiece(this.nextPiece);
-
-      if (this.touchOtherPiece(this.currentPiece.tiles)) {
-        for (const tile of this.currentPiece.tiles) {
-          this.fixedTiles[tile.y][tile.x] = tile.type;
-        }
-        this.Player.gameover();
-        return;
-      }
-  
-      this.renderPiece();
-      clearInterval(this.intervalId);
-      this.intervalId = setInterval(() => this.routine(), 500 / this.speedLevel);
+      this.newPiece();
     }
   }
   private canGoDown(): boolean {
@@ -243,8 +246,9 @@ class Board {
   recievePenalty(line: number): void {
     this.unpaidPenalties += line;
   }
-  private applyPenalty(): void {
+  private applyPenalty(): boolean {
     let gameover = false;
+    let skip = false;
     if (this.unpaidPenalties === 0) return;
 
     const line = this.unpaidPenalties;
@@ -253,6 +257,7 @@ class Board {
     this.penaltyLine += line;
     this.unpaidPenalties = 0;
 
+    skip = this.fixPieceIfTouch(line);
     for (let row = top; row <= line; row++) {
       if (this.fixedTiles[row].some((element) => element > 0)) {
         gameover = true;
@@ -270,6 +275,22 @@ class Board {
 
     if (gameover) {
       this.Player.gameover();
+    }
+    return skip;
+  }
+  fixPieceIfTouch(line: number) : boolean {
+    const dropTile = this.dropLocation();
+    const distance = this.currentPiece.tiles[0].y - dropTile[0].y;
+    if (line < distance) return false;
+    else if (line === distance) {
+      this.fixPieceToBoard();
+      return true;
+    } else {
+      for (const tile of this.currentPiece.tiles) {
+        tile.y -= distance;
+      }
+      this.fixPieceToBoard();
+      return true;
     }
   }
 
