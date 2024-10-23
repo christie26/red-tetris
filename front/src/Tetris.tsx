@@ -2,15 +2,16 @@ import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import "./App.css";
 import "./styles/MyBoardContainer.css";
-import "./styles/layout.css"
+import "./styles/layout.css";
 import { io, Socket } from "socket.io-client";
 import { Myboard } from "./components/MyBoard";
 import StartButton from "./components/StartButton";
-import InfoBox from "./components/InfoBox";
+import ResultBox from "./components/ResultBox";
 import OtherBoardsContainer from "./components/OtherBoardsContainer";
 import SpeedControl from "./components/SpeedControl";
 import ScoreBoard from "./components/ScoreBoard";
 import NextPiece from "./components/NextPiece";
+import InfoBox from "./components/InfoBox";
 
 function keyDownHandler(
   e: globalThis.KeyboardEvent,
@@ -110,7 +111,7 @@ function Tetris() {
         setStatus("waiting");
         for (const player of data.playerlist) {
           const empty = Array.from({ length: 20 }, () => Array(10).fill(0));
-          console.log("update", player)
+          console.log("update", player);
           otherboardRef.current?.updateBoard(empty, player);
           otherboardRef.current?.updateStatus("", player);
         }
@@ -157,10 +158,8 @@ function Tetris() {
     });
     socket.on("gameover", (data) => {
       if (data.roomname !== myroom || status === "ready") return;
-      if (data.dier === myname)
-        setStatus("died");
-      else
-        otherboardRef.current?.updateStatus("died", data.dier);
+      if (data.dier === myname) setStatus("died");
+      else otherboardRef.current?.updateStatus("died", data.dier);
     });
     socket.on("endgame", (data: { winner: string; score: string }) => {
       if (status === "playing") setStatus("end-play");
@@ -211,18 +210,14 @@ function Tetris() {
         />
         <div id="myboard-container">
           <div id="myboard-wrapper">
-            <InfoBox
-              roomname={myroom}
-              players={players}
+            <ResultBox
               winner={winner}
               myname={myname}
               isLeader={isLeader}
               status={status}
             />
             <Myboard ref={myboardRef} />
-            {status === "died" && 
-            <div className="died-message">You died!</div>
-            }
+            {status === "died" && <div className="died-message">You died!</div>}
           </div>
           {socket && (
             <div id="under-wrapper">
@@ -239,6 +234,7 @@ function Tetris() {
           )}
         </div>
         <div className="info-container">
+          <InfoBox roomname={myroom} players={players} />
           <NextPiece nextPiece={nextPiece} />
           <ScoreBoard scores={scores} />
         </div>

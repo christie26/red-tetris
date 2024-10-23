@@ -1,6 +1,6 @@
-import React from 'react';
+import React from "react";
 import { getTypeString } from "./functions";
-import "../styles/NextPiece.css"
+import "../styles/NextPiece.css";
 
 interface Tile {
   x: number;
@@ -33,15 +33,15 @@ const NextPiece: React.FC<NextPieceProps> = ({ nextPiece }) => {
 
   let totalX = 0;
   let totalY = 0;
-  
+
   for (const { x, y } of nextPiece.tiles) {
     totalX += x;
     totalY += y;
   }
-  
+
   const avgX = totalX / 4;
   const avgY = totalY / 4;
-  
+
   for (const { x, y, type } of nextPiece.tiles) {
     empty[Math.ceil(y - avgY + 1)][Math.ceil(x - avgX + 1)] = type;
   }
@@ -57,6 +57,5 @@ const NextPiece: React.FC<NextPieceProps> = ({ nextPiece }) => {
     </div>
   );
 };
-
 
 export default NextPiece;
