@@ -1,5 +1,6 @@
 import React from "react";
 import { Socket } from "socket.io-client";
+import "../styles/StartButton.css";
 
 interface StartButtonProps {
   socket: Socket | null;

@@ -35,6 +35,10 @@
   height: 10px;
 }
 
+.win {
+  background-color: #70a6ff;
+}
+
 .died {
   background-color: #dc7872;
 }

@@ -33,37 +33,9 @@ body {
   color: #53484e;
 }
 
-.button {
-  font-family: "Press Start 2P", sans-serif;
-  background-color: #fdf0d5;
-  border: 2px solid #53484e;
-  width: 80px;
-  height: 40px;
-  transition:
-    background-color 0.3s ease,
-    border-color 0.3s ease;
-  font-size: 10px;
-  border-radius: 3px;
-}
-.button:hover {
-  background-color: #bfa08c;
-  border-color: #3d3236;
-}
-
 .speedControl {
     display: flex;
     flex-direction: column;
     justify-content: center;
     width: 150px;
-}
-p {
-  margin: 0px;
-}
-
-.win {
-  background-color: #70a6ff;
-}
-
-.filled {
-  background-color: darkgray;
 }
