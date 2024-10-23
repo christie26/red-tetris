@@ -39,9 +39,10 @@ const io = new Server(server, {
     credentials: true,
   },
 });
+const PORT = process.env.NODE_ENV === 'test' ? 0 : 8000; // Use port 0 in test, 8000 otherwise
 
-server.listen(8000, function () {
-  console.log("red-tetris server listening on port 8000");
+server.listen(PORT, function () {
+  //console.log("red-tetris server listening on port 8000");
 });
 
 app.use(

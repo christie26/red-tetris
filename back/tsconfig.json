@@ -1,13 +1,15 @@
 {
-    "compilerOptions": {
-      "module": "ESNext",
-      "target": "ESNext",
-      "outDir": "./dist",
-      "moduleResolution": "node",
-      "esModuleInterop": true, 
-      "resolveJsonModule": true,
-      "allowSyntheticDefaultImports": true,
-      "isolatedModules": true,
-      "forceConsistentCasingInFileNames": true
-    }
-  }
+  "compilerOptions": {
+    "module": "CommonJS",
+    "target": "ESNext",
+    "outDir": "./dist",
+    "moduleResolution": "node",
+    "esModuleInterop": true, 
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "isolatedModules": true,
+    "forceConsistentCasingInFileNames": true
+    },
+    "include": ["src/**/*.ts"],
+    "exclude": ["node_modules", "**/*.test.ts"]
+}

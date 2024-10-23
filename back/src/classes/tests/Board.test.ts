@@ -1,6 +1,6 @@
-import Board from "../Board";
-import Player from "../Player"
-import Room from "../Room";
+import Board from "../Board.js";
+import Player from "../Player.js"
+import Room from "../Room.js";
 
 describe('Board Class', () => {
   let room: Room;
@@ -13,19 +13,19 @@ describe('Board Class', () => {
     board = player.Board;
   });
 
-  /*
   test('should create a new board with correct dimensions', () => {
     expect(board.width).toBe(10);
     expect(board.height).toBe(20);
     expect(board.fixedTiles.length).toBe(20);
     expect(board.fixedTiles[0].length).toBe(10);
-  });
-  test('should spawn a new piece', () => {
-    board.newPiece();
-    expect(board.fallingPiece).not.toBeNull();
-    expect(board.fallingPiece.tiles.length).toBeGreaterThan(0);
-  });
-
+    });
+    /*
+    test('should spawn a new piece', () => {
+      board.startgame();
+      expect(board.fallingPiece).not.toBeNull();
+      expect(board.fallingPiece.tiles.length).toBeGreaterThan(0);
+      });
+      
   test('should move a piece downwards', () => {
     board.newPiece();
     const initialPosition = board.fallingPiece.tiles.map(tile => tile.y);
