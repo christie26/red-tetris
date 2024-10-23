@@ -53,7 +53,7 @@ const InfoBox: React.FC<InfoBoxProps> = ({
   return (
     <div className="info-wrapper">
       <div className="info-box">
-        {status !== "playing" && (
+        {status !== "playing" && status !== "error" && (
           <div className="info">
             <div>Room: {roomname}</div>
             <div>
@@ -69,7 +69,7 @@ const InfoBox: React.FC<InfoBoxProps> = ({
           </div>
         )}
         <div className="info">
-          {winner && <div>Winner : {winner}</div>}
+          {winner && status !== "error" && <div>Winner : {winner}</div>}
           <div>{message}</div>
         </div>
       </div>
