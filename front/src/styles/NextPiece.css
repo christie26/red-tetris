@@ -1,16 +1,30 @@
-#nextboard {
+.nextpiece-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    border: 2px solid #53484e;
+    box-shadow: 8px 6px 0px #b3a69f;
+    background-color: whitesmoke;
+    width: 200px;
+}
+.nextpiece-container > h3 {
+    margin: 0px;
+  }
+.nextpiece {
     list-style-type: none;
     display: grid;
     grid-template-columns: repeat(4, 25px);
     grid-template-rows: repeat(4, 25px);
-    outline: 4px solid #53484e;
+    outline: 2px solid #53484e;
     background-color: #faf6f0;
-    box-shadow: 15px 12px 0px #b3a69f;
+    box-shadow: 8px 6px 0px #b3a69f;
     width: 100px;
     height: 100px;
 }
   
-#nextboard > li {
+.nextpiece > li {
     width: 25px;
     height: 25px;
     box-sizing: border-box;

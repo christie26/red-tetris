@@ -2,13 +2,16 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 20px;
   padding: 20px;
   border: 2px solid #53484e;
   box-shadow: 8px 6px 0px #b3a69f;
   background-color: whitesmoke;
   width: 200px;
 }
-
+.scoreboard-container > h3 {
+  margin: 0px;
+}
 .scoreboard-table {
   width: 100%;
   border-collapse: collapse;

@@ -8,7 +8,7 @@ interface ScoreBoardProps {
 const ScoreBoard: React.FC<ScoreBoardProps> = ({ scores }) => {
   return (
     <div className="scoreboard-container">
-      <h2>Score Board</h2>
+      <h3>Score Board</h3>
       {scores.size > 0 ? (
         <table className="scoreboard-table">
           <thead>

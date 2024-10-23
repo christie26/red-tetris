@@ -16,10 +16,20 @@ interface NextPieceProps {
 }
 
 const NextPiece: React.FC<NextPieceProps> = ({ nextPiece }) => {
-  if (!nextPiece || !nextPiece.tiles) {
-    return <div>No next piece</div>;
-  }
   const empty = Array.from({ length: 4 }, () => Array(4).fill(0));
+
+  if (!nextPiece || !nextPiece.tiles) {
+    return (
+      <div className="nextpiece-container">
+        <h3>Next Piece</h3>
+        <div className="nextboard">
+          {empty.flat().map((cell, index) => (
+            <li key={index} className={getTypeString(cell)} />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   let totalX = 0;
   let totalY = 0;
@@ -37,9 +47,9 @@ const NextPiece: React.FC<NextPieceProps> = ({ nextPiece }) => {
   }
 
   return (
-    <div>
+    <div className="nextpiece-container">
       <h3>Next Piece</h3>
-      <div id="nextboard">
+      <div className="nextpiece">
         {empty.flat().map((cell, index) => (
           <li key={index} className={getTypeString(cell)} />
         ))}

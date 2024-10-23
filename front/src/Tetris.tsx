@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import "./App.css";
 import "./styles/MyBoardContainer.css";
+import "./styles/layout.css"
 import { io, Socket } from "socket.io-client";
 import { Myboard } from "./components/MyBoard";
 import StartButton from "./components/StartButton";
@@ -231,7 +232,7 @@ function Tetris() {
             </div>
           )}
         </div>
-        <div>
+        <div className="info-container">
           <NextPiece nextPiece={nextPiece} />
           <ScoreBoard scores={scores} />
         </div>
