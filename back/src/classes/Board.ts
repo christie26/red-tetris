@@ -251,6 +251,7 @@ class Board {
     const top = 0;
     const bottom = 19 - this.penaltyLine;
     this.penaltyLine += line;
+    this.unpaidPenalties = 0;
 
     for (let row = top; row <= line; row++) {
       if (this.fixedTiles[row].some((element) => element > 0)) {
@@ -266,7 +267,6 @@ class Board {
       });
     }
     this.Player.Room.updateBoard(this.Player, this.fixedTiles, "fixed");
-    this.unpaidPenalties = 0;
 
     if (gameover) {
       this.Player.gameover();

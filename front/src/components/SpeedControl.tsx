@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Socket } from "socket.io-client";
+import "../styles/Buttons.css"
 
 interface SpeedControlProps {
   socket: Socket | null;
@@ -22,7 +23,7 @@ const SpeedControl: React.FC<SpeedControlProps> = ({ socket, visible }) => {
   if (!visible) return null;
   return (
     <div className="speedControl">
-      <label htmlFor="speedControl">Game Speed: {speed}x</label>
+      <label htmlFor="speedControl">Speed: {speed}x</label>
       <input
         id="speedControl"
         type="range"

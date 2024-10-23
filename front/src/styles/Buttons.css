@@ -14,3 +14,10 @@
     background-color: #bfa08c;
     border-color: #3d3236;
   }
+  .speedControl {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 150px;
+    font-size: 10px;
+}
