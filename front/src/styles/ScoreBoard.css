@@ -8,6 +8,7 @@
   box-shadow: 8px 6px 0px #b3a69f;
   background-color: whitesmoke;
   width: 200px;
+  font-size: 12px;
 }
 .scoreboard-container > h3 {
   margin: 0px;
@@ -19,6 +20,7 @@
 
 .scoreboard-table th,
 .scoreboard-table td {
+  font-size: 10px;
   padding: 10px;
   text-align: center;
   border: 1px solid #ddd;
@@ -31,7 +33,7 @@
 }
 
 .scoreboard-table .even {
-  background-color: #f2f2f2;
+  background-color: #fff;
 }
 
 .scoreboard-table .odd {

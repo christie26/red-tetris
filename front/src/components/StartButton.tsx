@@ -14,7 +14,7 @@ const StartButton: React.FC<StartButtonProps> = ({ socket, visible }) => {
   if (visible)
     return (
       <button className="button" onClick={handleClick}>
-        Start Game
+        Start
       </button>
     );
   else return null;

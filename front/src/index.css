@@ -4,11 +4,16 @@ code {
 }
 
 @font-face {
-    font-family: "Jersey 25";
-    src: local("Jersey25-Regular"),
-      url("./fonts/Jersey25-Regular.ttf") format("truetype");
+  font-family: "Jersey 25";
+  src: local("Jersey25-Regular"),
+    url("./fonts/Jersey25-Regular.ttf") format("truetype");
 }
 
+@font-face {
+  font-family: "Press Start 2P";
+  src: local("PressStart2P-Regular"),
+    url("./fonts/PressStart2P-Regular.ttf") format("truetype");
+}
 h1 {
     margin: 0 auto;
     text-align: center;
@@ -24,21 +29,21 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: #fdf0d5;
-  font-family: "Jersey 25", sans-serif;
+  font-family: "Press Start 2P", sans-serif;
   color: #53484e;
 }
 
 .button {
-  background-color: #dec9b6;
+  font-family: "Press Start 2P", sans-serif;
+  background-color: #fdf0d5;
   border: 2px solid #53484e;
-  width: 110px;
+  width: 80px;
   height: 40px;
-  font-family: "Jersey 25", sans-serif;
   transition:
     background-color 0.3s ease,
     border-color 0.3s ease;
-  font-size: 20px;
-  border-radius: 5px;
+  font-size: 10px;
+  border-radius: 3px;
 }
 .button:hover {
   background-color: #bfa08c;

@@ -108,7 +108,6 @@ function Tetris() {
       setPlayers(data.playerlist);
       if (data.type === "waiter") {
         setStatus("waiting");
-        console.log("socket-join", data)
         for (const player of data.playerlist) {
           const empty = Array.from({ length: 20 }, () => Array(10).fill(0));
           console.log("update", player)
@@ -158,7 +157,10 @@ function Tetris() {
     });
     socket.on("gameover", (data) => {
       if (data.roomname !== myroom || status === "ready") return;
-      otherboardRef.current?.updateStatus("died", data.dier);
+      if (data.dier === myname)
+        setStatus("died");
+      else
+        otherboardRef.current?.updateStatus("died", data.dier);
     });
     socket.on("endgame", (data: { winner: string; score: string }) => {
       if (status === "playing") setStatus("end-play");
@@ -213,10 +215,14 @@ function Tetris() {
               roomname={myroom}
               players={players}
               winner={winner}
+              myname={myname}
               isLeader={isLeader}
               status={status}
             />
             <Myboard ref={myboardRef} />
+            {status === "died" && 
+            <div className="died-message">You died!</div>
+            }
           </div>
           {socket && (
             <div id="under-wrapper">
