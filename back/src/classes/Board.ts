@@ -48,6 +48,7 @@ class Board {
     this.renderPiece();
     clearInterval(this.intervalId);
     this.intervalId = setInterval(() => this.routine(), 500 / this.speedLevel);
+    this.Player.sendNextPiece(this.nextPiece);
   }
   /* routine */
   private createPiece(): Piece {
@@ -73,9 +74,9 @@ class Board {
 
       this.applyPenalty();
 
-      this.Player.sendNextPiece(this.nextPiece);
       this.currentPiece = this.nextPiece;
       this.nextPiece = this.createPiece();
+      this.Player.sendNextPiece(this.nextPiece);
 
       if (this.touchOtherPiece(this.currentPiece.tiles)) {
         for (const tile of this.currentPiece.tiles) {

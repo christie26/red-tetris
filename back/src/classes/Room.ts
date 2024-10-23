@@ -141,39 +141,35 @@ class Room {
   }
   private checkEndgame(): void {
     const winner = this.players.filter((player) => player.isPlaying);
-    if (winner.length === 1) this.endgame(winner[0]);
+    if (winner.length === 1) this.endgame(winner[0].playername);
   }
-  private endgame(winner: Player | null): void {
+  private endgame(winner: string | null): void {
     if (winner) {
-      const winnerScore = this.score.get(winner.playername) + 1;
-      this.score.set(winner.playername, winnerScore);
+      const winnerScore = this.score.get(winner) + 1;
+      this.score.set(winner, winnerScore);
     }
 
-    console.log(`[${c.GREEN}%s${c.RESET}] game ends.`, this.roomname);
     this.isPlaying = false;
     for (const player of this.players) {
       if (player.isPlaying) {
         player.Board.freezeBoard();
+        player.isPlaying = false;
       }
     }
     const scoreJson = JSON.stringify(Array.from(this.score));
-    if (winner) {
-      this.socketToAll("endgame", {
-        winner: winner.playername,
-        score: scoreJson,
-      });
-    } else {
-      this.socketToAll("endgame", { winner: null, score: scoreJson });
-    }
+    this.socketToAll("endgame", { winner: winner, score: scoreJson });
+
     for (const waiter of this.waiters) {
       this.score.set(waiter.playername, 0);
     }
+    console.log(`[${c.GREEN}%s${c.RESET}] game ends.`, this.roomname);
     this.players.push(...this.waiters);
     this.waiters.length = 0;
-    io.to(this.players[0].socket).emit("setleader", {
-      roomname: this.roomname,
-      playername: this.players[0].playername,
-    });
+    if (this.players[0])
+      io.to(this.players[0].socket).emit("setleader", {
+        roomname: this.roomname,
+        playername: this.players[0].playername,
+      });
 
     this.key = uuidv4();
     this.players.forEach((player) => {
@@ -199,6 +195,13 @@ class Room {
     );
     for (const player of this.players) {
       if (player.playername === sender) continue;
+      if (!player.isPlaying) continue;
+      console.log(
+        `[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} received ${c.RED}%d${c.RESET} lines penalty.`,
+        this.roomname,
+        player.playername,
+        lines,
+      );
       player.Board.recievePenalty(lines);
     }
   }
