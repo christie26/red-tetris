@@ -1,6 +1,6 @@
-import Piece from "../Piece";
-import Pieces from "../../Pieces";
-import Tile from "../Tile";
+import Piece from "../Piece.js";
+import Pieces from "../../Pieces.js";
+import Tile from "../Tile.js";
 
 describe('Piece class', () => {
 
