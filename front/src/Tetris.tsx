@@ -8,7 +8,6 @@ import { Myboard } from "./components/MyBoard";
 import StartButton from "./components/StartButton";
 import ResultBox from "./components/ResultBox";
 import OtherBoardsContainer from "./components/OtherBoardsContainer";
-import SpeedControl from "./components/SpeedControl";
 import ScoreBoard from "./components/ScoreBoard";
 import NextPiece from "./components/NextPiece";
 import InfoBox from "./components/InfoBox";
@@ -28,7 +27,6 @@ interface Tile {
   y: number;
   type: number;
 }
-
 interface NextPiece {
   tiles: Tile[];
   type: number;
@@ -39,6 +37,7 @@ function Tetris() {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [players, setPlayers] = useState<string[]>([]);
   const [isLeader, SetIsLeader] = useState<boolean>(false);
+  const [speed, setSpeed] = useState<number>(1);
   const [winner, setWinner] = useState<string | null>(null);
   const [status, setStatus] = useState<string>("ready");
   const [scores, setScores] = useState<Map<string, number>>(new Map());
@@ -49,7 +48,7 @@ function Tetris() {
   } | null>(null);
   const otherboardRef = useRef<{
     updateBoard: (newBoard: number[][], playername: string) => void;
-    updateStatus: (newStatus: string, playername: string) => void;
+    updateBoardStatus: (newStatus: string, playername: string) => void;
   } | null>(null);
 
   // fetch from server
@@ -105,7 +104,6 @@ function Tetris() {
       console.log("Connected to server");
     });
     socket.on("join", (data) => {
-      if (data.roomname !== myroom) return;
       setPlayers(data.playerlist);
       if (data.type === "waiter") {
         setStatus("waiting");
@@ -113,19 +111,17 @@ function Tetris() {
           const empty = Array.from({ length: 20 }, () => Array(10).fill(0));
           console.log("update", player);
           otherboardRef.current?.updateBoard(empty, player);
-          otherboardRef.current?.updateStatus("", player);
+          otherboardRef.current?.updateBoardStatus("", player);
         }
       }
       if (data.type === "leader") SetIsLeader(true);
     });
     socket.on("leave", (data) => {
-      if (data.roomname !== myroom) return;
       if (status === "ready") {
         setPlayers(data.playerlist);
-      } else otherboardRef.current?.updateStatus("offline", data.player);
+      } else otherboardRef.current?.updateBoardStatus("offline", data.player);
     });
     socket.on("startgame", (data) => {
-      if (data.roomname !== myroom) return;
       setWinner(null);
       setPlayers(data.playerlist);
       if (data.playerlist.includes(myname)) {
@@ -134,7 +130,7 @@ function Tetris() {
       for (const player of data.playerlist) {
         const empty = Array.from({ length: 20 }, () => Array(10).fill(0));
         otherboardRef.current?.updateBoard(empty, player);
-        otherboardRef.current?.updateStatus("", player);
+        otherboardRef.current?.updateBoardStatus("", player);
       }
     });
     socket.on("nextpiece", (data) => {
@@ -142,7 +138,6 @@ function Tetris() {
       setNextPiece(data.piece);
     });
     socket.on("updateboard", (data) => {
-      if (data.roomname !== myroom) return;
       if (data.player === myname) {
         myboardRef.current?.updateBoard(data.board);
       } else if (data.type === "fixed") {
@@ -153,13 +148,12 @@ function Tetris() {
       console.log("disconnected from server");
     });
     socket.on("setleader", (data) => {
-      if (data.roomname === myroom && data.playername === myname)
-        SetIsLeader(true);
+      if (data.playername === myname) SetIsLeader(true);
     });
     socket.on("gameover", (data) => {
-      if (data.roomname !== myroom || status === "ready") return;
+      if (status === "ready") return;
       if (data.dier === myname) setStatus("died");
-      else otherboardRef.current?.updateStatus("died", data.dier);
+      else otherboardRef.current?.updateBoardStatus("died", data.dier);
     });
     socket.on("endgame", (data: { winner: string; score: string }) => {
       if (status === "playing") setStatus("end-play");
@@ -183,6 +177,7 @@ function Tetris() {
     };
   }, [socket, myname, myroom, status]);
 
+  // keyboard listener
   useEffect(() => {
     const keyDownListener = (e: KeyboardEvent) =>
       keyDownHandler(e, "down", socket);
@@ -225,16 +220,20 @@ function Tetris() {
               <StartButton
                 socket={socket}
                 visible={isLeader && status !== "playing"}
-              />
-              <SpeedControl
-                socket={socket}
-                visible={isLeader && status === "playing"}
+                speed={speed}
               />
             </div>
           )}
         </div>
         <div className="info-container">
-          <InfoBox roomname={myroom} players={players} />
+          <InfoBox
+            roomname={myroom}
+            players={players}
+            speed={speed}
+            setSpeed={setSpeed}
+            isLeader={isLeader}
+            status={status}
+          />
           <NextPiece nextPiece={nextPiece} />
           <ScoreBoard scores={scores} />
         </div>
