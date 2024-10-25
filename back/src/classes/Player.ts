@@ -1,4 +1,4 @@
-import io from "../app.js";
+import { io } from "../app.js";
 import Board from "./Board.js";
 import Piece from "./Piece.js";
 import Room from "./Room.js";

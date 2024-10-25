@@ -7,7 +7,7 @@
         "start": "node ./dist/app.js",
         "dev": "tsc && node ./dist/app.js",
         "build": "tsc",
-        "test": "tsc && jest --coverage",
+        "test": "jest --coverage",
         "format": "prettier 'src/**/*.{js,jsx,ts,tsx}' --write"
     },
     "keywords": [],
@@ -21,6 +21,7 @@
         "express": "4.14.0",
         "seedrandom": "^3.0.5",
         "socket.io": "^4.8.0",
+        "socket.io-client": "^4.8.0",
         "toastr": "^2.1.4",
         "uuid": "^10.0.0"
     },

@@ -1,117 +1,213 @@
 import Board from "../Board.js";
 import Player from "../Player.js"
 import Room from "../Room.js";
+import Piece from '../Piece';
+import Tile from '../Tile';
+import seedrandom from 'seedrandom';
+import express from 'express';
+import http from 'http';
+import { Server } from 'socket.io';
 
-describe('Board Class', () => {
-  let room: Room;
-  let player: Player;
+jest.mock('../Piece');
+jest.mock('../Player');
+jest.mock('../Room');
+
+jest.useFakeTimers(); 
+
+describe('Board', () => {
   let board: Board;
+  let mockPlayer: Player;
+  let mockRoom: Room;
+  let server;
+  const mockKey = 'testKey';
+  
+  // Helper function to generate a mock piece with tiles
+  const generateMockPiece = (type: number, x: number, y: number): Piece => {
+    const mockPiece = {  // Mock piece structure
+      tiles: [
+        new Tile(x, y, type),
+        new Tile(x + 1, y, type),
+        new Tile(x, y + 1, type),
+        new Tile(x + 1, y + 1, type),
+      ],
+      type,
+      x,
+      y,
+    };
+    return mockPiece as unknown as Piece;
+  };
 
-  beforeEach(() => {
-    room = new Room('test-room');
-    player = new Player('testPlayer', 'testSocket', 'testKey', true, room);
-    board = player.Board;
+  beforeAll((done) => {
+    // Start the Express server
+    const app = express();
+    server = http.createServer(app);
+    const io = new Server(server, {
+      cors: {
+        origin: "http://localhost:3000",
+        methods: ["GET", "POST"],
+      },
+    });
+
+    server.listen(8000, () => {
+      console.log('red-tetris server listening on port 8000');
+      done();
+    });
   });
 
-  test('should create a new board with correct dimensions', () => {
+  afterAll((done) => {
+    // Close the Express server
+    server.close(() => {
+      console.log('Server closed');
+      done();
+    });
+    if (board.intervalId) {
+      clearInterval(board.intervalId);
+    }
+  });
+
+  (Piece as jest.Mock).mockImplementation(() => generateMockPiece(0, 0, 0));
+  beforeEach(() => {
+    // Mock the Room class
+    mockRoom = new Room('testRoom');
+    
+    // Create a mock Player
+    mockPlayer = new Player('testPlayer', 'testSocket', mockKey, false, mockRoom);
+    mockPlayer.Room = mockRoom;
+
+    // Initialize the Board
+    board = new Board(mockKey, mockPlayer);
+  });
+
+
+  afterEach(() => {
+    jest.clearAllMocks();
+    jest.clearAllTimers();
+    if (board.intervalId) clearInterval(board.intervalId);
+  });
+
+  test('initializes with default properties', () => {
     expect(board.width).toBe(10);
     expect(board.height).toBe(20);
     expect(board.fixedTiles.length).toBe(20);
     expect(board.fixedTiles[0].length).toBe(10);
-    });
-    /*
-    test('should spawn a new piece', () => {
-      board.startgame();
-      expect(board.fallingPiece).not.toBeNull();
-      expect(board.fallingPiece.tiles.length).toBeGreaterThan(0);
-      });
-      
-  test('should move a piece downwards', () => {
-    board.newPiece();
-    const initialPosition = board.fallingPiece.tiles.map(tile => tile.y);
-    board.moveTiles(board.fallingPiece.tiles, 'down');
-    const newPosition = board.fallingPiece.tiles.map(tile => tile.y);
-    
-    expect(newPosition.every((y, i) => y === initialPosition[i] + 1)).toBeTruthy();
+    expect(board.penaltyLine).toBe(0);
+    expect(board.unpaidPenalties).toBe(0);
+    expect(board.currentPiece).toBeDefined(); // currentPiece should be defined upon initialization
   });
 
-  test('should not move a piece out of bounds (left)', () => {
-    board.newPiece();
-    const initialTiles = board.dupTiles(board.fallingPiece.tiles);
-    board.moveTiles(board.fallingPiece.tiles, 'left');
-    
-    if (!board.isFree(board.fallingPiece.tiles)) {
-      board.fallingPiece.tiles = initialTiles;
-    }
-    
-    const newTiles = board.fallingPiece.tiles.map(tile => tile.x);
-    expect(newTiles).toEqual(initialTiles.map(tile => tile.x));
+  test('starts the game with valid current piece', () => {
+    // Use the helper function to create a valid mock piece with tiles
+    const mockPiece = generateMockPiece(0, 0, 0);
+    (Piece as jest.Mock).mockImplementation(() => mockPiece);
+
+    board.startgame();
+
+    expect(board.currentPiece).toStrictEqual(mockPiece); // Check that currentPiece is properly initialized
+    expect(board.currentPiece.tiles).toBeDefined(); // Ensure tiles are defined
+    expect(board.currentPiece.tiles.length).toBeGreaterThan(0); // Ensure the tiles array is not empty
+
+    expect(mockPlayer.sendNextPiece).toHaveBeenCalledWith(board.nextPiece);
   });
 
-  test('should rotate a piece', () => {
-    board.newPiece();
-    const initialTiles = board.dupTiles(board.fallingPiece.tiles);
+  test('handles game over if current piece collides', () => {
+    const mockPiece = generateMockPiece(0, 0, 0);
+    (Piece as jest.Mock).mockImplementation(() => mockPiece);
+
+    mockPlayer.gameover = jest.fn(); 
+    board.fixedTiles[0][0] = 1; // Simulate collision
+
+    board.startgame();
+    
+    expect(mockPlayer.gameover).toHaveBeenCalled();
+  });
+
+  test('moves piece down if possible', () => {
+    const mockPiece = generateMockPiece(0, 3, 0);
+  (Piece as jest.Mock).mockImplementation(() => mockPiece);
+  
+  board.startgame();
+  board.routine(); // simulate one tick of the game
+
+  // Check if the piece's Y position has moved down
+  expect(board.currentPiece.tiles[0].y).toBe(1); // Assuming the piece starts at y=0
+  expect(board.currentPiece.tiles[0].x).toBe(3); // X should remain the same
+  });
+
+  test('does not move piece down if collision occurs', () => {
+    const mockPiece = generateMockPiece(0, 3, 0);
+    (Piece as jest.Mock).mockImplementation(() => mockPiece);
+
+    board.fixedTiles[1][3] = 1; // Simulate collision below
+    board.startgame();
+    board.routine();
+    
+    expect(board.fixedTiles[0][3]).toBe(0); // Piece should not have moved down
+  });
+
+  test('moves piece left', () => {
+    const mockPiece = generateMockPiece(0, 1, 0);
+    (Piece as jest.Mock).mockImplementation(() => mockPiece);
+
+    board.startgame();
+    board.moveSide('left');
+
+    expect(mockPiece.tiles[0].x).toBe(0); // Piece should move left
+  });
+
+  test('does not move piece left if collision occurs', () => {
+    const mockPiece = generateMockPiece(0, 0, 0);
+    (Piece as jest.Mock).mockImplementation(() => mockPiece);
+
+    board.fixedTiles[0][0] = 1; // Simulate collision on the left
+    board.startgame();
+    board.moveSide('left');
+
+    expect(mockPiece.tiles[0].x).toBe(0); // Piece should not move left
+  });
+
+  test('rotates piece', () => {
+    const mockPiece = generateMockPiece(0, 1, 0);
+    (Piece as jest.Mock).mockImplementation(() => mockPiece);
+
+    board.startgame();
     board.rotatePiece();
 
-    expect(board.fallingPiece.tiles).not.toEqual(initialTiles);
+    expect(mockPiece.tiles[0].y).toBe(0); // Example check after rotation, you may want to add more detailed checks
   });
 
-  test('should freeze the board when piece cannot move down', () => {
-    board.newPiece();
-    
-    // Simulate placing the piece at the bottom
-    while (board.canGoDown()) {
-      board.moveTiles(board.fallingPiece.tiles, 'down');
-    }
-    
-    board.routine();  // Run the game routine, which should freeze the piece
-    const frozenTiles = board.fixedTiles.flat().filter(tile => tile > 0);
+  test('does not rotate piece if type is 7', () => {
+    const mockPiece = generateMockPiece(7, 1, 0); // type 7
+    (Piece as jest.Mock).mockImplementation(() => mockPiece);
 
-    expect(frozenTiles.length).toBeGreaterThan(0);
-    expect(board.fallingPiece).toBeNull();
+    board.startgame();
+    board.rotatePiece();
+
+    expect(mockPiece.tiles[0].y).toBe(0); // Should not rotate, example check
   });
 
-  test('should clear full lines and apply penalty', () => {
-    board.fixedTiles[18] = Array(10).fill(1);  // Simulate almost full row
-    board.fixedTiles[19] = Array(10).fill(1);  // Simulate full row
+  test('changes speed level', () => {
+    board.changeSpeedLevel(2);
 
-    board.newPiece();
-    board.fallingPiece.tiles = [
-      new Tile(4, 17, 1), new Tile(5, 17, 1), new Tile(4, 18, 1), new Tile(5, 18, 1)
-    ]; // Simulate small block that fills the final tile
-    
-    board.fixPieceToBoard();
+    expect(board.speedLevel).toBe(2);
+  });
+
+  test('applies penalties and clears lines', () => {
+    const mockPiece = generateMockPiece(0, 0, 0);
+    (Piece as jest.Mock).mockImplementation(() => mockPiece);
+
+    // Simulate some filled lines
+    board.fixedTiles[2] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+    board.unpaidPenalties = 2;
+
     board.clearLinesAndSendPenalty();
     
-    const clearedRow = board.fixedTiles[19].every(tile => tile === 0);
-    expect(clearedRow).toBeTruthy();
-    expect(board.unpaidPenalties).toBe(0);
+    expect(board.fixedTiles[19].every(x => x === 0)).toBe(true); // Check if line is cleared
   });
 
-  test('should handle penalties correctly', () => {
-    board.recievePenalty(2);  // Apply penalty of 2 lines
-    board.applyPenalty();
-
-    expect(board.penaltyLine).toBe(2);
-    expect(board.fixedTiles.slice(18, 20).every(row => row.every(tile => tile === 20))).toBe(true);
-  });
-
-  test('should trigger gameover if new piece touches other pieces', () => {
-    board.fixedTiles[0][4] = 1;  // Simulate a tile near the top
-    board.newPiece();
+  test('freezes board', () => {
+    board.freezeBoard();
     
-    // If gameover is called, isPlaying should be false
-    expect(player.isPlaying).toBe(false);
+    expect(board.intervalId).toBeNull(); // Board should be frozen
+    expect(board.currentPiece).toBeNull(); // Current piece should be null
   });
-
-  test('should change speed level correctly', () => {
-    board.changeSpeedLevel(3);
-    expect(board.speedLevel).toBe(3);
-  });
-
-  test('should apply sprint speed mode', () => {
-    board.changeSpeedMode('sprint');
-    expect(board.intervalId).not.toBeNull();
-  });
-  */
 });

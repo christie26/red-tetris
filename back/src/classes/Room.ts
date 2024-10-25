@@ -1,6 +1,6 @@
 import Player from "./Player.js";
 import { v4 as uuidv4 } from "uuid";
-import io from "../app.js";
+import { io } from "../app.js";
 
 const c = {
   RED: "\x1b[31m",
@@ -139,11 +139,11 @@ class Room {
 
     this.checkEndgame();
   }
-  private checkEndgame(): void {
+   checkEndgame(): void {
     const winner = this.players.filter((player) => player.isPlaying);
     if (winner.length === 1) this.endgame(winner[0].playername);
   }
-  private endgame(winner: string | null): void {
+  endgame(winner: string | null): void {
     this.isPlaying = false;
     for (const player of this.players) {
       if (player.isPlaying) {
@@ -213,16 +213,16 @@ class Room {
   }
 
   /* utilities */
-  private getPlayerlist(): string[] {
+   getPlayerlist(): string[] {
     return this.players.map((player) => player.playername);
   }
-  private freezeIfPlaying(targetplayer: Player): void {
+   freezeIfPlaying(targetplayer: Player): void {
     if (targetplayer.isPlaying) {
       targetplayer.Board.freezeBoard();
       targetplayer.isPlaying = false;
     }
   }
-  private setNewLeader(): void {
+   setNewLeader(): void {
     let newLeader: Player | undefined;
 
     if (this.players.length > 1) {
@@ -245,16 +245,16 @@ class Room {
   }
 
   /* send socket event */
-  private socketToAll(event: string, data: any) {
+   socketToAll(event: string, data: any) {
     this.socketToPlayers(event, data);
     this.socketToWaiters(event, data);
   }
-  private socketToPlayers(event: string, data: any) {
+   socketToPlayers(event: string, data: any) {
     for (const player of this.players) {
       io.to(player.socket).emit(event, data);
     }
   }
-  private socketToWaiters(event: string, data: any) {
+   socketToWaiters(event: string, data: any) {
     for (const waiter of this.waiters) {
       io.to(waiter.socket).emit(event, data);
     }

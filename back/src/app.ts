@@ -41,9 +41,11 @@ const io = new Server(server, {
 });
 const PORT = process.env.NODE_ENV === 'test' ? 0 : 8000; // Use port 0 in test, 8000 otherwise
 
-server.listen(PORT, function () {
-  console.log("red-tetris server listening on port 8000");
-});
+if (process.env.NODE_ENV !== 'test') { // use this for the test
+  server.listen(PORT, () => {
+    console.log(`red-tetris server listening on port ${PORT}`);
+  });
+}
 
 app.use(
   cors({
@@ -94,10 +96,11 @@ io.on("connection", (socket) => {
     const player = findPlayer(socket.id);
     if (room && player && player === room.players[0]) {
       if (!room.isPlaying) {
+        socket.emit("gameStarted") // used for the unit test 
         room.startgame();
       }
-    } else {
-      console.error("Something wrong with leader click.");
+    // } else {
+    //   console.error("Something wrong with leader click.");
     }
   });
 
@@ -121,6 +124,7 @@ io.on("connection", (socket) => {
       switch (data.key) {
         case "ArrowLeft":
           player.Board.moveSide("left");
+          socket.emit("keyboardProcessed") // for the test
           break;
         case "ArrowRight":
           player.Board.moveSide("right");
@@ -201,4 +205,4 @@ function addUserToRoom(
   room.addPlayer(playername, socketId);
 }
 
-export default io;
+export {io, app};

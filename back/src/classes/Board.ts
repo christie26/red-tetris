@@ -75,7 +75,7 @@ class Board {
     clearInterval(this.intervalId);
     this.intervalId = setInterval(() => this.routine(), 500 / this.speedLevel);
   }
-  private routine() {
+   routine() {
     if (this.canGoDown()) {
       this.moveTiles(this.currentPiece.tiles, "down");
       this.renderPiece();
@@ -295,7 +295,7 @@ class Board {
   }
 
   /* clear line */
-  private clearLinesAndSendPenalty(): void {
+   clearLinesAndSendPenalty(): void {
     const linesToClear: number[] = new Array(0).fill(0);
 
     if (this.currentPiece) {
