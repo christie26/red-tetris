@@ -6,6 +6,7 @@ import Client from "socket.io-client";
 import Player from "../Player.js"
 import Room from "../Room.js";
 import Board from "../Board.js";
+import { jest, describe, expect, test, beforeAll, beforeEach, afterEach, afterAll } from '@jest/globals';
 
 
 let httpServer: http.Server;

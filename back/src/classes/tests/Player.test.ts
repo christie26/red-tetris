@@ -2,12 +2,15 @@ import Player from "../Player.js";
 import Room from "../Room.js";
 import Board from "../Board.js";
 import { io } from '../../app.js';
+import { jest, describe, expect, test, beforeAll, beforeEach, afterEach, afterAll } from '@jest/globals';
 
 
 // Mocking socket.io for testing
 jest.mock('../../app.js', () => ({
-  to: jest.fn().mockReturnThis(),
-  emit: jest.fn(),
+  io: {
+    to: jest.fn().mockReturnThis(), // Make sure it returns itself for chaining
+    emit: jest.fn(), // Mock the emit function
+  },
 }));
 
 describe('Player Class Tests', () => {
@@ -73,53 +76,3 @@ describe('Player Class Tests', () => {
     expect(() => player.gameover()).not.toThrow(); // Should not throw an error
   });
 });
-
-
-/*
-jest.mock("../Board"); // Mock the Board class
-jest.mock("../Room");  // Mock the Room class
-
-describe("Player class", () => {
-  let mockRoom: Room;
-  let player: Player;
-
-  beforeEach(() => {
-    mockRoom = new Room("test-room");
-    player = new Player("test-player", "socket-id", "test-key", true, mockRoom);
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks(); // Clear any mock data after each test
-  });
-
-  it("should initialize player properties correctly", () => {
-    expect(player.playername).toBe("test-player");
-    expect(player.socket).toBe("socket-id");
-    expect(player.isLeader).toBe(true);
-    expect(player.isPlaying).toBe(false);
-    expect(player.Board).toBeDefined();
-    expect(player.Room).toBe(mockRoom);
-  });
-
-  it("should call Board constructor when creating a new player", () => {
-    expect(Board).toHaveBeenCalledWith("socket-id", "test-key", player);
-  });
-
-  describe("updateKey", () => {
-    it("should update the board when calling updateKey", () => {
-      player.updateKey("new-key");
-      expect(Board).toHaveBeenCalledWith("socket-id", "new-key", player);
-    });
-  });
-
-  describe("gameover", () => {
-    it("should set isPlaying to false and call Room's onePlayerDied", () => {
-      player.isPlaying = true; // Set isPlaying to true first
-      player.gameover();
-
-      expect(player.isPlaying).toBe(false);
-      expect(mockRoom.onePlayerDied).toHaveBeenCalledWith(player);
-    });
-  });
-});
-*/

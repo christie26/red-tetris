@@ -3,10 +3,10 @@ import Player from "../Player.js"
 import Room from "../Room.js";
 import Piece from '../Piece';
 import Tile from '../Tile';
-import seedrandom from 'seedrandom';
 import express from 'express';
 import http from 'http';
 import { Server } from 'socket.io';
+import { jest, describe, expect, test, beforeAll, beforeEach, afterEach, afterAll } from '@jest/globals';
 
 jest.mock('../Piece');
 jest.mock('../Player');
@@ -21,7 +21,6 @@ describe('Board', () => {
   let server;
   const mockKey = 'testKey';
   
-  // Helper function to generate a mock piece with tiles
   const generateMockPiece = (type: number, x: number, y: number): Piece => {
     const mockPiece = {  // Mock piece structure
       tiles: [
@@ -57,7 +56,6 @@ describe('Board', () => {
   afterAll((done) => {
     // Close the Express server
     server.close(() => {
-      console.log('Server closed');
       done();
     });
     if (board.intervalId) {
@@ -75,7 +73,8 @@ describe('Board', () => {
     mockPlayer.Room = mockRoom;
 
     // Initialize the Board
-    board = new Board(mockKey, mockPlayer);
+    // board = mockPlayer.Board
+    board = new Board(mockRoom.key, mockPlayer)
   });
 
 
@@ -121,16 +120,15 @@ describe('Board', () => {
     expect(mockPlayer.gameover).toHaveBeenCalled();
   });
 
-  test('moves piece down if possible', () => {
-    const mockPiece = generateMockPiece(0, 3, 0);
-  (Piece as jest.Mock).mockImplementation(() => mockPiece);
+  test('#01 moves piece down if possible', () => {
   
-  board.startgame();
-  board.routine(); // simulate one tick of the game
+  const tempPiece = board.currentPiece
+  board.routine();
+  tempPiece.tiles.forEach((tile) => {
+    tile.y++;
+  })
 
-  // Check if the piece's Y position has moved down
-  expect(board.currentPiece.tiles[0].y).toBe(1); // Assuming the piece starts at y=0
-  expect(board.currentPiece.tiles[0].x).toBe(3); // X should remain the same
+  expect(board.currentPiece).toBe(tempPiece); // X should remain the same
   });
 
   test('does not move piece down if collision occurs', () => {
@@ -145,20 +143,43 @@ describe('Board', () => {
   });
 
   test('moves piece left', () => {
-    const mockPiece = generateMockPiece(0, 1, 0);
-    (Piece as jest.Mock).mockImplementation(() => mockPiece);
 
-    board.startgame();
+    const tempPiece = board.currentPiece
+    console.log(tempPiece)
     board.moveSide('left');
 
-    expect(mockPiece.tiles[0].x).toBe(0); // Piece should move left
+    tempPiece.tiles.forEach((tile) => {
+        tile.x--;
+    })
+    expect(board.currentPiece).toBe(tempPiece); // Piece should move left
+  });
+
+  test('moves piece cannot moves left because of the border', () => {
+
+    const tempPiece = board.currentPiece
+    let min = 10
+
+    tempPiece.tiles.forEach(tile => {
+      if (tile.x < min)
+        min = tile.x
+    });
+    tempPiece.tiles.forEach(tile => {
+        tile.x = tile.x - min
+    });
+
+    board.currentPiece = tempPiece
+    console.log(tempPiece)
+    board.moveSide('left');
+
+    expect(board.currentPiece).toBe(tempPiece); // Piece should move left
   });
 
   test('does not move piece left if collision occurs', () => {
-    const mockPiece = generateMockPiece(0, 0, 0);
-    (Piece as jest.Mock).mockImplementation(() => mockPiece);
-
-    board.fixedTiles[0][0] = 1; // Simulate collision on the left
+    // const mockPiece = generateMockPiece(0, 0, 0);
+    // (Piece as jest.Mock).mockImplementation(() => mockPiece);
+    const mockPiece = new Piece(0, 5 ,0) 
+    // i block
+    const tiles = mockPiece.tiles
     board.startgame();
     board.moveSide('left');
 

@@ -1,6 +1,7 @@
 import Piece from "../Piece.js";
 import Pieces from "../../Pieces.js";
 import Tile from "../Tile.js";
+import { jest, describe, expect, test, beforeAll, beforeEach, afterEach, afterAll, it } from '@jest/globals';
 
 
 describe('Piece class', () => {
