@@ -150,12 +150,12 @@ io.on("connection", (socket) => {
   });
 });
 
-function findRoom(socketId: string): Room {
+export function findRoom(socketId: string): Room {
   return rooms.find((room) =>
     room.players.find((player) => player.socket === socketId),
   );
 }
-function findPlayer(socketId: string): Player {
+export function findPlayer(socketId: string): Player {
   for (const room of rooms) {
     const player = room.players.find((player) => player.socket === socketId);
     if (player) return player;

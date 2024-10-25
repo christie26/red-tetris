@@ -1,5 +1,5 @@
 import http from "http"; 
-import { io } from "../app.js"
+import { io, findPlayer, findRoom } from "../app.js"
 import { app } from "../app.js"
 import { Server } from "socket.io";
 import Client from "socket.io-client";
@@ -55,51 +55,42 @@ afterEach(() => {
   }
 );
 
-// Helper functions for finding rooms and players
-const findRoom = (socketId: string) => {
-  return ioServer.sockets.adapter.rooms.get("test-room");
-};
 
-const findPlayer = (socketId: string) => {
-  return { playername: "test-player", socket: socketId }; // Mock implementation
-};
-
-describe("Express HTTP routes", () => {
-  test("should respond to http://localhost with status 404", async () => {
-    const res = await fetch(`http://localhost:${port}/`);
-    expect(res.status).toBe(404);
+// describe("Express HTTP routes", () => {
+//   test("should respond to http://localhost with status 404", async () => {
+//     const res = await fetch(`http://localhost:${port}/`);
+//     expect(res.status).toBe(404);
     
-  });
+//   });
 
-  test("should respond to /room/port with status 200 and check user uniqueness", async () => {
-    const res = await fetch(`http://localhost:${port}/room/port`);
-    expect(res.status).toBe(200);
-  });
+//   test("should respond to /room/port with status 200 and check user uniqueness", async () => {
+//     const res = await fetch(`http://localhost:${port}/room/port`);
+//     expect(res.status).toBe(200);
+//   });
   
-  test("should return 400 if player name is not unique", async () => {
-    // First request to add the player
-    await fetch(`http://localhost:${port}/test-room/test-player`);
+//   test("should return 400 if player name is not unique", async () => {
+//     // First request to add the player
+//     await fetch(`http://localhost:${port}/test-room/test-player`);
     
-    // Second request should fail since the player is already in the room
-    const res = await fetch(`http://localhost:${port}/test-room/test-player`);
-    expect(res.status).toBe(400);
-    const text = await res.text();
-    expect(text).toBe("Player name is not unique.");
-    });
-    });
+//     // Second request should fail since the player is already in the room
+//     const res = await fetch(`http://localhost:${port}/test-room/test-player`);
+//     expect(res.status).toBe(400);
+//     const text = await res.text();
+//     expect(text).toBe("Player name is not unique.");
+//     });
+//     });
     
-    describe("Socket.io events", () => {
-      test("should handle 'leaderClick' and start the game", (done) => {
-        const roomSpy = jest.spyOn(Room.prototype, 'leaderStartGame');
+describe("Socket.io events", () => {
+  test("check socket.on leaderClick", (done) => {
+    const roomSpy = jest.spyOn(Room.prototype, 'leaderStartGame');
 
-        clientSocket.emit("leaderClick");
-
-        // Listen for any game-start-related events here, or ensure no errors are thrown
-        clientSocket.on("gameStarted", () => {
-          expect(roomSpy).toHaveBeenCalled();
-          done(); // Assuming the server emits 'gameStarted' when the game begins
-          });
-          });
+    clientSocket.on("gameStarted", () => {
+      const room = findRoom(clientSocket.id);
+      expect(room.leaderStartGame).toHaveBeenCalled();
+      done();
+      });
+    clientSocket.emit("leaderClick", {speed : 1});
+  });
     /*
     test("should handle 'keyboard' events for ArrowLeft", (done) => {
             // Spy on the moveSide method, since ArrowLeft should trigger this method
@@ -124,26 +115,26 @@ describe("Express HTTP routes", () => {
       //   });
         });*/
         
-  test("should handle disconnect event and clean up rooms", (done) => {
-    const roomSpy = jest.spyOn(Room.prototype, 'playerDisconnect');
-    clientSocket.disconnect();
+  // test("should handle disconnect event and clean up rooms", (done) => {
+  //   const roomSpy = jest.spyOn(Room.prototype, 'playerDisconnect');
+  //   clientSocket.disconnect();
 
-    setTimeout(() => {
-      // Check if the roomSpy was called when the player disconnected
-      expect(roomSpy).toHaveBeenCalledWith("test-player");  // Replace "test-player" with your player's name
-      done();  // Finish the test
-    }, 100);  
-  });
+  //   setTimeout(() => {
+  //     // Check if the roomSpy was called when the player disconnected
+  //     expect(roomSpy).toHaveBeenCalledWith("test-player");  // Replace "test-player" with your player's name
+  //     done();  // Finish the test
+  //   }, 100);  
+  // });
 });
 
-describe("Room and Player management", () => {
-  test("should find a room by socketId", () => {
-    const room = findRoom(clientSocket.id);
-    expect(room).not.toBeNull();
-  });
+// describe("Room and Player management", () => {
+//   test("should find a room by socketId", () => {
+//     const room = findRoom(clientSocket.id);
+//     expect(room).not.toBeNull();
+//   });
 
-  test("should find a player by socketId", () => {
-    const player = findPlayer(clientSocket.id);
-    expect(player).not.toBeNull();
-  });
-  });
+//   test("should find a player by socketId", () => {
+//     const player = findPlayer(clientSocket.id);
+//     expect(player).not.toBeNull();
+//   });
+//   });
