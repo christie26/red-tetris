@@ -1,5 +1,5 @@
 import http from "http"; 
-import { io } from "../../app.js"
+import { io, findPlayer, findRoom } from "../../app.js"
 import { app } from "../../app.js"
 import { Server } from "socket.io";
 import Client from "socket.io-client";
@@ -55,15 +55,6 @@ afterEach(() => {
   }
 );
 
-// Helper functions for finding rooms and players
-const findRoom = (socketId: string) => {
-  return ioServer.sockets.adapter.rooms.get("test-room");
-};
-
-const findPlayer = (socketId: string) => {
-  return { playername: "test-player", socket: socketId }; // Mock implementation
-};
-
 describe("Express HTTP routes", () => {
   test("should respond to http://localhost with status 404", async () => {
     const res = await fetch(`http://localhost:${port}/`);
@@ -91,15 +82,15 @@ describe("Express HTTP routes", () => {
     describe("Socket.io events", () => {
       test("should handle 'leaderClick' and start the game", (done) => {
         const roomSpy = jest.spyOn(Room.prototype, 'startgame');
-
-        clientSocket.emit("leaderClick");
-
-        // Listen for any game-start-related events here, or ensure no errors are thrown
-        clientSocket.on("gameStarted", () => {
-          expect(roomSpy).toHaveBeenCalled();
-          done(); // Assuming the server emits 'gameStarted' when the game begins
+            clientSocket.on("gameStarted", () => {
+              const room = findRoom(clientSocket.id);
+              expect(room.startgame).toHaveBeenCalled();
+              done();
+            });
+        
+            clientSocket.emit("leaderClick");
           });
-          });
+      
     /*
     test("should handle 'keyboard' events for ArrowLeft", (done) => {
             // Spy on the moveSide method, since ArrowLeft should trigger this method
