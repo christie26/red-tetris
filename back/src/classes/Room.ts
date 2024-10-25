@@ -38,7 +38,6 @@ class Room {
     if (this.isPlaying) {
       this.waiters.push(newPlayer);
       io.to(newPlayer.socket).emit("join", {
-        roomname: this.roomname,
         player: playername,
         type: role,
         playerlist: this.getPlayerlist(),
@@ -46,7 +45,6 @@ class Room {
     } else {
       this.players.push(newPlayer);
       this.socketToPlayers("join", {
-        roomname: this.roomname,
         player: playername,
         type: role,
         playerlist: this.getPlayerlist(),
@@ -88,13 +86,11 @@ class Room {
     );
 
     this.socketToPlayers("leave", {
-      roomname: this.roomname,
       player: playername,
       playerlist: this.getPlayerlist(),
     });
     if (this.isPlaying) {
       this.socketToWaiters("leave", {
-        roomname: this.roomname,
         player: playername,
         playerlist: this.getPlayerlist(),
       });
@@ -104,16 +100,18 @@ class Room {
   }
 
   /* start & end game */
-  startgame(): void {
-    this.speedLevel = 1;
+  leaderStartGame(speed: number): void {
+    this.speedLevel = speed;
+    for (const player of this.players) {
+      player.Board.changeSpeedLevel(speed);
+    }
     const player = this.players[0];
     console.log(
-      `[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} began a game.`,
+      `[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} began a game with speed ${speed}.`,
       this.roomname,
       player.playername,
     );
     this.socketToAll("startgame", {
-      roomname: this.roomname,
       playerlist: this.getPlayerlist(),
     });
     this.isPlaying = true;
@@ -125,7 +123,7 @@ class Room {
   }
   onePlayerDied(dier: Player): void {
     this.updateBoard(dier, dier.Board.fixedTiles, "died");
-    this.socketToAll("gameover", { roomname: this.roomname, dier: dier.playername });
+    this.socketToAll("gameover", { dier: dier.playername });
     console.log(
       `[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} gameover.`,
       this.roomname,
@@ -167,7 +165,6 @@ class Room {
     this.waiters.length = 0;
     if (this.players[0])
       io.to(this.players[0].socket).emit("setleader", {
-        roomname: this.roomname,
         playername: this.players[0].playername,
       });
 
@@ -180,7 +177,6 @@ class Room {
   /* during a game */
   updateBoard(player: Player, board: any, type: string): void {
     this.socketToAll("updateboard", {
-      roomname: this.roomname,
       player: player.playername,
       board: board,
       type: type,
@@ -203,12 +199,6 @@ class Room {
         lines,
       );
       player.Board.recievePenalty(lines);
-    }
-  }
-  changeRoomSpeed(speed: number): void {
-    this.speedLevel = speed;
-    for (const player of this.players) {
-      player.Board.changeSpeedLevel(speed);
     }
   }
 
@@ -234,7 +224,6 @@ class Room {
     }
     newLeader.isLeader = true;
     io.to(newLeader.socket).emit("setleader", {
-      roomname: this.roomname,
       playername: newLeader.playername,
     });
     console.log(

@@ -10,7 +10,9 @@ interface OtherBoardsContainerProps {
 const OtherBoardsContainer = forwardRef(
   ({ players, myname, gamestatus }: OtherBoardsContainerProps, ref) => {
     const [boards, setBoards] = useState<{ [key: string]: number[][] }>({});
-    const [status, setStatus] = useState<{ [key: string]: string }>({});
+    const [boardStatus, setBoardStatus] = useState<{ [key: string]: string }>(
+      {},
+    );
 
     const updateBoard = (newBoard: number[][], playername: string) => {
       for (let col = 0; col < 20; col++) {
@@ -28,17 +30,22 @@ const OtherBoardsContainer = forwardRef(
       }));
     };
 
-    const updateStatus = (newStatus: string, playername: string) => {
-      setStatus((prevBoards) => ({
+    const updateBoardStatus = (newStatus: string, playername: string) => {
+      setBoardStatus((prevBoards) => ({
         ...prevBoards,
         [playername]: newStatus,
       }));
     };
     useImperativeHandle(ref, () => ({
       updateBoard,
-      updateStatus,
+      updateBoardStatus,
     }));
-    if (gamestatus === "playing" && players.length < 2) return null;
+    if (
+      gamestatus !== "waiting" &&
+      gamestatus !== "end-wait" &&
+      players.length < 2
+    )
+      return null;
     else
       return (
         <div className="otherboard-container">
@@ -49,7 +56,7 @@ const OtherBoardsContainer = forwardRef(
                 key={player}
                 playername={player}
                 board={boards[player]}
-                status={status[player]}
+                status={boardStatus[player]}
               />
             ))}
         </div>

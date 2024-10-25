@@ -39,7 +39,8 @@ const ResultBox: React.FC<ResultBoxProps> = ({
       message += " Please wait until the leader starts a game.";
     }
   } else if (status === "waitServer") {
-    message = "waiting for server ... refresh the page in a few second";
+    message =
+      "waiting for server ... refresh the page in a few second. If it doesn't work for long, ask Yoonseo.";
   } else if (status === "error") {
     message =
       "There is already a player with same name. Choose different name and try again.";

@@ -88,12 +88,12 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("leaderClick", () => {
+  socket.on("leaderClick", (data: {speed: number}) => {
     const room = findRoom(socket.id);
     const player = findPlayer(socket.id);
     if (room && player && player === room.players[0]) {
       if (!room.isPlaying) {
-        room.startgame();
+        room.leaderStartGame(data.speed);
       }
     } else {
       console.error("Something wrong with leader click.");
@@ -142,10 +142,6 @@ io.on("connection", (socket) => {
         player.Board.changeSpeedMode("normal");
       }
     }
-  });
-  socket.on("changespeed", (data) => {
-    const room = findRoom(socket.id);
-    if (room.isPlaying) room.changeRoomSpeed(data.speed);
   });
 });
 

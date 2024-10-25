@@ -5,12 +5,17 @@ import "../styles/Buttons.css";
 interface StartButtonProps {
   socket: Socket | null;
   visible: boolean;
+  speed: number;
 }
 
-const StartButton: React.FC<StartButtonProps> = ({ socket, visible }) => {
+const StartButton: React.FC<StartButtonProps> = ({
+  socket,
+  visible,
+  speed,
+}) => {
   const handleClick = () => {
     console.log("Leader button clicked");
-    socket?.emit("leaderClick");
+    socket?.emit("leaderClick", { speed: speed });
   };
   if (visible)
     return (

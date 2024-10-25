@@ -27,7 +27,7 @@ const ScoreBoard: React.FC<ScoreBoardProps> = ({ scores }) => {
           </tbody>
         </table>
       ) : (
-        <p>Empty</p>
+        <p>no data</p>
       )}
     </div>
   );
