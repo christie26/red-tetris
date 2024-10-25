@@ -1,11 +1,11 @@
 import http from "http"; 
-import { io } from "../../app.js"
-import { app } from "../../app.js"
+import { io } from "../app.js"
+import { app } from "../app.js"
 import { Server } from "socket.io";
 import Client from "socket.io-client";
-import Player from "../Player.js"
-import Room from "../Room.js";
-import Board from "../Board.js";
+import Player from "../classes/Player.js"
+import Room from "../classes/Room.js";
+import Board from "../classes/Board.js";
 import { jest, describe, expect, test, beforeAll, beforeEach, afterEach, afterAll } from '@jest/globals';
 
 
@@ -90,7 +90,7 @@ describe("Express HTTP routes", () => {
     
     describe("Socket.io events", () => {
       test("should handle 'leaderClick' and start the game", (done) => {
-        const roomSpy = jest.spyOn(Room.prototype, 'startgame');
+        const roomSpy = jest.spyOn(Room.prototype, 'leaderStartGame');
 
         clientSocket.emit("leaderClick");
 

@@ -1,6 +1,6 @@
-import Piece from "../Piece.js";
-import Pieces from "../../Pieces.js";
-import Tile from "../Tile.js";
+import Piece from "../classes/Piece.js";
+import Pieces from "../Pieces.js";
+import Tile from "../classes/Tile.js";
 import { jest, describe, expect, test, beforeAll, beforeEach, afterEach, afterAll, it } from '@jest/globals';
 
 

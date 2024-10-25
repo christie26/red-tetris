@@ -1,12 +1,12 @@
-import Player from "../Player.js";
-import Room from "../Room.js";
-import Board from "../Board.js";
-import { io } from '../../app.js';
+import Player from "../classes/Player.js";
+import Room from "../classes/Room.js";
+import Board from "../classes/Board.js";
+import { io } from '../app.js';
 import { jest, describe, expect, test, beforeAll, beforeEach, afterEach, afterAll } from '@jest/globals';
 
 
 // Mocking socket.io for testing
-jest.mock('../../app.js', () => ({
+jest.mock('../classes/../classes/app.js', () => ({
   io: {
     to: jest.fn().mockReturnThis(), // Make sure it returns itself for chaining
     emit: jest.fn(), // Mock the emit function

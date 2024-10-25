@@ -1,16 +1,16 @@
-import Board from "../Board.js";
-import Player from "../Player.js"
-import Room from "../Room.js";
-import Piece from '../Piece';
-import Tile from '../Tile';
+import Board from "../classes/Board.js";
+import Player from "../classes/Player.js"
+import Room from "../classes/Room.js";
+import Piece from '../classes/Piece';
+import Tile from '../classes/Tile';
 import express from 'express';
 import http from 'http';
 import { Server } from 'socket.io';
 import { jest, describe, expect, test, beforeAll, beforeEach, afterEach, afterAll } from '@jest/globals';
 
-jest.mock('../Piece');
-jest.mock('../Player');
-jest.mock('../Room');
+jest.mock('../classes/Piece');
+jest.mock('../classes/Player');
+jest.mock('../classes/Room');
 
 jest.useFakeTimers(); 
 

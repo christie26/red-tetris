@@ -1,12 +1,12 @@
 import exp from "constants";
-import Board from "../Board.js";
-import Player from "../Player.js"
-import Room from "../Room.js";
+import Board from "../classes/Board.js";
+import Player from "../classes/Player.js"
+import Room from "../classes/Room.js";
 import { validate as uuidValidate } from "uuid";
-import { io } from '../../app.js';
+import { io } from '../app.js';
 import { jest, describe, expect, test, beforeAll, beforeEach, afterEach, afterAll } from '@jest/globals';
 
-jest.mock('../../app.js', () => ({
+jest.mock('../classes/../classes/app.js', () => ({
   io: {
   to: jest.fn().mockReturnThis(), // Make sure it returns itself for chaining
   emit: jest.fn(), // Mock the emit function
@@ -78,7 +78,7 @@ describe('Room Class Tests', () => {
   test('should add player as waiter if game is already in progress', () => {
     room.addPlayer(player1.playername, player1.socket);
     room.addPlayer(player2.playername, player2.socket);
-    room.startgame();
+    room.leaderStartGame(1);
     room.addPlayer(player3.playername, player3.socket);
 
     expect(room.waiters).toHaveLength(1);
@@ -101,7 +101,7 @@ describe('Room Class Tests', () => {
 
   test('should handle disconnecting waiter correctly', () => {
     room.addPlayer(player1.playername, player1.socket);
-    room.startgame();
+    room.leaderStartGame(1);
     room.addPlayer(player2.playername, player2.socket);
     room.playerDisconnect(player2.playername); // Make player1 a waiter
 
@@ -120,7 +120,7 @@ describe('Room Class Tests', () => {
   test('should start the game correctly', () => {
     room.addPlayer(player1.playername, player1.socket);
     room.addPlayer(player2.playername, player2.socket);
-    room.startgame();
+    room.leaderStartGame(1);
 
     expect(room.isPlaying).toBe(true);
     expect(io.to).toHaveBeenCalledWith(player1.socket);
@@ -132,7 +132,7 @@ describe('Room Class Tests', () => {
   test('should handle one player dying correctly', () => {
     room.addPlayer(player1.playername, player1.socket);
     room.addPlayer(player2.playername, player2.socket);
-    room.startgame();
+    room.leaderStartGame(1);
     
     jest.spyOn(room, 'updateBoard');
     player1.isPlaying = true; // Simulate player1 dying
@@ -144,7 +144,7 @@ describe('Room Class Tests', () => {
     
   test('should end game if one player remains', () => {
     room.addPlayer(player1.playername, player1.socket);
-    room.startgame();
+    room.leaderStartGame(1);
 
     room.onePlayerDied(player1); // Simulate player1 dying
     expect(room.isPlaying).toBe(false);
@@ -155,7 +155,7 @@ describe('Room Class Tests', () => {
   test('should send penalties correctly', () => {
     room.addPlayer(player1.playername, player1.socket);
     room.addPlayer(player2.playername, player2.socket);
-    room.startgame();
+    room.leaderStartGame(1);
 
     console.log("room players", room.players.length)
     // Mock the receivePenalty method in the Player class
@@ -186,7 +186,7 @@ describe('Room Class Tests', () => {
   test('should end game with winner correctly', () => {
     room.addPlayer(player1.playername, player1.socket);
     room.addPlayer(player2.playername, player2.socket);
-    room.startgame();
+    room.leaderStartGame(1);
     
     player2.isPlaying = false; // Simulate player2 dying
     room.onePlayerDied(player2);
@@ -202,7 +202,7 @@ describe('Room Class Tests', () => {
   test('should reset scores and key after game ends', () => {
     room.addPlayer(player1.playername, player1.socket);
     room.addPlayer(player2.playername, player2.socket);
-    room.startgame();
+    room.leaderStartGame(1);
 
     room.onePlayerDied(player1);
     room.endgame(player2.playername);
