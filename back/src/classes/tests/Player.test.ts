@@ -1,6 +1,6 @@
-import Player from "../Player";
-import Room from "../Room";
-import Board from "../Board";
+import Player from "../Player.js";
+import Room from "../Room.js";
+import Board from "../Board.js";
 
 jest.mock("../Board"); // Mock the Board class
 jest.mock("../Room");  // Mock the Room class
