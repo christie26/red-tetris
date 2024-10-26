@@ -39,9 +39,10 @@ const io = new Server(server, {
     credentials: true,
   },
 });
-const PORT = process.env.NODE_ENV === 'test' ? 0 : 8000; // Use port 0 in test, 8000 otherwise
+const PORT = process.env.NODE_ENV === "test" ? 0 : 8000; // Use port 0 in test, 8000 otherwise
 
-if (process.env.NODE_ENV !== 'test') { // use this for the test
+if (process.env.NODE_ENV !== "test") {
+  // use this for the test
   server.listen(PORT, () => {
     console.log(`red-tetris server listening on port ${PORT}`);
   });
@@ -91,16 +92,16 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("leaderClick", (data: {speed: number}) => {
+  socket.on("leaderClick", (data: { speed: number }) => {
     const room = findRoom(socket.id);
     const player = findPlayer(socket.id);
     if (room && player && player === room.players[0]) {
       if (!room.isPlaying) {
-        socket.emit("gameStarted") // used for the unit test 
+        socket.emit("gameStarted"); // used for the unit test
         room.leaderStartGame(data.speed);
       }
-    // } else {
-    //   console.error("Something wrong with leader click.");
+      // } else {
+      //   console.error("Something wrong with leader click.");
     }
   });
 
@@ -124,7 +125,7 @@ io.on("connection", (socket) => {
       switch (data.key) {
         case "ArrowLeft":
           player.Board.moveSide("left");
-          socket.emit("keyboardProcessed") // for the test
+          socket.emit("keyboardProcessed"); // for the test
           break;
         case "ArrowRight":
           player.Board.moveSide("right");
@@ -201,4 +202,4 @@ function addUserToRoom(
   room.addPlayer(playername, socketId);
 }
 
-export {io, app};
+export { io, app };

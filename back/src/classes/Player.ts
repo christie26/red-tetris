@@ -36,8 +36,8 @@ class Player {
     this.Room.onePlayerDied(this);
   }
 
-  sendNextPiece(nextPiece: Piece) : void {
-    io.to(this.socket).emit("nextpiece", {piece: nextPiece});
+  sendNextPiece(nextPiece: Piece): void {
+    io.to(this.socket).emit("nextpiece", { piece: nextPiece });
   }
 }
 

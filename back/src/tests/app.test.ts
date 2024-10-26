@@ -1,13 +1,21 @@
-import http from "http"; 
-import { io, findPlayer, findRoom } from "../app.js"
-import { app } from "../app.js"
+import http from "http";
+import { io, findPlayer, findRoom } from "../app.js";
+import { app } from "../app.js";
 import { Server } from "socket.io";
 import Client from "socket.io-client";
-import Player from "../classes/Player.js"
+import Player from "../classes/Player.js";
 import Room from "../classes/Room.js";
 import Board from "../classes/Board.js";
-import { jest, describe, expect, test, beforeAll, beforeEach, afterEach, afterAll } from '@jest/globals';
-
+import {
+  jest,
+  describe,
+  expect,
+  test,
+  beforeAll,
+  beforeEach,
+  afterEach,
+  afterAll,
+} from "@jest/globals";
 
 let httpServer: http.Server;
 let ioServer: Server;
@@ -17,12 +25,12 @@ let clientSocket: any;
 beforeAll((done) => {
   // Create a new HTTP server and attach the Express app to it
   httpServer = http.createServer(app);
-  
+
   // Start listening on a random available port
   httpServer.listen(0, () => {
     port = (httpServer.address() as any).port; // Dynamically assigned port
     // Attach socket.io to the HTTP server
-    ioServer = new Server(httpServer)
+    ioServer = new Server(httpServer);
     io.attach(httpServer);
     done();
   });
@@ -30,10 +38,10 @@ beforeAll((done) => {
 
 afterAll((done) => {
   // Close the HTTP server after all tests
-  io.close()
+  io.close();
   httpServer.close((err) => {
     if (err) {
-      console.error("Error closing server: ", err)
+      console.error("Error closing server: ", err);
     }
     done();
   });
@@ -51,27 +59,25 @@ afterEach(() => {
   // Disconnect the client after each test
   if (clientSocket && clientSocket.connected) {
     clientSocket.disconnect();
-    } 
   }
-);
-
+});
 
 // describe("Express HTTP routes", () => {
 //   test("should respond to http://localhost with status 404", async () => {
 //     const res = await fetch(`http://localhost:${port}/`);
 //     expect(res.status).toBe(404);
-    
+
 //   });
 
 //   test("should respond to /room/port with status 200 and check user uniqueness", async () => {
 //     const res = await fetch(`http://localhost:${port}/room/port`);
 //     expect(res.status).toBe(200);
 //   });
-  
+
 //   test("should return 400 if player name is not unique", async () => {
 //     // First request to add the player
 //     await fetch(`http://localhost:${port}/test-room/test-player`);
-    
+
 //     // Second request should fail since the player is already in the room
 //     const res = await fetch(`http://localhost:${port}/test-room/test-player`);
 //     expect(res.status).toBe(400);
@@ -79,19 +85,19 @@ afterEach(() => {
 //     expect(text).toBe("Player name is not unique.");
 //     });
 //     });
-    
+
 describe("Socket.io events", () => {
   test("check socket.on leaderClick", (done) => {
-    const roomSpy = jest.spyOn(Room.prototype, 'leaderStartGame');
+    const roomSpy = jest.spyOn(Room.prototype, "leaderStartGame");
 
     clientSocket.on("gameStarted", () => {
       const room = findRoom(clientSocket.id);
       expect(room.leaderStartGame).toHaveBeenCalled();
       done();
-      });
-    clientSocket.emit("leaderClick", {speed : 1});
+    });
+    clientSocket.emit("leaderClick", { speed: 1 });
   });
-    /*
+  /*
     test("should handle 'keyboard' events for ArrowLeft", (done) => {
             // Spy on the moveSide method, since ArrowLeft should trigger this method
         const moveSideSpy = jest.spyOn(Board.prototype, 'moveSide');
@@ -114,7 +120,7 @@ describe("Socket.io events", () => {
       //   done();
       //   });
         });*/
-        
+
   // test("should handle disconnect event and clean up rooms", (done) => {
   //   const roomSpy = jest.spyOn(Room.prototype, 'playerDisconnect');
   //   clientSocket.disconnect();
@@ -123,7 +129,7 @@ describe("Socket.io events", () => {
   //     // Check if the roomSpy was called when the player disconnected
   //     expect(roomSpy).toHaveBeenCalledWith("test-player");  // Replace "test-player" with your player's name
   //     done();  // Finish the test
-  //   }, 100);  
+  //   }, 100);
   // });
 });
 

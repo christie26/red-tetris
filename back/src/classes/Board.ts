@@ -75,13 +75,12 @@ class Board {
     clearInterval(this.intervalId);
     this.intervalId = setInterval(() => this.routine(), 500 / this.speedLevel);
   }
-   routine() {
+  routine() {
     if (this.canGoDown()) {
       this.moveTiles(this.currentPiece.tiles, "down");
       this.renderPiece();
 
-      if (this.applyPenalty())
-        this.newPiece();
+      if (this.applyPenalty()) this.newPiece();
     } else {
       this.fixPieceToBoard();
       this.Player.Room.updateBoard(this.Player, this.fixedTiles, "fixed");
@@ -278,7 +277,7 @@ class Board {
     }
     return skip;
   }
-  fixPieceIfTouch(line: number) : boolean {
+  fixPieceIfTouch(line: number): boolean {
     const dropTile = this.dropLocation();
     const distance = this.currentPiece.tiles[0].y - dropTile[0].y;
     if (line < distance) return false;
@@ -295,7 +294,7 @@ class Board {
   }
 
   /* clear line */
-   clearLinesAndSendPenalty(): void {
+  clearLinesAndSendPenalty(): void {
     const linesToClear: number[] = new Array(0).fill(0);
 
     if (this.currentPiece) {

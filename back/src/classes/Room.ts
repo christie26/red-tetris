@@ -137,7 +137,7 @@ class Room {
 
     this.checkEndgame();
   }
-   checkEndgame(): void {
+  checkEndgame(): void {
     const winner = this.players.filter((player) => player.isPlaying);
     if (winner.length === 1) this.endgame(winner[0].playername);
   }
@@ -203,16 +203,16 @@ class Room {
   }
 
   /* utilities */
-   getPlayerlist(): string[] {
+  getPlayerlist(): string[] {
     return this.players.map((player) => player.playername);
   }
-   freezeIfPlaying(targetplayer: Player): void {
+  freezeIfPlaying(targetplayer: Player): void {
     if (targetplayer.isPlaying) {
       targetplayer.Board.freezeBoard();
       targetplayer.isPlaying = false;
     }
   }
-   setNewLeader(): void {
+  setNewLeader(): void {
     let newLeader: Player | undefined;
 
     if (this.players.length > 1) {
@@ -234,21 +234,20 @@ class Room {
   }
 
   /* send socket event */
-   socketToAll(event: string, data: any) {
+  socketToAll(event: string, data: any) {
     this.socketToPlayers(event, data);
     this.socketToWaiters(event, data);
   }
-   socketToPlayers(event: string, data: any) {
+  socketToPlayers(event: string, data: any) {
     for (const player of this.players) {
       io.to(player.socket).emit(event, data);
     }
   }
-   socketToWaiters(event: string, data: any) {
+  socketToWaiters(event: string, data: any) {
     for (const waiter of this.waiters) {
       io.to(waiter.socket).emit(event, data);
     }
   }
-
 }
 
 export default Room;
