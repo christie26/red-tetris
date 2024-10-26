@@ -83,10 +83,10 @@ class Board {
       if (this.applyPenalty()) this.newPiece();
     } else {
       this.fixPieceToBoard();
-      this.Player.Room.updateBoard(this.Player, this.fixedTiles, "fixed");
+      this.Player.Room.updateBoard(this.Player.playername, this.fixedTiles, "fixed");
 
       this.clearLinesAndSendPenalty();
-      this.Player.Room.updateBoard(this.Player, this.fixedTiles, "fixed");
+      this.Player.Room.updateBoard(this.Player.playername, this.fixedTiles, "fixed");
 
       this.applyPenalty();
 
@@ -233,7 +233,7 @@ class Board {
         board[tile.y][tile.x] = tile.type;
       }
     }
-    this.Player.Room.updateBoard(this.Player, board, "falling");
+    this.Player.Room.updateBoard(this.Player.playername, board, "falling");
   }
   private fixPieceToBoard(): void {
     for (const tile of this.currentPiece.tiles) {
@@ -270,7 +270,7 @@ class Board {
         this.fixedTiles[row][colIndex] = 20;
       });
     }
-    this.Player.Room.updateBoard(this.Player, this.fixedTiles, "fixed");
+    this.Player.Room.updateBoard(this.Player.playername, this.fixedTiles, "fixed");
 
     if (gameover) {
       this.Player.gameover();

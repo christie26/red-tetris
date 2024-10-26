@@ -106,11 +106,6 @@ class Room {
       player.Board.changeSpeedLevel(speed);
     }
     const player = this.players[0];
-    console.log(
-      `[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} began a game with speed ${speed}.`,
-      this.roomname,
-      player.playername,
-    );
     this.socketToAll("startgame", {
       playerlist: this.getPlayerlist(),
     });
@@ -120,9 +115,14 @@ class Room {
       player.isPlaying = true;
       player.Board.startgame();
     });
+    console.log(
+      `[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} began a game with speed ${speed}.`,
+      this.roomname,
+      player.playername,
+    );
   }
   onePlayerDied(dier: Player): void {
-    this.updateBoard(dier, dier.Board.fixedTiles, "died");
+    this.updateBoard(dier.playername, dier.Board.fixedTiles, "died");
     this.socketToAll("gameover", { dier: dier.playername });
     console.log(
       `[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} gameover.`,
@@ -175,9 +175,9 @@ class Room {
   }
 
   /* during a game */
-  updateBoard(player: Player, board: any, type: string): void {
+  updateBoard(player: string, board: any, type: string): void {
     this.socketToAll("updateboard", {
-      player: player.playername,
+      player: player,
       board: board,
       type: type,
     });
