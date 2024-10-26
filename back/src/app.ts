@@ -54,10 +54,10 @@ app.use(
     credentials: true,
   }),
 );
-
-app.get("/redtetris.ico", (req: Request, res: Response) => {
-  res.send();
-});
+// to remove 
+// app.get("/redtetris.ico", (req: Request, res: Response) => {
+//   res.send();
+// });
 
 app.get("/:room/:player", (req: Request, res: Response) => {
   if (checkUserUnique(req.params.player, req.params.room)) {
@@ -96,11 +96,9 @@ io.on("connection", (socket) => {
     const player = findPlayer(socket.id);
     if (room && player && player === room.players[0]) {
       if (!room.isPlaying) {
-        socket.emit("gameStarted") // used for the unit test 
+        socket.emit("gameStarted") 
         room.leaderStartGame(data.speed);
       }
-    // } else {
-    //   console.error("Something wrong with leader click.");
     }
   });
 
@@ -123,10 +121,11 @@ io.on("connection", (socket) => {
       if (!player.isPlaying) return;
       switch (data.key) {
         case "ArrowLeft":
+          socket.emit("keyboardProcessedLeft") 
           player.Board.moveSide("left");
-          socket.emit("keyboardProcessed") // for the test
           break;
-        case "ArrowRight":
+          case "ArrowRight":
+          socket.emit("keyboardProcessedRight") 
           player.Board.moveSide("right");
           break;
         case "ArrowDown":
