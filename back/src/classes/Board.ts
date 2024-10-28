@@ -83,10 +83,18 @@ class Board {
       if (this.applyPenalty()) this.newPiece();
     } else {
       this.fixPieceToBoard();
-      this.Player.Room.updateBoard(this.Player.playername, this.fixedTiles, "fixed");
+      this.Player.Room.updateBoard(
+        this.Player.playername,
+        this.fixedTiles,
+        "fixed",
+      );
 
       this.clearLinesAndSendPenalty();
-      this.Player.Room.updateBoard(this.Player.playername, this.fixedTiles, "fixed");
+      this.Player.Room.updateBoard(
+        this.Player.playername,
+        this.fixedTiles,
+        "fixed",
+      );
 
       this.applyPenalty();
 
@@ -270,7 +278,11 @@ class Board {
         this.fixedTiles[row][colIndex] = 20;
       });
     }
-    this.Player.Room.updateBoard(this.Player.playername, this.fixedTiles, "fixed");
+    this.Player.Room.updateBoard(
+      this.Player.playername,
+      this.fixedTiles,
+      "fixed",
+    );
 
     if (gameover) {
       this.Player.gameover();

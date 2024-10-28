@@ -58,16 +58,19 @@ class Room {
     );
   }
   playerDisconnect(playername: string): void {
-    if (!this.players) {
-      console.error(
-        `Attempt to disconnect, currently no one in ${this.roomname}`,
-      );
-      return;
-    }
     const targetPlayer = this.players.find(
       (player) => player.playername === playername,
     );
     if (!targetPlayer) {
+      const targetWaiter = this.waiters.find(
+        (waiter) => waiter.playername === playername,
+      );
+      if (!targetWaiter) {
+        console.error(
+          `Attempt to disconnect, ${playername} is not in the room.`,
+        );
+        return;
+      }
       this.waiters = this.waiters.filter((p) => p.playername !== playername);
       console.log(
         `[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} left.`,
@@ -150,16 +153,11 @@ class Room {
       }
     }
 
-    if (winner) {
-      const winnerScore = this.score.get(winner) + 1;
-      this.score.set(winner, winnerScore);
-    }
+    if (winner) this.updateWinnerScore(winner);
     const scoreJson = JSON.stringify(Array.from(this.score));
     this.socketToAll("endgame", { winner: winner, score: scoreJson });
-
-    for (const waiter of this.waiters) {
-      this.score.set(waiter.playername, 0);
-    }
+    this.addWaitersToScore()
+    
     console.log(`[${c.GREEN}%s${c.RESET}] game ends.`, this.roomname);
     this.players.push(...this.waiters);
     this.waiters.length = 0;
@@ -172,6 +170,15 @@ class Room {
     this.players.forEach((player) => {
       player.updateKey(this.key);
     });
+  }
+  updateWinnerScore(winner: string) {
+    const winnerScore = this.score.get(winner) + 1;
+    this.score.set(winner, winnerScore);
+  }
+  addWaitersToScore() {
+    for (const waiter of this.waiters) {
+      this.score.set(waiter.playername, 0);
+    }
   }
 
   /* during a game */
