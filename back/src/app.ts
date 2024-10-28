@@ -54,10 +54,9 @@ app.use(
     credentials: true,
   }),
 );
-// to remove 
-// app.get("/redtetris.ico", (req: Request, res: Response) => {
-//   res.send();
-// });
+app.get("/redtetris.ico", (req: Request, res: Response) => {
+  res.send();
+});
 
 app.get("/:room/:player", (req: Request, res: Response) => {
   if (checkUserUnique(req.params.player, req.params.room)) {
@@ -124,17 +123,20 @@ io.on("connection", (socket) => {
           socket.emit("keyboardProcessedLeft") 
           player.Board.moveSide("left");
           break;
-          case "ArrowRight":
+        case "ArrowRight":
           socket.emit("keyboardProcessedRight") 
           player.Board.moveSide("right");
           break;
         case "ArrowDown":
+          socket.emit("keyboardProcessedDown") 
           player.Board.changeSpeedMode("fast");
           break;
         case "ArrowUp":
+          socket.emit("keyboardProcessedUp") 
           player.Board.rotatePiece();
           break;
         case " ":
+          socket.emit("keyboardProcessedSpace") 
           player.Board.changeSpeedMode("sprint");
           break;
       }
@@ -161,7 +163,7 @@ export function findPlayer(socketId: string): Player {
   }
   return null;
 }
-function checkUserUnique(playername: string, roomname: string): boolean {
+export function checkUserUnique(playername: string, roomname: string): boolean {
   const myroom = rooms.find((room) => room.roomname === roomname);
   if (myroom) {
     const userExists = myroom.players.some(
@@ -169,7 +171,7 @@ function checkUserUnique(playername: string, roomname: string): boolean {
     );
     if (userExists) {
       console.log(
-        `[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} ${c.RED}already existed.`,
+        `[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} ${c.RED} already existed.`,
         roomname,
         playername,
       );
