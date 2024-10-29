@@ -214,6 +214,7 @@ describe('Board', () => {
     board.clearLinesAndSendPenalty();
     
     expect(board.fixedTiles[19].every(x => x === 0)).toBe(true); 
+    // line 310-317
   });
 
   test('Board-Freez-Board', () => {
@@ -222,4 +223,35 @@ describe('Board', () => {
     expect(board.intervalId).toBeNull();
     expect(board.currentPiece).toBeNull(); 
   });
+  test('Board-endGame-newPiece-touchOtherPiece', () => {
+    // line 67-71
+  })
+
+  test('Board-rotate Piece-with-no-freeplace', () => {
+    // line 150-152 and call also line 162-172
+  })
+
+  
+  test('Board-recievePenalty', () => {
+    const line = 4
+    board.recievePenalty(line)
+    expect(board.unpaidPenalties).toBe(4)
+  })
+
+  test('Board rotate Tiles', () => {
+    // line 190 -197
+  })
+
+  test('Board-fixPieceToBoard', () => {
+    // line 241
+  })
+
+  test('Board-applyPenalty', () => {
+    // line 254-279
+  })
+
+  test('Board-fixPieceIfTouch', () => {
+    // line 282-294
+  })
+
 });

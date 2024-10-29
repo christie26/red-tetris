@@ -51,7 +51,8 @@ beforeEach((done) => {
 afterEach(() => {
   if (clientSocket && clientSocket.connected) {
     clientSocket.disconnect();
-    } 
+    }
+    clientSocket.close()
   }
 );
 
@@ -141,18 +142,18 @@ describe("Socket.io events", () => {
       clientSocket.emit("keyboard", { type: "down", key: "ArrowRight" });
     });
 
-    test("App-Keboard-event-sprint-space", (done) => {
+    test("App-Keboard-event-sprint-space", (done) => { //
 
       const player = findPlayer(clientSocket.id);
       player.isPlaying = true
-      const moveSideSpy = jest.spyOn(Board.prototype, 'changeSpeedMode');
+      const changeSpeedModeSpy = jest.spyOn(Board.prototype, 'changeSpeedMode');
 
     clientSocket.on("keyboardProcessedSpace", () => {
-      expect(moveSideSpy).toHaveBeenCalledWith("sprint");
+      expect(changeSpeedModeSpy).toHaveBeenCalledWith("sprint");
       done();
     });
 
-    clientSocket.emit("keyboard", { type: "down", key: " " }); 
+    clientSocket.emit("keyboard", { type: "down", key: " " });
   });
 
     test("App-Keboard-event-arrow-down", (done) => {
