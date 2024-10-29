@@ -109,12 +109,15 @@ function Tetris() {
         setStatus("waiting");
         for (const player of data.playerlist) {
           const empty = Array.from({ length: 20 }, () => Array(10).fill(0));
-          console.log("update", player);
           otherboardRef.current?.updateBoard(empty, player);
           otherboardRef.current?.updateBoardStatus("", player);
         }
       }
       if (data.type === "leader") SetIsLeader(true);
+      if (data.score) {
+        const scoreMap = new Map<string, number>(JSON.parse(data.score));
+        setScores(scoreMap);
+      }
     });
     socket.on("leave", (data) => {
       if (status === "ready") {

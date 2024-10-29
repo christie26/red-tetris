@@ -41,15 +41,17 @@ class Room {
         player: playername,
         type: role,
         playerlist: this.getPlayerlist(),
+        score: null,
       });
     } else {
+      this.score.set(newPlayer.playername, 0);
       this.players.push(newPlayer);
       this.socketToPlayers("join", {
         player: playername,
         type: role,
         playerlist: this.getPlayerlist(),
+        score: this.getScoreJson(),
       });
-      this.score.set(newPlayer.playername, 0);
     }
     console.log(
       `[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} joined as a ${role}.`,
@@ -154,8 +156,7 @@ class Room {
     }
 
     if (winner) this.updateWinnerScore(winner);
-    const scoreJson = JSON.stringify(Array.from(this.score));
-    this.socketToAll("endgame", { winner: winner, score: scoreJson });
+    this.socketToAll("endgame", { winner: winner, score: this.getScoreJson() });
     this.addWaitersToScore()
     
     console.log(`[${c.GREEN}%s${c.RESET}] game ends.`, this.roomname);
@@ -238,6 +239,9 @@ class Room {
       this.roomname,
       newLeader.playername,
     );
+  }
+  getScoreJson(): string {
+    return (JSON.stringify(Array.from(this.score)));
   }
 
   /* send socket event */
