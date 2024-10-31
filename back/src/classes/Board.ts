@@ -58,7 +58,7 @@ class Board {
 
     return new Piece(type, left, direction);
   }
-  private newPiece() {
+  newPiece() {
     this.currentPiece = this.nextPiece;
     this.nextPiece = this.createPiece();
     this.Player.sendNextPiece(this.nextPiece);
@@ -149,7 +149,7 @@ class Board {
     if (!this.isFree(tempTiles)) {
       const directions = ["left", "right", "down", "up"] as const;
       const successfulMove = this.tryMoveInDirections(tempTiles, directions);
-      if (!successfulMove) return;
+      if (!successfulMove) return null;
     }
 
     this.rotateTiles(this.currentPiece.tiles);
@@ -236,7 +236,7 @@ class Board {
     }
     this.Player.Room.updateBoard(this.Player, board, "falling");
   }
-  private fixPieceToBoard(): void {
+  fixPieceToBoard(): void {
     for (const tile of this.currentPiece.tiles) {
       this.fixedTiles[tile.y][tile.x] = tile.type + 10;
     }
@@ -246,7 +246,7 @@ class Board {
   recievePenalty(line: number): void {
     this.unpaidPenalties += line;
   }
-  private applyPenalty(): boolean {
+  applyPenalty(): boolean {
     let gameover = false;
     let skip = false;
     if (this.unpaidPenalties === 0) return;
@@ -261,15 +261,15 @@ class Board {
     for (let row = top; row <= line; row++) {
       if (this.fixedTiles[row].some((element) => element > 0)) {
         gameover = true;
-      }
+      } // check gameover
     }
     for (let row = top; row + line <= bottom; row++) {
       this.fixedTiles[row] = [...this.fixedTiles[row + line]];
-    }
+    } // update line up
     for (let row = bottom; row > bottom - line; row--) {
       this.fixedTiles[row].forEach((_, colIndex) => {
         this.fixedTiles[row][colIndex] = 20;
-      });
+      }); // update board with Penalty
     }
     this.Player.Room.updateBoard(this.Player, this.fixedTiles, "fixed");
 

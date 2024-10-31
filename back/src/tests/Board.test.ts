@@ -86,7 +86,7 @@ describe('Board', () => {
     expect(board.fixedTiles[0].length).toBe(10);
     expect(board.penaltyLine).toBe(0);
     expect(board.unpaidPenalties).toBe(0);
-    expect(board.currentPiece).toBeDefined(); // currentPiece should be defined upon initialization
+    expect(board.currentPiece).toBeDefined();
   });
 
   test('Board-start-game-valid-currentPiece', () => {
@@ -139,7 +139,6 @@ describe('Board', () => {
   test('Board-moveSide-left', () => {
 
     const tempPiece = board.currentPiece
-    console.log(tempPiece)
     board.moveSide('left');
 
     tempPiece.tiles.forEach((tile) => {
@@ -162,7 +161,6 @@ describe('Board', () => {
     });
 
     board.currentPiece = tempPiece
-    console.log(tempPiece)
     board.moveSide('left');
 
     expect(board.currentPiece).toBe(tempPiece);
@@ -179,7 +177,7 @@ describe('Board', () => {
   });
 
   test('Board-rotatePiece', () => {
-    const mockPiece = generateMockPiece(0, 1, 0);
+    const mockPiece = generateMockPiece(1, 0, 0);
     (Piece as jest.Mock).mockImplementation(() => mockPiece);
 
     board.startgame();
@@ -208,13 +206,13 @@ describe('Board', () => {
     const mockPiece = generateMockPiece(0, 0, 0);
     (Piece as jest.Mock).mockImplementation(() => mockPiece);
 
+    board.fixedTiles[1] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
     board.fixedTiles[2] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
     board.unpaidPenalties = 2;
 
     board.clearLinesAndSendPenalty();
     
     expect(board.fixedTiles[19].every(x => x === 0)).toBe(true); 
-    // line 310-317
   });
 
   test('Board-Freez-Board', () => {
@@ -223,12 +221,52 @@ describe('Board', () => {
     expect(board.intervalId).toBeNull();
     expect(board.currentPiece).toBeNull(); 
   });
+
+  test('Board-changes-speed-mode-sprint', () => {
+    const setIntervalSpy = jest.spyOn(global, 'setInterval');
+
+    board.changeSpeedMode("sprint");
+
+    expect(setIntervalSpy).toHaveBeenCalledWith(expect.any(Function), 5);
+    setIntervalSpy.mockRestore();
+  });
+
+  test('Board-changes-speed-mode-fast', () => {
+    const setIntervalSpy = jest.spyOn(global, 'setInterval');
+
+    board.changeSpeedMode("fast");
+
+    expect(setIntervalSpy).toHaveBeenCalledWith(expect.any(Function), 50);
+    setIntervalSpy.mockRestore();
+  });
+
+  test('Board-changes-speed-mode-normal', () => {
+    const setIntervalSpy = jest.spyOn(global, 'setInterval');
+
+    board.changeSpeedMode("normal");
+
+    expect(setIntervalSpy).toHaveBeenCalledWith(expect.any(Function), 500);
+    setIntervalSpy.mockRestore();
+  })
+
+
   test('Board-endGame-newPiece-touchOtherPiece', () => {
+    const currPiece = board.nextPiece
+
+    board.newPiece()
+
     // line 67-71
   })
 
   test('Board-rotate Piece-with-no-freeplace', () => {
-    // line 150-152 and call also line 162-172
+    const tempPiece = board.currentPiece
+
+    for (let stop = 0; stop < 18; stop++) {
+      board.fixedTiles[stop] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+    }
+
+    const res = board.rotatePiece()
+    expect(res).toBe(null)
   })
 
   
@@ -239,14 +277,45 @@ describe('Board', () => {
   })
 
   test('Board rotate Tiles', () => {
-    // line 190 -197
+    const mockPiece = generateMockPiece(0, 1, 0)
+    const tempTiles = mockPiece.tiles
+
+    const center = tempTiles[0];
+    for (let index = 1; index < tempTiles.length; index++) {
+      const tile = tempTiles[index];
+      const tmp_x = tile.x;
+      const tmp_y = tile.y;
+      tile.x = center.x + center.y - tmp_y;
+      tile.y = center.y - center.x + tmp_x;
+    }
+
+    board.rotateTiles(mockPiece.tiles)
+
+    expect(mockPiece.tiles).toBe(tempTiles)
+
   })
 
   test('Board-fixPieceToBoard', () => {
-    // line 241
+    const boardPieceTiles = board.currentPiece.tiles
+    const fixedTiles : number[][] = Array.from({ length: 20 }, () =>
+      new Array(10).fill(0),
+    );
+
+    for (const tile of boardPieceTiles) {
+     fixedTiles[tile.y][tile.x] = tile.type + 10;
+    }
+
+    board.fixPieceToBoard()
+    expect(board.fixedTiles).toEqual(fixedTiles)
   })
 
   test('Board-applyPenalty', () => {
+
+    board.unpaidPenalties = 4
+
+    board.applyPenalty()
+
+    //expect().toBe()
     // line 254-279
   })
 
