@@ -281,7 +281,7 @@ describe("Room Class Unit Test - playerDisconnect", () => {
     expect(room.waiters[0].playername).toBe("player2");
 
     room.playerDisconnect("player1");
-// TODO - check it again! check if it doesn't crash the server
+    // TODO - check it again! check if it doesn't crash the server
     expect(setNewLeaderSpy).toHaveBeenCalled();
     expect(room.players[0].playername).toBe("player2");
     expect(room.players[0].isLeader).toBe(true);
@@ -428,10 +428,10 @@ describe("Room Class Unit Test - endgame", () => {
     room.leaderStartGame(1);
 
     expect(room.isPlaying).toBe(true);
-    
+
     room.onePlayerDied(room.players[1]);
     room.endgame("player1");
-    
+
     expect(room.isPlaying).toBe(false);
     expect(io.emit).toHaveBeenCalledWith(
       "endgame",

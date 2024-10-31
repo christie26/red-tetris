@@ -96,7 +96,7 @@ io.on("connection", (socket) => {
     const player = findPlayer(socket.id);
     if (room && player && player === room.players[0]) {
       if (!room.isPlaying) {
-        socket.emit("gameStarted")
+        socket.emit("gameStarted");
         room.leaderStartGame(data.speed);
       }
     }
@@ -121,23 +121,23 @@ io.on("connection", (socket) => {
       if (!player.isPlaying) return;
       switch (data.key) {
         case "ArrowLeft":
-          socket.emit("keyboardProcessedLeft") 
+          socket.emit("keyboardProcessedLeft");
           player.Board.moveSide("left");
           break;
         case "ArrowRight":
-          socket.emit("keyboardProcessedRight") 
+          socket.emit("keyboardProcessedRight");
           player.Board.moveSide("right");
           break;
         case "ArrowDown":
-          socket.emit("keyboardProcessedDown") 
+          socket.emit("keyboardProcessedDown");
           player.Board.changeSpeedMode("fast");
           break;
         case "ArrowUp":
-          socket.emit("keyboardProcessedUp") 
+          socket.emit("keyboardProcessedUp");
           player.Board.rotatePiece();
           break;
         case " ":
-          socket.emit("keyboardProcessedSpace") 
+          socket.emit("keyboardProcessedSpace");
           player.Board.changeSpeedMode("sprint");
           break;
       }

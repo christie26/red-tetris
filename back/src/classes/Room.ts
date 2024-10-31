@@ -157,8 +157,8 @@ class Room {
 
     if (winner) this.updateWinnerScore(winner);
     this.socketToAll("endgame", { winner: winner, score: this.getScoreJson() });
-    this.addWaitersToScore()
-    
+    this.addWaitersToScore();
+
     console.log(`[${c.GREEN}%s${c.RESET}] game ends.`, this.roomname);
     this.players.push(...this.waiters);
     this.waiters.length = 0;
@@ -241,7 +241,7 @@ class Room {
     );
   }
   getScoreJson(): string {
-    return (JSON.stringify(Array.from(this.score)));
+    return JSON.stringify(Array.from(this.score));
   }
 
   /* send socket event */
