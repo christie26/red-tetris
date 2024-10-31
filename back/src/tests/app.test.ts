@@ -1,6 +1,6 @@
-import http from "http";
-import { io, findPlayer, findRoom } from "../app.js";
-import { app } from "../app.js";
+import http from "http"; 
+import { io, findPlayer, findRoom, checkUserUnique } from "../app.js"
+import { app } from "../app.js"
 import { Server } from "socket.io";
 import Client from "socket.io-client";
 import Player from "../classes/Player.js";
@@ -23,22 +23,18 @@ let port: number;
 let clientSocket: any;
 
 beforeAll((done) => {
-  // Create a new HTTP server and attach the Express app to it
   httpServer = http.createServer(app);
-
-  // Start listening on a random available port
+  
   httpServer.listen(0, () => {
-    port = (httpServer.address() as any).port; // Dynamically assigned port
-    // Attach socket.io to the HTTP server
-    ioServer = new Server(httpServer);
+    port = (httpServer.address() as any).port; 
+    ioServer = new Server(httpServer)
     io.attach(httpServer);
     done();
   });
 });
 
 afterAll((done) => {
-  // Close the HTTP server after all tests
-  io.close();
+  io.close()
   httpServer.close((err) => {
     if (err) {
       console.error("Error closing server: ", err);
@@ -48,7 +44,12 @@ afterAll((done) => {
 });
 
 beforeEach((done) => {
-  // Establish a client connection before each test
+  const currentTest = expect.getState().currentTestName;
+  
+  if (currentTest === "Express HTTP routes App-connection-wrong-param") { // this doesn't work to fix 
+    done();
+    return ;
+  }
   clientSocket = Client(`http://localhost:${port}`, {
     query: { room: "test-room", player: "test-player" },
   });
@@ -56,39 +57,59 @@ beforeEach((done) => {
 });
 
 afterEach(() => {
-  // Disconnect the client after each test
   if (clientSocket && clientSocket.connected) {
     clientSocket.disconnect();
+    clientSocket.close()
   }
 });
 
-// describe("Express HTTP routes", () => {
-//   test("should respond to http://localhost with status 404", async () => {
-//     const res = await fetch(`http://localhost:${port}/`);
-//     expect(res.status).toBe(404);
+describe("Express HTTP routes", () => {
 
-//   });
+  test("App-connection-wrong-path-status-404", async () => {
+        const res = await fetch(`http://localhost:${port}/`);
+        expect(res.status).toBe(404);
+        
+      });
 
-//   test("should respond to /room/port with status 200 and check user uniqueness", async () => {
-//     const res = await fetch(`http://localhost:${port}/room/port`);
-//     expect(res.status).toBe(200);
-//   });
+    test("App-connection-wrong-param",  async () => {
 
-//   test("should return 400 if player name is not unique", async () => {
-//     // First request to add the player
-//     await fetch(`http://localhost:${port}/test-room/test-player`);
+      const clientSocket = Client(`http://localhost:${port}`, {
+        query: { room: 123, player: null  },
+      });
 
-//     // Second request should fail since the player is already in the room
-//     const res = await fetch(`http://localhost:${port}/test-room/test-player`);
-//     expect(res.status).toBe(400);
-//     const text = await res.text();
-//     expect(text).toBe("Player name is not unique.");
-//     });
-//     });
+      clientSocket.on("redirect", (url) => {
+        expect(url).toBe("/error");
+      });
 
+      clientSocket.on("disconnect", () => {
+        expect(clientSocket.connected).toBe(false);
+        clientSocket.close();
+      });
+    });
+
+  test("App-connection-Good-path-and-unique-user-status-200", async () => {
+    const res = await fetch(`http://localhost:${port}/room/port`);
+    expect(res.status).toBe(200);
+  });
+
+  test("App-connection-red-tetris-logo", async () => {
+    const res = await fetch(`http://localhost:${port}/redtetris.ico`);
+    expect(res.status).toBe(200);
+  });
+
+  test("App-connection-user-not-unique-status-400", async () => {
+    await fetch(`http://localhost:${port}/test-room/test-player`);
+    
+    const res = await fetch(`http://localhost:${port}/test-room/test-player`);
+    expect(res.status).toBe(400);
+    const text = await res.text();
+    expect(text).toBe("Player name is not unique.");
+    });
+  });
+    
 describe("Socket.io events", () => {
-  test("check socket.on leaderClick", (done) => {
-    const roomSpy = jest.spyOn(Room.prototype, "leaderStartGame");
+  test("App-leaderClick-event-leaderStartGame", (done) => {
+    const roomSpy = jest.spyOn(Room.prototype, 'leaderStartGame');
 
     clientSocket.on("gameStarted", () => {
       const room = findRoom(clientSocket.id);
@@ -97,50 +118,105 @@ describe("Socket.io events", () => {
     });
     clientSocket.emit("leaderClick", { speed: 1 });
   });
-  /*
-    test("should handle 'keyboard' events for ArrowLeft", (done) => {
-            // Spy on the moveSide method, since ArrowLeft should trigger this method
-        const moveSideSpy = jest.spyOn(Board.prototype, 'moveSide');
+    
+    test("App-Keboard-event-move-left", (done) => {
 
-        // Emit the 'keyboard' event with ArrowLeft key down
-        clientSocket.emit("keyboard", { type: "down", key: "ArrowLeft" });
+          const player = findPlayer(clientSocket.id);
+          player.isPlaying = true
+          const moveSideSpy = jest.spyOn(Board.prototype, 'moveSide');
 
-        // Listen for the 'keyboardProcessed' event to ensure the server handled the event
-        clientSocket.on("keyboardProcessed", () => {
-          // Assert that moveSide was called with 'left'
+        clientSocket.on("keyboardProcessedLeft", () => {
           expect(moveSideSpy).toHaveBeenCalledWith("left");
           done();
         });
-      // const boardSpy = jest.spyOn(Board.prototype, 'startgame');
-      // clientSocket.emit("keyboard", { type: "down", key: "ArrowLeft" });
-      
-      // // Test some server-side effect here or check for specific responses
-      // clientSocket.on("keyboardProcessed", () => {
-      //   expect(boardSpy).toHaveBeenCalled();
-      //   done();
-      //   });
-        });*/
 
-  // test("should handle disconnect event and clean up rooms", (done) => {
-  //   const roomSpy = jest.spyOn(Room.prototype, 'playerDisconnect');
-  //   clientSocket.disconnect();
+        clientSocket.emit("keyboard", { type: "down", key: "ArrowLeft" });
+        
+      });
 
-  //   setTimeout(() => {
-  //     // Check if the roomSpy was called when the player disconnected
-  //     expect(roomSpy).toHaveBeenCalledWith("test-player");  // Replace "test-player" with your player's name
-  //     done();  // Finish the test
-  //   }, 100);
+      test("App-Keboard-event-move-right", (done) => {
+
+        const player = findPlayer(clientSocket.id);
+        player.isPlaying = true
+        const moveSideSpy = jest.spyOn(Board.prototype, 'moveSide');
+
+      clientSocket.on("keyboardProcessedRight", () => {
+        expect(moveSideSpy).toHaveBeenCalledWith("right");
+        done();
+      });
+
+      clientSocket.emit("keyboard", { type: "down", key: "ArrowRight" });
+    });
+
+  //   test("App-Keboard-event-sprint-space", (done) => { //
+
+  //     const player = findPlayer(clientSocket.id);
+  //     player.isPlaying = true
+  //     const changeSpeedModeSpy = jest.spyOn(Board.prototype, 'changeSpeedMode');
+
+  //   clientSocket.on("keyboardProcessedSpace", () => {
+  //     expect(changeSpeedModeSpy).toHaveBeenCalledWith("sprint");
+  //     done();
+  //   });
+
+  //   clientSocket.emit("keyboard", { type: "down", key: " " });
   // });
+
+    // test("App-Keboard-event-arrow-down", (done) => {
+
+    //     const player = findPlayer(clientSocket.id);
+    //     player.isPlaying = true
+    //     const changeSpeedModeSpy = jest.spyOn(Board.prototype, 'changeSpeedMode');
+        
+    //     clientSocket.emit("keyboard", { type: "down", key: "ArrowDown" }); 
+    //     clientSocket.on("keyboardProcessedDown", () => {
+    //       expect(changeSpeedModeSpy).toHaveBeenCalledWith("fast");
+    //       done();
+    //     });
+
+    //     clientSocket.emit("keyboard", { type: "down", key: "ArrowDown" }); 
+    // });
+
+
+  test("App-Keboard-event-arrow-up", (done) => {
+
+      const player = findPlayer(clientSocket.id);
+      player.isPlaying = true
+      const moveSideSpy = jest.spyOn(Board.prototype, 'rotatePiece');
+
+    clientSocket.on("keyboardProcessedUp", () => {
+      expect(moveSideSpy).toHaveBeenCalled();
+      done();
+    });
+
+    clientSocket.emit("keyboard", { type: "down", key: "ArrowUp" });
+  });
+
+  test("App-Disconnection-clean-up-rooms", (done) => {
+    const roomSpy = jest.spyOn(Room.prototype, 'playerDisconnect');
+    clientSocket.disconnect();
+
+    setTimeout(() => {
+      expect(roomSpy).toHaveBeenCalledWith("test-player");  
+      done(); 
+    }, 100);  
+  });
 });
 
-// describe("Room and Player management", () => {
-//   test("should find a room by socketId", () => {
-//     const room = findRoom(clientSocket.id);
-//     expect(room).not.toBeNull();
-//   });
+describe("Room and Player management", () => {
+  test("App-find-room-by-socketID", () => {
+    const room = findRoom(clientSocket.id);
+    expect(room).not.toBeNull();
+  });
 
-//   test("should find a player by socketId", () => {
-//     const player = findPlayer(clientSocket.id);
-//     expect(player).not.toBeNull();
-//   });
-//   });
+  test("App-find-player-by-socketID", () => {
+    const player = findPlayer(clientSocket.id);
+    expect(player).not.toBeNull();
+  });
+  test("App-User-uniqueness", () => {
+    let result = checkUserUnique("test-player", "test-room")
+    expect(result).toBe(false)
+    result = checkUserUnique("test-player2", "test-rooom")
+    expect(result).toBe(true)
+  })
+});

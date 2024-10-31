@@ -55,7 +55,6 @@ app.use(
     credentials: true,
   }),
 );
-
 app.get("/redtetris.ico", (req: Request, res: Response) => {
   res.send();
 });
@@ -97,11 +96,9 @@ io.on("connection", (socket) => {
     const player = findPlayer(socket.id);
     if (room && player && player === room.players[0]) {
       if (!room.isPlaying) {
-        socket.emit("gameStarted"); // used for the unit test
+        socket.emit("gameStarted")
         room.leaderStartGame(data.speed);
       }
-      // } else {
-      //   console.error("Something wrong with leader click.");
     }
   });
 
@@ -124,19 +121,23 @@ io.on("connection", (socket) => {
       if (!player.isPlaying) return;
       switch (data.key) {
         case "ArrowLeft":
+          socket.emit("keyboardProcessedLeft") 
           player.Board.moveSide("left");
-          socket.emit("keyboardProcessed"); // for the test
           break;
         case "ArrowRight":
+          socket.emit("keyboardProcessedRight") 
           player.Board.moveSide("right");
           break;
         case "ArrowDown":
+          socket.emit("keyboardProcessedDown") 
           player.Board.changeSpeedMode("fast");
           break;
         case "ArrowUp":
+          socket.emit("keyboardProcessedUp") 
           player.Board.rotatePiece();
           break;
         case " ":
+          socket.emit("keyboardProcessedSpace") 
           player.Board.changeSpeedMode("sprint");
           break;
       }
@@ -163,7 +164,7 @@ export function findPlayer(socketId: string): Player {
   }
   return null;
 }
-function checkUserUnique(playername: string, roomname: string): boolean {
+export function checkUserUnique(playername: string, roomname: string): boolean {
   const myroom = rooms.find((room) => room.roomname === roomname);
   if (myroom) {
     const userExists = myroom.players.some(
@@ -171,7 +172,7 @@ function checkUserUnique(playername: string, roomname: string): boolean {
     );
     if (userExists) {
       console.log(
-        `[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} ${c.RED}already existed.`,
+        `[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} ${c.RED} already existed.`,
         roomname,
         playername,
       );

@@ -14,7 +14,7 @@ import {
 } from "@jest/globals";
 
 // Mocking socket.io for testing
-jest.mock("../classes/../classes/app.js", () => ({
+jest.mock("../app.js", () => ({
   io: {
     to: jest.fn().mockReturnThis(), // Make sure it returns itself for chaining
     emit: jest.fn(), // Mock the emit function
