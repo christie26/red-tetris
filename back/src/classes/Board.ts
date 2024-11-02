@@ -33,10 +33,10 @@ class Board {
   }
 
   startgame(): void {
-    if (!this.currentPiece || !this.currentPiece.tiles) {
-      console.error("Current piece is invalid");
-      return;
-    }
+    // if (!this.currentPiece || !this.currentPiece.tiles) {
+    //   console.error("Current piece is invalid");
+    //   return;
+    // }
     if (this.touchOtherPiece(this.currentPiece.tiles)) {
       for (const tile of this.currentPiece.tiles) {
         this.fixedTiles[tile.y][tile.x] = tile.type;
@@ -230,7 +230,7 @@ class Board {
   }
 
   /* render piece */
-  private renderPiece(): void {
+  renderPiece(): void {
     let board = this.fixedTiles.map((row) => [...row]);
     if (this.currentPiece) {
       const drop = this.dropLocation();
@@ -335,7 +335,7 @@ class Board {
       );
     }
   }
-  private isLineFull(y: number): boolean {
+  isLineFull(y: number): boolean {
     if (y > 19 - this.penaltyLine) return false;
     for (let x = 0; x < 10; x++) {
       if (!this.fixedTiles[y][x]) {
@@ -372,17 +372,17 @@ class Board {
     }
     return tiles;
   }
-  private printBoard(board: number[][]): void {
-    // they qsked to test but we dont use it so te remove or comment befor to push
-    for (let row = 15; row <= 19; row++) {
-      let rowString = "";
-      for (let col = 0; col < this.width; col++) {
-        rowString += board[row][col] > 0 ? "x" : ".";
-      }
-      console.log(rowString);
-    }
-    console.log("----");
-  }
+  // private printBoard(board: number[][]): void {
+  //   // they qsked to test but we dont use it so te remove or comment befor to push
+  //   for (let row = 15; row <= 19; row++) {
+  //     let rowString = "";
+  //     for (let col = 0; col < this.width; col++) {
+  //       rowString += board[row][col] > 0 ? "x" : ".";
+  //     }
+  //     console.log(rowString);
+  //   }
+  //   console.log("----");
+  // }
 }
 
 export default Board;

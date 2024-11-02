@@ -216,22 +216,31 @@ describe("Board", () => {
   });
 
   test('Board-changes-speed-level', () => {
+    const routineSpy = jest.spyOn(board, 'routine');
     board.changeSpeedLevel(2);
 
     expect(board.speedLevel).toBe(2);
+    jest.advanceTimersByTime(250);
+
+    expect(routineSpy).toHaveBeenCalled();
+
+    routineSpy.mockRestore();
   });
 
   test('Board-clear-Lines-And-Send-Penalty', () => {
     const mockPiece = generateMockPiece(0, 0, 0);
     (Piece as jest.Mock).mockImplementation(() => mockPiece);
+    const roomSpy = jest.spyOn(Room.prototype, 'sendPenalty')
 
-    board.fixedTiles[1] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
-    board.fixedTiles[2] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
-    board.unpaidPenalties = 2;
+    for (let stop = 0; stop < 4; stop++) {
+      board.fixedTiles[stop] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+    }
+    board.unpaidPenalties = 3;
 
     board.clearLinesAndSendPenalty();
     
     expect(board.fixedTiles[19].every(x => x === 0)).toBe(true); 
+    expect(roomSpy).toHaveBeenCalled()
   });
 
   test('Board-Freez-Board', () => {
@@ -243,11 +252,17 @@ describe("Board", () => {
 
   test('Board-changes-speed-mode-sprint', () => {
     const setIntervalSpy = jest.spyOn(global, 'setInterval');
+    const routineSpy = jest.spyOn(board, 'routine');
 
     board.changeSpeedMode("sprint");
 
     expect(setIntervalSpy).toHaveBeenCalledWith(expect.any(Function), 5);
     setIntervalSpy.mockRestore();
+    jest.advanceTimersByTime(250);
+
+    expect(routineSpy).toHaveBeenCalled();
+
+    routineSpy.mockRestore();
   });
 
   test('Board-changes-speed-mode-fast', () => {
@@ -270,11 +285,22 @@ describe("Board", () => {
 
 
   test('Board-endGame-newPiece-touchOtherPiece', () => {
-    const currPiece = board.nextPiece
+    const playerSpy = jest.spyOn(Player.prototype, 'gameover')
+    for (let stop = 0; stop < 18; stop++) {
+      board.fixedTiles[stop] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+    }
+
+    board.newPiece()
+    expect(playerSpy).toHaveBeenCalled()
+  })
+
+  test('Board-newPiece-renderPiece', () => {
+    const boardSpy = jest.spyOn(Board.prototype, 'renderPiece')
 
     board.newPiece()
 
-    // line 67-71
+    expect(boardSpy).toHaveBeenCalled()
+
   })
 
   test('Board-rotate Piece-with-no-freeplace', () => {
@@ -288,7 +314,6 @@ describe("Board", () => {
     expect(res).toBe(null)
   })
 
-  
   test('Board-recievePenalty', () => {
     const line = 4
     board.recievePenalty(line)
@@ -329,16 +354,23 @@ describe("Board", () => {
   })
 
   test('Board-applyPenalty', () => {
+    const playerSpy = jest.spyOn(Player.prototype, 'gameover')
+  
+    for (let stop = 0; stop < 16; stop++) {
+      board.fixedTiles[stop] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+    }
 
-    board.unpaidPenalties = 4
-
+    board.recievePenalty(4)
     board.applyPenalty()
 
-    //expect().toBe()
-    // line 254-279
+    expect(playerSpy).toHaveBeenCalled()
   })
-
-  test('Board-fixPieceIfTouch', () => {
-    // line 282-294
+  test('Board-line-is-not-full', () => {
+    for (let stop = 0; stop < 5; stop++) {
+      board.fixedTiles[stop] = [1, 1, 1, 1, 1, 1, 1, 0, 0, 1];
+    }
+    board.penaltyLine = 4
+    const result = board.isLineFull(5)
+    expect(result).toBe(false)
   })
 });
