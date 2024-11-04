@@ -19,7 +19,8 @@ The goal of this project is to develop a multiplayer tetris game on the network 
 
 **Long Playing Video**
 
-https://github.com/user-attachments/assets/885245dd-fdfa-47c4-accc-89d6e04b75a4
+https://github.com/user-attachments/assets/adcea9bd-e5ba-4f23-a75d-7028b7010e98
+
 
 
 
