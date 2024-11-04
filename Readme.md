@@ -18,7 +18,10 @@ The goal of this project is to develop a multiplayer tetris game on the network 
 ![gameover   disconnect](https://github.com/user-attachments/assets/34abf76e-b0d6-40bf-90c9-e178c3889ef5)
 
 **Long Playing Video**
-https://github.com/user-attachments/assets/9c693beb-2bd3-4227-b132-8f733bd38c3b
+
+https://github.com/user-attachments/assets/885245dd-fdfa-47c4-accc-89d6e04b75a4
+
+
 
 
 ## Dependencies 🛠️
