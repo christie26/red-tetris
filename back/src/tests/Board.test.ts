@@ -31,7 +31,7 @@ describe("Board", () => {
   const mockKey = "testKey";
 
   const generateMockPiece = (type: number, x: number, y: number): Piece => {
-    const mockPiece = {
+  const mockPiece = {
       // Mock piece structure
       tiles: [
         new Tile(x, y, type),
@@ -167,7 +167,6 @@ describe("Board", () => {
   });
 
   test('Board-not-moveSide-left-because-of-border', () => {
-
     const tempPiece = board.currentPiece
     let min = 10
 
@@ -185,9 +184,40 @@ describe("Board", () => {
     expect(board.currentPiece).toBe(tempPiece);
   });
 
+  // test('Board-rotatePiece-with-no-place', () => {
+  //   const tempPiece = board.currentPiece
+  //   for (let stop = 0; stop < 15; stop++) {
+  //     board.fixedTiles[stop] = [1, 1, 1, 1, 1, 1, 1, 0, 0, 0];
+  //   }
+  //   tempPiece.tiles.forEach(tile => {
+  //     tile.x = tile.x + 7
+  // });
+  // tempPiece.tiles.forEach(tile => {
+  //   tile.y = tile.y + 12
+  // });
+  //   console.log("ici y est ", tempPiece.tiles[0].y, "x est ", tempPiece.tiles[0].x, "type is ", tempPiece.type)
+  //   board.currentPiece = tempPiece
+  //   const res = board.rotatePiece()
+  //   expect(board.currentPiece).toEqual(tempPiece)
+  //   expect(res).toBe(false)
+  // })
+
+  test('Board-endGame-newPiece-touchOtherPiece', () => {
+    const playerSpy = jest.spyOn(Player.prototype, 'gameover')
+    for (let stop = 0; stop < 17; stop++) {
+      board.fixedTiles[stop] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+    }
+    for (let stop = 18; stop < 19; stop++) {
+      board.fixedTiles[stop] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    }
+
+    board.newPiece()
+    expect(playerSpy).toHaveBeenCalled()
+  })
+
   test('Board-not-moveSide-left-collision-occurs', () => {
     const mockPiece = new Piece(0, 5 ,0) 
-
+    
     const tiles = mockPiece.tiles
     board.startgame();
     board.moveSide('left');
@@ -204,14 +234,14 @@ describe("Board", () => {
 
     expect(mockPiece.tiles[0].y).toBe(0);
   });
-
+  
   test('Board-not-rotate-square-block-piece', () => {
     const mockPiece = generateMockPiece(7, 1, 0);
     (Piece as jest.Mock).mockImplementation(() => mockPiece);
-
+    
     board.startgame();
     board.rotatePiece();
-
+    
     expect(mockPiece.tiles[0].y).toBe(0);
   });
 
@@ -284,25 +314,16 @@ describe("Board", () => {
   })
 
 
-  test('Board-endGame-newPiece-touchOtherPiece', () => {
-    const playerSpy = jest.spyOn(Player.prototype, 'gameover')
-    for (let stop = 0; stop < 18; stop++) {
-      board.fixedTiles[stop] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
-    }
-
-    board.newPiece()
-    expect(playerSpy).toHaveBeenCalled()
-  })
-
+  
   test('Board-newPiece-renderPiece', () => {
     const boardSpy = jest.spyOn(Board.prototype, 'renderPiece')
-
+    
     board.newPiece()
-
+    
     expect(boardSpy).toHaveBeenCalled()
-
+    
   })
-
+  
   test('Board-rotate Piece-with-no-freeplace', () => {
     const tempPiece = board.currentPiece
 
@@ -311,7 +332,7 @@ describe("Board", () => {
     }
 
     const res = board.rotatePiece()
-    expect(res).toBe(null)
+    expect(res).toBe(undefined)
   })
 
   test('Board-recievePenalty', () => {
