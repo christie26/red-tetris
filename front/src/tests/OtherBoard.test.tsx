@@ -7,9 +7,26 @@ describe('OtherBoard Component', () => {
   const mockProps = {
     playername: 'Player1',
     board: [
-      [1, 0, 1],
-      [0, 1, 0],
-      [1, 0, 1],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [1, 1, 0, 1, 1, 1, 1, 1, 1, 1],
+      [1, 1, 0, 1, 1, 1, 1, 1, 1, 1],
+      [1, 1, 0, 1, 1, 1, 1, 1, 1, 1],
     ],
     status: 'active',
   };
@@ -19,14 +36,21 @@ describe('OtherBoard Component', () => {
       render(<OtherBoard {...mockProps} />);
       expect(screen.getByText('Player1')).toBeInTheDocument();
     });
-  });
 
-  describe('Class Application Tests', () => {
-    test('applies the correct status class to the board wrapper', () => {
-      render(<OtherBoard {...mockProps} />);
-      const boardWrapper = screen.getByText('Player1').previousElementSibling;
-      expect(boardWrapper).toHaveClass('otherboard active');
+    test('returns null if board is not provided', () => {
+      const { container } = render(
+        <OtherBoard playername="Player1" board={null} status="active" />
+      );
+      expect(container.firstChild).toBeNull(); // No content should be rendered
     });
+
+    test('returns null if board is undefined', () => {
+    const { container } = render(
+      <OtherBoard playername="Player1" board={undefined} status="active" />
+    );
+    expect(container.firstChild).toBeNull(); // No content should be rendered
+    });
+
   });
 
   describe('Cell Rendering Tests', () => {

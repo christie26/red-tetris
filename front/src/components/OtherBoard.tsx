@@ -3,7 +3,7 @@ import "../styles/tile.css";
 
 interface OtherBoardProps {
   playername: string;
-  board: number[][];
+  board: number[][] | null | undefined;
   status: string;
 }
 const OtherBoard: React.FC<OtherBoardProps> = ({
