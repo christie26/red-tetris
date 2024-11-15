@@ -1,0 +1,1 @@
+import OtherBoardsContainer from "../components/OtherBoardsContainer";

@@ -1,0 +1,1 @@
+import Tetris from "../Tetris";

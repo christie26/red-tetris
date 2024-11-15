@@ -1,0 +1,1 @@
+import ResultBox from "../components/ResultBox";

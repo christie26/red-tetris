@@ -1,0 +1,1 @@
+import ScoreBoard from "../components/ScoreBoard";

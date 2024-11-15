@@ -1,0 +1,1 @@
+import { Myboard } from "../components/MyBoard";
