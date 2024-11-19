@@ -184,23 +184,6 @@ describe("Board", () => {
     expect(board.currentPiece).toBe(tempPiece);
   });
 
-  // test('Board-rotatePiece-with-no-place', () => {
-  //   const tempPiece = board.currentPiece
-  //   for (let stop = 0; stop < 15; stop++) {
-  //     board.fixedTiles[stop] = [1, 1, 1, 1, 1, 1, 1, 0, 0, 0];
-  //   }
-  //   tempPiece.tiles.forEach(tile => {
-  //     tile.x = tile.x + 7
-  // });
-  // tempPiece.tiles.forEach(tile => {
-  //   tile.y = tile.y + 12
-  // });
-  //   console.log("ici y est ", tempPiece.tiles[0].y, "x est ", tempPiece.tiles[0].x, "type is ", tempPiece.type)
-  //   board.currentPiece = tempPiece
-  //   const res = board.rotatePiece()
-  //   expect(board.currentPiece).toEqual(tempPiece)
-  //   expect(res).toBe(false)
-  // })
 
   test('Board-endGame-newPiece-touchOtherPiece', () => {
     const playerSpy = jest.spyOn(Player.prototype, 'gameover')
@@ -386,6 +369,20 @@ describe("Board", () => {
 
     expect(playerSpy).toHaveBeenCalled()
   })
+
+  test('Board-applyPenalty-distance-Equal-to-line', () => {
+    const boardSpy = jest.spyOn(Board.prototype, 'fixPieceToBoard')
+  
+    for (let stop = 0; stop < 10; stop++) {
+      board.fixedTiles[stop] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+    }
+
+    board.recievePenalty(4)
+    board.applyPenalty()
+
+    expect(boardSpy).toHaveBeenCalled()
+  })
+
   test('Board-line-is-not-full', () => {
     for (let stop = 0; stop < 5; stop++) {
       board.fixedTiles[stop] = [1, 1, 1, 1, 1, 1, 1, 0, 0, 1];
