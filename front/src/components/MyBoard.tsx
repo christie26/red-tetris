@@ -3,7 +3,11 @@ import { getTypeString } from "./functions";
 import "../styles/tile.css";
 import "../styles/MyBoard.css";
 
-const Myboard = forwardRef((_, ref) => {
+export interface MyboardRef {
+  updateBoard: (newBoard: number[][]) => void;
+}
+
+const Myboard = forwardRef<MyboardRef>((_, ref) => {
   const [board, setBoard] = useState<number[][]>(
     Array.from({ length: 20 }, () => Array(10).fill(0)),
   );

@@ -1,7 +1,6 @@
 import ResultBox from "../components/ResultBox";
 import React from "react";
 import { render, screen } from "@testing-library/react";
-import "@testing-library/jest-dom";
 
 describe("ResultBox Component", () => {
   test("renders waiting message when status is 'waiting'", () => {

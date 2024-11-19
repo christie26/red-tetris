@@ -1,7 +1,6 @@
 import InfoBox from "../components/InfoBox";
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
-import '@testing-library/jest-dom';
 
 describe("InfoBox", () => {
   const mockSetSpeed = jest.fn();
