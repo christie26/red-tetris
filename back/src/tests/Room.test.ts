@@ -283,8 +283,8 @@ describe("Room Class Unit Test - playerDisconnect", () => {
     room.playerDisconnect("player1");
     // TODO - check it again! check if it doesn't crash the server
     expect(setNewLeaderSpy).toHaveBeenCalled();
-    expect(room.players[0].playername).toBe("player2");
-    expect(room.players[0].isLeader).toBe(true);
+    expect(room.waiters[0].playername).toBe("player2");
+    expect(room.waiters[0].isLeader).toBe(true);
   });
 });
 
