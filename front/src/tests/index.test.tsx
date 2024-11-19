@@ -27,7 +27,7 @@ describe('index.tsx', () => {
     mockRoot.setAttribute('id', 'root');
     document.body.appendChild(mockRoot);
 
-    require('./index');
+    require('../index');
 
     expect(ReactDOM.createRoot).toHaveBeenCalledWith(
       document.getElementById('root'),
@@ -43,7 +43,7 @@ describe('index.tsx', () => {
   test('does not throw if root element is missing', () => {
     document.body.innerHTML = '';
 
-    require('./index');
+    require('../index');
 
     expect(ReactDOM.createRoot).not.toHaveBeenCalled();
   });
