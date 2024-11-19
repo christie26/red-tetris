@@ -40,6 +40,7 @@ const OtherBoardsContainer = forwardRef(
       updateBoard,
       updateBoardStatus,
     }));
+    // if (gamestatus === "waiting" || gamestatus === "end-wait" || players.length < 2) have to test the code bc its works like this for tests
     if (
       gamestatus !== "waiting" &&
       gamestatus !== "end-wait" &&
