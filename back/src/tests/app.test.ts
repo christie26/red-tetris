@@ -1,5 +1,5 @@
 import http from "http";
-import { io, findPlayer, findRoom, checkUserUnique } from "../app.js";
+import { io, findPlayer, findRoom, checkUserUnique, isQueryParams } from "../app.js";
 import { app } from "../app.js";
 import { Server } from "socket.io";
 import Client from "socket.io-client";
@@ -143,16 +143,17 @@ describe("Socket.io events", () => {
     clientSocket.emit("keyboard", { type: "down", key: "ArrowRight" });
   });
 
-  //   test("App-Keboard-event-sprint-space", (done) => { //
+  // ici 
+  //   test("App-Keboard-event-sprint-space", (done) => { 
 
   //     const player = findPlayer(clientSocket.id);
   //     player.isPlaying = true
-  //     const changeSpeedModeSpy = jest.spyOn(Board.prototype, 'changeSpeedMode');
+  //     const changeSpeedModeSpy = jest.spyOn(Board.prototype, "changeSpeedMode");
 
-  //   clientSocket.on("keyboardProcessedSpace", () => {
-  //     expect(changeSpeedModeSpy).toHaveBeenCalledWith("sprint");
-  //     done();
-  //   });
+  //     clientSocket.on("keyboardProcessedSpace", () => {
+  //       expect(changeSpeedModeSpy).toHaveBeenCalledWith("sprint");
+  //       done();
+  //     });
 
   //   clientSocket.emit("keyboard", { type: "down", key: " " });
   // });
@@ -161,9 +162,8 @@ describe("Socket.io events", () => {
 
   //     const player = findPlayer(clientSocket.id);
   //     player.isPlaying = true
-  //     const changeSpeedModeSpy = jest.spyOn(Board.prototype, 'changeSpeedMode');
+  //     const changeSpeedModeSpy = jest.spyOn(Board.prototype, "changeSpeedMode");
 
-  //     clientSocket.emit("keyboard", { type: "down", key: "ArrowDown" });
   //     clientSocket.on("keyboardProcessedDown", () => {
   //       expect(changeSpeedModeSpy).toHaveBeenCalledWith("fast");
   //       done();
@@ -171,7 +171,7 @@ describe("Socket.io events", () => {
 
   //     clientSocket.emit("keyboard", { type: "down", key: "ArrowDown" });
   // });
-
+  // to ici 
   test("App-Keboard-event-arrow-up", (done) => {
     const player = findPlayer(clientSocket.id);
     player.isPlaying = true;
@@ -197,6 +197,16 @@ describe("Socket.io events", () => {
 });
 
 describe("Room and Player management", () => {
+  test("App-is-good-Query-param", () => {
+    const query = {
+      room : "test-room",
+      player: "test-player"
+    }
+    const result =  isQueryParams(query)
+
+    expect(result).toBe(true)
+  })
+
   test("App-find-room-by-socketID", () => {
     const room = findRoom(clientSocket.id);
     expect(room).not.toBeNull();

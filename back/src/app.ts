@@ -5,7 +5,7 @@ import Room from "./classes/Room.js";
 import cors from "cors";
 import Player from "./classes/Player.js";
 
-function isQueryParams(query: any): query is QueryParams {
+export function isQueryParams(query: any): query is QueryParams {
   return typeof query.room === "string" && typeof query.player === "string";
 }
 
