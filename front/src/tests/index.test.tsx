@@ -1,10 +1,8 @@
-// index.test.tsx
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from '../App';
 
-// Mock the ReactDOM.createRoot method
 jest.mock('react-dom/client', () => ({
   createRoot: jest.fn(),
 }));
