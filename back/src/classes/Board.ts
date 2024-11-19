@@ -268,21 +268,17 @@ class Board {
     for (let row = top; row <= line; row++) {
       if (this.fixedTiles[row].some((element) => element > 0)) {
         gameover = true;
-      } // check gameover
+      }
     }
     for (let row = top; row + line <= bottom; row++) {
       this.fixedTiles[row] = [...this.fixedTiles[row + line]];
-    } // update line up
+    }
     for (let row = bottom; row > bottom - line; row--) {
       this.fixedTiles[row].forEach((_, colIndex) => {
         this.fixedTiles[row][colIndex] = 20;
-      }); // update board with Penalty
+      });
     }
-    this.Player.Room.updateBoard(
-      this.Player.playername,
-      this.fixedTiles,
-      "fixed",
-    );
+    this.renderPiece();
 
     if (gameover) {
       this.Player.gameover();
@@ -291,7 +287,7 @@ class Board {
   }
   fixPieceIfTouch(line: number): boolean {
     const dropTile = this.dropLocation();
-    const distance = this.currentPiece.tiles[0].y - dropTile[0].y;
+    const distance = dropTile[0].y - this.currentPiece.tiles[0].y;
     if (line < distance) return false;
     else if (line === distance) {
       this.fixPieceToBoard();
