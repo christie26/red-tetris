@@ -121,23 +121,18 @@ io.on("connection", (socket) => {
       if (!player.isPlaying) return;
       switch (data.key) {
         case "ArrowLeft":
-          socket.emit("keyboardProcessedLeft");
           player.Board.moveSide("left");
           break;
         case "ArrowRight":
-          socket.emit("keyboardProcessedRight");
           player.Board.moveSide("right");
           break;
         case "ArrowDown":
-          socket.emit("keyboardProcessedDown");
           player.Board.changeSpeedMode("fast");
           break;
         case "ArrowUp":
-          socket.emit("keyboardProcessedUp");
           player.Board.rotatePiece();
           break;
         case " ":
-          socket.emit("keyboardProcessedSpace");
           player.Board.changeSpeedMode("sprint");
           break;
       }

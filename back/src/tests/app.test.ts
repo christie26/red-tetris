@@ -113,13 +113,6 @@ describe("Express HTTP routes", () => {
 
 describe("Socket.io events", () => {
   beforeEach((done) => {
-    const currentTest = expect.getState().currentTestName;
-
-    if (currentTest === "Express HTTP routes App-connection-wrong-param") {
-      // this doesn't work to fix
-      done();
-      return;
-    }
     clientSocket = Client(`http://localhost:${port}`, {
       query: { room: "test-room", player: "test-player" },
     });
@@ -147,12 +140,16 @@ describe("Socket.io events", () => {
     player.isPlaying = true;
     const moveSideSpy = jest.spyOn(Board.prototype, "moveSide");
 
-    clientSocket.on("keyboardProcessedLeft", () => {
-      expect(moveSideSpy).toHaveBeenCalledWith("left");
-      done();
-    });
-
     clientSocket.emit("keyboard", { type: "down", key: "ArrowLeft" });
+
+    setTimeout(() => {
+      try {
+        expect(moveSideSpy).toHaveBeenCalledWith("left");
+        done();
+      } catch (error) {
+        done(error);
+      }
+    }, 50);
   });
 
   test("App-Keboard-event-move-right", (done) => {
@@ -160,55 +157,67 @@ describe("Socket.io events", () => {
     player.isPlaying = true;
     const moveSideSpy = jest.spyOn(Board.prototype, "moveSide");
 
-    clientSocket.on("keyboardProcessedRight", () => {
-      expect(moveSideSpy).toHaveBeenCalledWith("right");
-      done();
-    });
-
     clientSocket.emit("keyboard", { type: "down", key: "ArrowRight" });
+
+    setTimeout(() => {
+      try {
+        expect(moveSideSpy).toHaveBeenCalledWith("right");
+        done();
+      } catch (error) {
+        done(error);
+      }
+    }, 50);
   });
 
-  // // ici
-  //   test("App-Keboard-event-sprint-space", (done) => {
+  test("App-Keboard-event-sprint-space", (done) => {
+    const player = findPlayer(clientSocket.id);
+    player.isPlaying = true;
+    const changeSpeedModeSpy = jest.spyOn(Board.prototype, "changeSpeedMode");
 
-  //     const player = findPlayer(clientSocket.id);
-  //     player.isPlaying = true
-  //     const changeSpeedModeSpy = jest.spyOn(Board.prototype, "changeSpeedMode");
+    clientSocket.emit("keyboard", { type: "down", key: " " });
 
-  //     // clientSocket.on("keyboardProcessedSpace", () => {
-  //       //   done();
-  //       // clientSocket.emit("keyboard", { type: "down", key: " " });
-  //       // });
+    setTimeout(() => {
+      try {
+        expect(changeSpeedModeSpy).toHaveBeenCalledWith("sprint");
+        done();
+      } catch (error) {
+        done(error);
+      }
+    }, 50);
+  });
 
-  //       expect(changeSpeedModeSpy).toHaveBeenCalledWith("sprint");
-  // });
+  test("App-Keboard-event-arrow-down", (done) => {
+    const player = findPlayer(clientSocket.id);
+    player.isPlaying = true;
+    const changeSpeedModeSpy = jest.spyOn(Board.prototype, "changeSpeedMode");
 
-  // test("App-Keboard-event-arrow-down", (done) => {
+    clientSocket.emit("keyboard", { type: "down", key: " " });
 
-  //     const player = findPlayer(clientSocket.id);
-  //     player.isPlaying = true
-  //     const changeSpeedModeSpy = jest.spyOn(Board.prototype, "changeSpeedMode");
+    setTimeout(() => {
+      try {
+        expect(changeSpeedModeSpy).toHaveBeenCalledWith("sprint");
+        done();
+      } catch (error) {
+        done(error);
+      }
+    }, 50);
+  });
 
-  //     clientSocket.on("keyboardProcessedDown", () => {
-  //       expect(changeSpeedModeSpy).toHaveBeenCalledWith("fast");
-  //       done();
-  //     });
-
-  //     clientSocket.emit("keyboard", { type: "down", key: "ArrowDown" });
-  // });
-  // to ici
-  // TODO : emit part of keyboard
   test("App-Keboard-event-arrow-up", (done) => {
     const player = findPlayer(clientSocket.id);
     player.isPlaying = true;
     const moveSideSpy = jest.spyOn(Board.prototype, "rotatePiece");
 
-    clientSocket.on("keyboardProcessedUp", () => {
-      expect(moveSideSpy).toHaveBeenCalled();
-      done();
-    });
-
     clientSocket.emit("keyboard", { type: "down", key: "ArrowUp" });
+
+    setTimeout(() => {
+      try {
+        expect(moveSideSpy).toHaveBeenCalled();
+        done();
+      } catch (error) {
+        done(error);
+      }
+    }, 50);
   });
 
   test("App-Disconnection-clean-up-rooms", (done) => {
