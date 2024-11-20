@@ -5,7 +5,7 @@ import React from "react";
 
 test("renders Tetris components with a valid link", async () => {
   render(
-    <MemoryRouter initialEntries={['/room/1/playerA']}> {/* Simulating URL */}
+    <MemoryRouter initialEntries={['/room/1/playerA']}>
       <App />
     </MemoryRouter>
   );
