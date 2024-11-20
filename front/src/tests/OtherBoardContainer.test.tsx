@@ -13,24 +13,9 @@ interface OtherBoardsContainerHandles {
     updateBoardStatus: (newStatus: string, playername: string) => void;
 }
 
-describe("OtherBoardsContainer", () => {
+describe("OtherBoardsContaine 3 players", () => {
   const players = ["player1", "player2", "player3"];
   const myname = "player1";
-
-  it("should not render when the gamestatus is 'waiting' or 'end-wait'", () => {
-    const invalidStatus = ["waiting", "end-wait"];
-
-    invalidStatus.forEach((status) => {
-      const { queryByText } = render(
-        <OtherBoardsContainer
-          players={players}
-          myname={myname}
-          gamestatus={status}
-        />
-      );
-      expect(queryByText("OtherBoard")).toBeNull();
-    });
-  });
 
   it("should render OtherBoards for players excluding the current player", () => {
     const gamestatus = "ready";
@@ -148,3 +133,24 @@ describe("OtherBoardsContainer", () => {
     expect(newBoard).toEqual(expectedBoard);
   });
 });
+
+describe("OtherBoardsContainer 1 player", () => {
+  const players = ["player1"];
+  const myname = "player1";
+
+  it("should not render when the gamestatus is 'playing' or 'end-play'", () => {
+    const invalidStatus = ["playing", "end-play"];
+    
+    invalidStatus.forEach((status) => {
+      const { queryByText } = render(
+        <OtherBoardsContainer
+          players={players}
+          myname={myname}
+          gamestatus={status}
+        />
+      );
+      expect(queryByText("OtherBoard")).toBeNull();
+    });
+  });
+
+})

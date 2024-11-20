@@ -43,28 +43,31 @@ afterAll((done) => {
   });
 });
 
-beforeEach((done) => {
-  const currentTest = expect.getState().currentTestName;
 
-  if (currentTest === "Express HTTP routes App-connection-wrong-param") {
-    // this doesn't work to fix
-    done();
-    return;
-  }
-  clientSocket = Client(`http://localhost:${port}`, {
-    query: { room: "test-room", player: "test-player" },
-  });
-  clientSocket.on("connect", done);
-});
 
-afterEach(() => {
-  if (clientSocket && clientSocket.connected) {
-    clientSocket.disconnect();
-    clientSocket.close();
-  }
-});
 
 describe("Express HTTP routes", () => {
+  beforeEach((done) => {
+    const currentTest = expect.getState().currentTestName;
+  
+    if (currentTest === "Express HTTP routes App-connection-wrong-param") {
+      // this doesn't work to fix
+      done();
+      return;
+    }
+    clientSocket = Client(`http://localhost:${port}`, {
+      query: { room: "test-room", player: "test-player" },
+    });
+    clientSocket.on("connect", done);
+  });
+  
+  afterEach(() => {
+    if (clientSocket && clientSocket.connected) {
+      clientSocket.disconnect();
+      clientSocket.close();
+    }
+  });
+
   test("App-connection-wrong-path-status-404", async () => {
     const res = await fetch(`http://localhost:${port}/`);
     expect(res.status).toBe(404);
@@ -106,6 +109,25 @@ describe("Express HTTP routes", () => {
 });
 
 describe("Socket.io events", () => {
+  beforeEach((done) => {
+    const currentTest = expect.getState().currentTestName;
+  
+    if (currentTest === "Express HTTP routes App-connection-wrong-param") {
+      // this doesn't work to fix
+      done();
+      return;
+    }
+    clientSocket = Client(`http://localhost:${port}`, {
+      query: { room: "test-room", player: "test-player" },
+    });
+    clientSocket.on("connect", done);
+  });
+  afterEach(() => {
+    if (clientSocket && clientSocket.connected) {
+      clientSocket.disconnect();
+      clientSocket.close();
+    }
+  });
   test("App-leaderClick-event-leaderStartGame", (done) => {
     const roomSpy = jest.spyOn(Room.prototype, "leaderStartGame");
 
@@ -143,19 +165,19 @@ describe("Socket.io events", () => {
     clientSocket.emit("keyboard", { type: "down", key: "ArrowRight" });
   });
 
-  // ici 
+  // // ici 
   //   test("App-Keboard-event-sprint-space", (done) => { 
 
   //     const player = findPlayer(clientSocket.id);
   //     player.isPlaying = true
   //     const changeSpeedModeSpy = jest.spyOn(Board.prototype, "changeSpeedMode");
 
-  //     clientSocket.on("keyboardProcessedSpace", () => {
+  //     // clientSocket.on("keyboardProcessedSpace", () => {
+  //       //   done();
+  //       // clientSocket.emit("keyboard", { type: "down", key: " " });
+  //       // });
+        
   //       expect(changeSpeedModeSpy).toHaveBeenCalledWith("sprint");
-  //       done();
-  //     });
-
-  //   clientSocket.emit("keyboard", { type: "down", key: " " });
   // });
 
   // test("App-Keboard-event-arrow-down", (done) => {
@@ -197,6 +219,19 @@ describe("Socket.io events", () => {
 });
 
 describe("Room and Player management", () => {
+  beforeEach((done) => {
+  
+    clientSocket = Client(`http://localhost:${port}`, {
+      query: { room: "test-room", player: "test-player" },
+    });
+    clientSocket.on("connect", done);
+  });
+  afterEach(() => {
+    if (clientSocket && clientSocket.connected) {
+      clientSocket.disconnect();
+      clientSocket.close();
+    }
+  });
   test("App-is-good-Query-param", () => {
     const query = {
       room : "test-room",
@@ -216,6 +251,7 @@ describe("Room and Player management", () => {
     const player = findPlayer(clientSocket.id);
     expect(player).not.toBeNull();
   });
+  
   test("App-User-uniqueness", () => {
     let result = checkUserUnique("test-player", "test-room");
     expect(result).toBe(false);
