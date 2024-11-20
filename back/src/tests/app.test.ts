@@ -1,5 +1,11 @@
 import http from "http";
-import { io, findPlayer, findRoom, checkUserUnique, isQueryParams } from "../app.js";
+import {
+  io,
+  findPlayer,
+  findRoom,
+  checkUserUnique,
+  isQueryParams,
+} from "../app.js";
 import { app } from "../app.js";
 import { Server } from "socket.io";
 import Client from "socket.io-client";
@@ -43,13 +49,10 @@ afterAll((done) => {
   });
 });
 
-
-
-
 describe("Express HTTP routes", () => {
   beforeEach((done) => {
     const currentTest = expect.getState().currentTestName;
-  
+
     if (currentTest === "Express HTTP routes App-connection-wrong-param") {
       // this doesn't work to fix
       done();
@@ -60,7 +63,7 @@ describe("Express HTTP routes", () => {
     });
     clientSocket.on("connect", done);
   });
-  
+
   afterEach(() => {
     if (clientSocket && clientSocket.connected) {
       clientSocket.disconnect();
@@ -111,7 +114,7 @@ describe("Express HTTP routes", () => {
 describe("Socket.io events", () => {
   beforeEach((done) => {
     const currentTest = expect.getState().currentTestName;
-  
+
     if (currentTest === "Express HTTP routes App-connection-wrong-param") {
       // this doesn't work to fix
       done();
@@ -165,8 +168,8 @@ describe("Socket.io events", () => {
     clientSocket.emit("keyboard", { type: "down", key: "ArrowRight" });
   });
 
-  // // ici 
-  //   test("App-Keboard-event-sprint-space", (done) => { 
+  // // ici
+  //   test("App-Keboard-event-sprint-space", (done) => {
 
   //     const player = findPlayer(clientSocket.id);
   //     player.isPlaying = true
@@ -176,7 +179,7 @@ describe("Socket.io events", () => {
   //       //   done();
   //       // clientSocket.emit("keyboard", { type: "down", key: " " });
   //       // });
-        
+
   //       expect(changeSpeedModeSpy).toHaveBeenCalledWith("sprint");
   // });
 
@@ -193,7 +196,7 @@ describe("Socket.io events", () => {
 
   //     clientSocket.emit("keyboard", { type: "down", key: "ArrowDown" });
   // });
-  // to ici 
+  // to ici
   // TODO : emit part of keyboard
   test("App-Keboard-event-arrow-up", (done) => {
     const player = findPlayer(clientSocket.id);
@@ -221,7 +224,6 @@ describe("Socket.io events", () => {
 
 describe("Room and Player management", () => {
   beforeEach((done) => {
-  
     clientSocket = Client(`http://localhost:${port}`, {
       query: { room: "test-room", player: "test-player" },
     });
@@ -235,13 +237,13 @@ describe("Room and Player management", () => {
   });
   test("App-is-good-Query-param", () => {
     const query = {
-      room : "test-room",
-      player: "test-player"
-    }
-    const result =  isQueryParams(query)
+      room: "test-room",
+      player: "test-player",
+    };
+    const result = isQueryParams(query);
 
-    expect(result).toBe(true)
-  })
+    expect(result).toBe(true);
+  });
 
   test("App-find-room-by-socketID", () => {
     const room = findRoom(clientSocket.id);
@@ -252,7 +254,7 @@ describe("Room and Player management", () => {
     const player = findPlayer(clientSocket.id);
     expect(player).not.toBeNull();
   });
-  
+
   test("App-User-uniqueness", () => {
     let result = checkUserUnique("test-player", "test-room");
     expect(result).toBe(false);
