@@ -289,7 +289,7 @@ class Board {
     const dropTile = this.dropLocation();
     const distance = dropTile[0].y - this.currentPiece.tiles[0].y;
     if (line < distance) return false;
-    else if (line === distance) {
+    else if (line == distance) {
       this.fixPieceToBoard();
       return true;
     } else {

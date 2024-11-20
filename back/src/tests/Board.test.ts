@@ -363,17 +363,18 @@ describe("Board", () => {
   });
 
   test("Board-applyPenalty-distance-Equal-to-line", () => {
-    const boardSpy = jest.spyOn(Board.prototype, "fixPieceToBoard");
+    const fixPieceIfTouchSpy = jest.spyOn(Board.prototype, "fixPieceIfTouch");
+    const fixPieceToBoardSpy = jest.spyOn(Board.prototype, "fixPieceToBoard");
 
-    for (let stop = 0; stop < 10; stop++) {
+    for (let stop = 10; stop < 19; stop++) {
       board.fixedTiles[stop] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
     }
 
-    board.recievePenalty(4);
+    board.recievePenalty(8);
     board.applyPenalty();
 
-    expect(boardSpy).toHaveBeenCalled();
-    // TODO : check skip = true
+    expect(fixPieceIfTouchSpy).toHaveBeenCalled();
+    expect(fixPieceToBoardSpy).toHaveBeenCalled();
   });
 
   test("Board-line-is-not-full", () => {
