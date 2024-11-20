@@ -349,7 +349,7 @@ describe("Board", () => {
     expect(board.fixedTiles).toEqual(fixedTiles);
   });
 
-  test("Board-applyPenalty", () => {
+  test("Board-applyPenalty-gameover", () => {
     const playerSpy = jest.spyOn(Player.prototype, "gameover");
 
     for (let stop = 0; stop < 16; stop++) {
@@ -365,7 +365,10 @@ describe("Board", () => {
   test("Board-applyPenalty-distance-Equal-to-line", () => {
     const fixPieceIfTouchSpy = jest.spyOn(Board.prototype, "fixPieceIfTouch");
     const fixPieceToBoardSpy = jest.spyOn(Board.prototype, "fixPieceToBoard");
-
+    // console.log(board.currentPiece);
+    for (let stop = 0; stop < 10; stop++) {
+      board.fixedTiles[stop] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    }
     for (let stop = 10; stop < 19; stop++) {
       board.fixedTiles[stop] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
     }
@@ -376,6 +379,20 @@ describe("Board", () => {
     expect(fixPieceIfTouchSpy).toHaveBeenCalled();
     expect(fixPieceToBoardSpy).toHaveBeenCalled();
   });
+  // test("Board-applyPenalty-distance-smaller-than-line", () => {
+  //   const fixPieceIfTouchSpy = jest.spyOn(Board.prototype, "fixPieceIfTouch");
+  //   const fixPieceToBoardSpy = jest.spyOn(Board.prototype, "fixPieceToBoard");
+
+  //   for (let stop = 10; stop < 19; stop++) {
+  //     board.fixedTiles[stop] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+  //   }
+
+  //   board.recievePenalty(8);
+  //   board.applyPenalty();
+
+  //   expect(fixPieceIfTouchSpy).toHaveBeenCalled();
+  //   expect(fixPieceToBoardSpy).toHaveBeenCalled();
+  // });
 
   test("Board-line-is-not-full", () => {
     for (let stop = 0; stop < 5; stop++) {
