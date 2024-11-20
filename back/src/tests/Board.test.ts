@@ -108,6 +108,24 @@ describe("Board", () => {
     expect(board.currentPiece).toBeDefined();
   });
 
+  test("Board-applyPenalty-distance-smaller-than-line", () => {
+    const fixPieceIfTouchSpy = jest.spyOn(Board.prototype, "fixPieceIfTouch");
+    const fixPieceToBoardSpy = jest.spyOn(Board.prototype, "fixPieceToBoard");
+
+  for (let stop = 0; stop < 10; stop++) {
+    board.fixedTiles[stop] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    }
+      for (let stop = 10; stop < 19; stop++) {
+        board.fixedTiles[stop] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+      }
+
+    board.recievePenalty(8);
+    board.applyPenalty();
+
+    expect(fixPieceIfTouchSpy).toHaveBeenCalled();
+    expect(fixPieceToBoardSpy).toHaveBeenCalled();
+  });
+
   test("Board-start-game-valid-currentPiece", () => {
     const mockPiece = generateMockPiece(0, 0, 0);
     (Piece as jest.Mock).mockImplementation(() => mockPiece);
@@ -379,20 +397,7 @@ describe("Board", () => {
     expect(fixPieceIfTouchSpy).toHaveBeenCalled();
     expect(fixPieceToBoardSpy).toHaveBeenCalled();
   });
-  // test("Board-applyPenalty-distance-smaller-than-line", () => {
-  //   const fixPieceIfTouchSpy = jest.spyOn(Board.prototype, "fixPieceIfTouch");
-  //   const fixPieceToBoardSpy = jest.spyOn(Board.prototype, "fixPieceToBoard");
-
-  //   for (let stop = 10; stop < 19; stop++) {
-  //     board.fixedTiles[stop] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
-  //   }
-
-  //   board.recievePenalty(8);
-  //   board.applyPenalty();
-
-  //   expect(fixPieceIfTouchSpy).toHaveBeenCalled();
-  //   expect(fixPieceToBoardSpy).toHaveBeenCalled();
-  // });
+  
 
   test("Board-line-is-not-full", () => {
     for (let stop = 0; stop < 5; stop++) {
