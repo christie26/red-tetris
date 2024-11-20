@@ -194,6 +194,7 @@ describe("Socket.io events", () => {
   //     clientSocket.emit("keyboard", { type: "down", key: "ArrowDown" });
   // });
   // to ici 
+  // TODO : emit part of keyboard
   test("App-Keboard-event-arrow-up", (done) => {
     const player = findPlayer(clientSocket.id);
     player.isPlaying = true;

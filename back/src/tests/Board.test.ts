@@ -381,6 +381,7 @@ describe("Board", () => {
     board.applyPenalty()
 
     expect(boardSpy).toHaveBeenCalled()
+    // TODO : check skip = true 
   })
 
   test('Board-line-is-not-full', () => {
