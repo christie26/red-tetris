@@ -8,12 +8,11 @@ import {
   fireEvent,
   act,
 } from "@testing-library/react";
-import React from "react";
+import React, { Dispatch } from "react";
 import { io, Socket } from "socket.io-client";
 import { useState } from "react";
 
 const originalReact = jest.requireActual("react");
-const setStatusMock = jest.fn();
 
 jest.mock("socket.io-client", () => {
   const mockIo = jest.fn(() => ({
@@ -26,6 +25,7 @@ jest.mock("socket.io-client", () => {
     io: mockIo,
   };
 });
+
 jest.mock("react", () => {
   const originalReact = jest.requireActual("react");
   return {
@@ -34,14 +34,13 @@ jest.mock("react", () => {
   };
 });
 
+
 describe("Tetris Component Error Connection", () => {
-  let mockSocket: Socket;
+  const setState = jest.fn();
+  const useStateMock: any = (initState: any) => [initState, setState];
 
   beforeEach(() => {
     jest.clearAllMocks();
-
-    const useStateMock = jest.requireMock("react").useState;
-    useStateMock.mockImplementation(jest.requireActual("react").useState);
 
     global.fetch = jest.fn(() =>
       Promise.resolve({
@@ -50,22 +49,10 @@ describe("Tetris Component Error Connection", () => {
       }),
     ) as jest.Mock;
 
-    mockSocket = {
-      on: jest.fn(),
-      off: jest.fn(),
-      emit: jest.fn(),
-    } as unknown as Socket;
-
-    (io as jest.Mock).mockReturnValue(mockSocket);
   });
 
   test("calls setStatus with 'error' when server returns 400", async () => {
-    const setStateMock = jest.fn();
-    const useStateMock = (useState: any) => [useState, setStateMock];
-    jest.spyOn(React, "useState").mockImplementation(useStateMock);
-
-    // const useStateSpy = jest.spyOn(React, "useState");
-    // useStateSpy.mockImplementation((init) => [init, setStatusMock]);
+    jest.spyOn(React, 'useState').mockImplementation(useStateMock);
 
     render(
       <MemoryRouter initialEntries={["/room/player"]}>
@@ -81,14 +68,17 @@ describe("Tetris Component Error Connection", () => {
       );
     });
 
-    expect(setStatusMock).toHaveBeenCalledWith("error");
+    expect(setState).toHaveBeenCalledWith("error");
 
     jest.restoreAllMocks();
   });
 });
+
 /*
   describe("Tetris Component Good Connection", () => {
     let mockSocket: Socket;
+    const setState = jest.fn();
+    const useStateMock: any = (initState: any) => [initState, setState];
 
     beforeEach(() => {
       const useStateMock = jest.requireMock("react").useState;
@@ -267,4 +257,5 @@ describe("Tetris Component Error Connection", () => {
       expect(setStatusMock).toHaveBeenCalledWith("died");
     });
   });
-})*/
+})
+*/
