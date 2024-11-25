@@ -36,7 +36,7 @@ function Tetris() {
   const { room: myroom, player: myname } = useParams();
   const [socket, setSocket] = useState<Socket | null>(null);
   const [players, setPlayers] = useState<string[]>([]);
-  const [isLeader, SetIsLeader] = useState<boolean>(false);
+  const [isLeader, setIsLeader] = useState<boolean>(false);
   const [speed, setSpeed] = useState<number>(1);
   const [winner, setWinner] = useState<string | null>(null);
   const [status, setStatus] = useState<string>("ready");
@@ -113,7 +113,7 @@ function Tetris() {
           otherboardRef.current?.updateBoardStatus("", player);
         }
       }
-      if (data.type === "leader") SetIsLeader(true);
+      if (data.type === "leader") setIsLeader(true);
       if (data.score) {
         const scoreMap = new Map<string, number>(JSON.parse(data.score));
         setScores(scoreMap);
@@ -151,17 +151,21 @@ function Tetris() {
       console.log("disconnected from server");
     });
     socket.on("setleader", (data) => {
-      if (data.playername === myname) SetIsLeader(true);
+      // setIsLeader(data.playername === "player");
+      if (data.playername === myname) setIsLeader(true);
     });
     socket.on("gameover", (data) => {
       if (status === "ready") return;
       if (data.dier === myname) setStatus("died");
       else otherboardRef.current?.updateBoardStatus("died", data.dier);
     });
-    socket.on("endgame", (data: { winner: string; score: string }) => {
+    socket.on("endgame", (data) => {
+      console.log("here");
       if (status === "playing") setStatus("end-play");
       else if (status === "waiting") setStatus("end-wait");
-      if (data.winner) setWinner(data.winner);
+      if (data.winner) {
+        setWinner(data.winner);
+      }
       if (data.score) {
         const scoreMap = new Map<string, number>(JSON.parse(data.score));
         setScores(scoreMap);
