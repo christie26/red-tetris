@@ -7,6 +7,7 @@ import {
   waitFor,
   fireEvent,
   act,
+  within,
 } from "@testing-library/react";
 import React, { Dispatch } from "react";
 import { io, Socket } from "socket.io-client";
@@ -74,24 +75,6 @@ describe("Tetris Component Error Connection", () => {
 
 describe("Tetris Component Good Connection", () => {
   let mockSocket: Socket;
-  const mockSetWinner = jest.fn();
-
-  const mockSetScores = jest.fn();
-
-  const mockSetStatus = jest.fn();
-
-  jest.spyOn(React, "useState").mockImplementation(((initialValue: any) => {
-    if (initialValue === null) {
-      return [null, mockSetWinner];
-    }
-    if (initialValue instanceof Map) {
-      return [new Map(), mockSetScores];
-    }
-    if (initialValue === "playing") {
-      return ["playing", mockSetStatus];
-    }
-    return originalReact.useState(initialValue);
-  }) as unknown as typeof useState);
 
   beforeEach(() => {
     const useStateMock = jest.requireMock("react").useState;
@@ -217,56 +200,6 @@ describe("Tetris Component Good Connection", () => {
     });
   });
 
-  // test("displays game over and winner status", async () => {
-  // //     jest.spyOn(React, "useState").mockImplementation(((initialValue: any) => {
-  // //   if (initialValue === null) {
-  // //     return [null, mockSetWinner];
-  // //   }
-  // //   if (initialValue instanceof Map) {
-  // //     return [new Map(), mockSetScores];
-  // //   }
-  // //   if (initialValue === "playing") {
-  // //     return ["playing", mockSetStatus];
-  // //   }
-  // //   return originalReact.useState(initialValue);
-  // // }) as unknown as typeof useState);
-  //   const mockPlayerList = ["player1", "player2"];
-  //   const mockWinner = "player1";
-  //   const mockScore = '[["player1", 100], ["player2", 200]]';
-
-  //   render(
-  //     <MemoryRouter initialEntries={["/room/player"]}>
-  //       <Routes>
-  //         <Route path="/:room/:player" element={<Tetris />} />
-  //       </Routes>
-  //     </MemoryRouter>,
-  //   );
-
-  //   await waitFor(() => expect(io).toHaveBeenCalledTimes(1));
-
-  //   const mockSocket = (io as jest.Mock).mock.results[0].value;
-  //   type EventHandler = [event: string, handler: (...args: any[]) => void];
-
-  //   await act(async () => {
-  //     mockSocket.on.mock.calls.forEach(([event, handler]: EventHandler) => {
-  //       if (event === "endgame")
-  //         handler({ winner: mockWinner, score: mockScore });
-  //     });
-  //   });
-
-  //   // await waitFor(() => {
-  //   expect(mockSetWinner).toBeCalledWith("player1");
-  //   expect(mockSetScores).toHaveBeenCalledWith(
-  //     new Map<string, number>([
-  //       ["player1", 100],
-  //       ["player2", 200],
-  //     ]),
-  //   );
-
-  //   jest.restoreAllMocks();
-  //   // })
-  // });
-
   /*
   test("Renders dynamic content based on game status", async () => {
     jest.spyOn(React, 'useState').mockImplementation(useStateMock);
@@ -305,6 +238,7 @@ describe("Tetris Component Good Connection", () => {
   });*/
 });
 
+/*
 describe("Tetris Test mock SetLeader Usestate", () => {
 
   let mockSocket: Socket;
@@ -360,5 +294,150 @@ describe("Tetris Test mock SetLeader Usestate", () => {
     expect(setLeader).toHaveBeenCalledWith(true);
 
     jest.restoreAllMocks();
+  });
+});*/
+
+describe("Tetris Component socket-endgame", () => {
+  let mockSocket: Socket;
+
+  beforeEach(() => {
+    const useStateMock = jest.requireMock("react").useState;
+    const setStatusMock = jest.fn();
+    useStateMock.mockImplementation((initialValue: string) => {
+      if (initialValue === "ready") {
+        return ["ready", setStatusMock];
+      }
+      return originalReact.useState(initialValue);
+    });
+    global.fetch = jest.fn(() =>
+      Promise.resolve({
+        status: 200,
+        json: () => Promise.resolve({}),
+      }),
+    ) as jest.Mock;
+
+    mockSocket = {
+      on: jest.fn(),
+      off: jest.fn(),
+      emit: jest.fn(),
+    } as unknown as Socket;
+
+    (io as jest.Mock).mockReturnValue(mockSocket);
+  });
+
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
+  test("Displays game over and winner status, and players scores", async () => {
+    const mockPlayerList = ["player", "player2"];
+    const mockWinner = "player";
+    const mockScore = '[["player", 100], ["player2", 10]]';
+
+    render(
+      <MemoryRouter initialEntries={["/room/player"]}>
+        <Routes>
+          <Route path="/:room/:player" element={<Tetris />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    await waitFor(() => expect(io).toHaveBeenCalledTimes(1));
+
+    const mockSocket = (io as jest.Mock).mock.results[0].value;
+    type EventHandler = [event: string, handler: (...args: any[]) => void];
+    // await act (async () => {
+    //   mockSocket.on.mock.calls.forEach(([event, handler] : EventHandler) => {
+    //     if (event === "startgame")
+    //       handler({playerlist : mockPlayerList})
+    //   })
+    // })
+
+    await act(async () => {
+      mockSocket.on.mock.calls.forEach(([event, handler]: EventHandler) => {
+        if (event === "endgame")
+          handler({ winner: mockWinner, score: mockScore });
+      });
+    });
+
+    expect(screen.getByText(/Winner : player/i)).toBeInTheDocument();
+
+    const table = screen.getByRole("table");
+
+    const playerCell = within(table).getByText("player");
+    const playerCell2 = within(table).getByText("player2");
+    const scoreCell = within(table).getByText("100");
+    const scoreCell2 = within(table).getByText("10");
+
+    expect(playerCell).toBeInTheDocument();
+    expect(playerCell2).toBeInTheDocument();
+    expect(scoreCell).toBeInTheDocument();
+    expect(scoreCell2).toBeInTheDocument();
+  });
+});
+
+describe("Tetris Component socket-gameover & startgame", () => {
+  let mockSocket: Socket;
+
+  beforeEach(() => {
+    const useStateMock = jest.requireMock("react").useState;
+    const setStatusMock = jest.fn();
+    useStateMock.mockImplementation((initialValue: string) => {
+      if (initialValue === "ready") {
+        return ["ready", setStatusMock];
+      }
+      return originalReact.useState(initialValue);
+    });
+    global.fetch = jest.fn(() =>
+      Promise.resolve({
+        status: 200,
+        json: () => Promise.resolve({}),
+      }),
+    ) as jest.Mock;
+
+    mockSocket = {
+      on: jest.fn(),
+      off: jest.fn(),
+      emit: jest.fn(),
+    } as unknown as Socket;
+
+    (io as jest.Mock).mockReturnValue(mockSocket);
+  });
+
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
+
+  test("Tetris component socket-gameover", async () => {
+    const mockPlayerList = ["player", "player2"];
+    const mockDier = "player";
+    const mockScore = '[["player", 10], ["player2", 100]]';
+
+    render(
+      <MemoryRouter initialEntries={["/room/player"]}>
+        <Routes>
+          <Route path="/:room/:player" element={<Tetris />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    await waitFor(() => expect(io).toHaveBeenCalledTimes(1));
+
+    const mockSocket = (io as jest.Mock).mock.results[0].value;
+    type EventHandler = [event: string, handler: (...args: any[]) => void];
+
+    await act(async () => {
+      mockSocket.on.mock.calls.forEach(([event, handler]: EventHandler) => {
+        if (event === "startgame") handler({ playerlist: mockPlayerList });
+      });
+    });
+
+    await act(async () => {
+      mockSocket.on.mock.calls.forEach(([event, handler]: EventHandler) => {
+        if (event === "gameover") handler({ dier: mockDier });
+      });
+    });
+
+    expect(screen.getByText(/Dier : player/i)).toBeInTheDocument();
+    screen.debug();
   });
 });
