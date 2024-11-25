@@ -21,13 +21,17 @@ describe("StartButton Component", () => {
   });
 
   test("renders the Start button when it's Leader", () => {
-    render(<StartButton socket={mockSocket as Socket} visible={true} speed={1} />);
+    render(
+      <StartButton socket={mockSocket as Socket} visible={true} speed={1} />,
+    );
     const button = screen.getByRole("button", { name: /start/i });
     expect(button).toBeInTheDocument();
   });
 
   test("does not render the Start button when it's not Leader", () => {
-    render(<StartButton socket={mockSocket as Socket} visible={false} speed={1} />);
+    render(
+      <StartButton socket={mockSocket as Socket} visible={false} speed={1} />,
+    );
     const button = screen.queryByRole("button", { name: /start/i });
     // queryByRole -> locate elements based on their roles
     expect(button).not.toBeInTheDocument();
@@ -35,7 +39,13 @@ describe("StartButton Component", () => {
 
   test("emits leaderClick event with speed when button is clicked", () => {
     const speed = 2;
-    render(<StartButton socket={mockSocket as Socket} visible={true} speed={speed} />);
+    render(
+      <StartButton
+        socket={mockSocket as Socket}
+        visible={true}
+        speed={speed}
+      />,
+    );
     const button = screen.getByRole("button", { name: /start/i });
     // getByRole -> locate elements based on their roles
     fireEvent.click(button);
@@ -45,7 +55,9 @@ describe("StartButton Component", () => {
 
   test("logs 'Leader button clicked' when button is clicked", () => {
     const consoleSpy = jest.spyOn(console, "log").mockImplementation();
-    render(<StartButton socket={mockSocket as Socket} visible={true} speed={1} />);
+    render(
+      <StartButton socket={mockSocket as Socket} visible={true} speed={1} />,
+    );
     const button = screen.getByRole("button", { name: /start/i });
     fireEvent.click(button);
 

@@ -1,13 +1,13 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
-import App from '../App';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
+import App from "../App";
 
-jest.mock('react-dom/client', () => ({
+jest.mock("react-dom/client", () => ({
   createRoot: jest.fn(),
 }));
 
-describe('index.tsx', () => {
+describe("index.tsx", () => {
   let mockRender: jest.Mock;
 
   beforeEach(() => {
@@ -20,15 +20,15 @@ describe('index.tsx', () => {
     });
   });
 
-  test('renders App component inside BrowserRouter', () => {
-    const mockRoot = document.createElement('div');
-    mockRoot.setAttribute('id', 'root');
+  test("renders App component inside BrowserRouter", () => {
+    const mockRoot = document.createElement("div");
+    mockRoot.setAttribute("id", "root");
     document.body.appendChild(mockRoot);
 
-    require('../index');
+    require("../index");
 
     expect(ReactDOM.createRoot).toHaveBeenCalledWith(
-      document.getElementById('root'),
+      document.getElementById("root"),
     );
 
     expect(mockRender).toHaveBeenCalledWith(
@@ -38,10 +38,10 @@ describe('index.tsx', () => {
     );
   });
 
-  test('does not throw if root element is missing', () => {
-    document.body.innerHTML = '';
+  test("does not throw if root element is missing", () => {
+    document.body.innerHTML = "";
 
-    require('../index');
+    require("../index");
 
     expect(ReactDOM.createRoot).not.toHaveBeenCalled();
   });

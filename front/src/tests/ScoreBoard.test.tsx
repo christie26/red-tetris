@@ -23,14 +23,17 @@ describe("ScoreBoard Component", () => {
 
     render(<ScoreBoard scores={scores} />);
 
-    expect(screen.getByRole("columnheader", { name: /player/i })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: /score/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: /player/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: /score/i }),
+    ).toBeInTheDocument();
 
     expect(screen.getByRole("cell", { name: "Player1" })).toBeInTheDocument();
     expect(screen.getByRole("cell", { name: "10" })).toBeInTheDocument();
     expect(screen.getByRole("cell", { name: "Player2" })).toBeInTheDocument();
     expect(screen.getByRole("cell", { name: "5" })).toBeInTheDocument();
-
   });
 
   test("applies correct row classes for even and odd rows", () => {

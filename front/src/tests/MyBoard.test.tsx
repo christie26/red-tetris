@@ -29,12 +29,12 @@ describe("Myboard", () => {
     initialBoard[0][0] = 1;
     initialBoard[1][1] = 2;
 
-    const ref = React.createRef<MyboardRef>(); 
+    const ref = React.createRef<MyboardRef>();
     render(<Myboard ref={ref} />);
 
     act(() => {
       if (ref.current) {
-        ref.current.updateBoard(initialBoard); 
+        ref.current.updateBoard(initialBoard);
       }
     });
 

@@ -1,12 +1,11 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import NextPiece from "../components/NextPiece";
-import { getTypeString }  from "../components/functions";
+import { getTypeString } from "../components/functions";
 
 jest.mock("../components/functions");
 
 describe("NextPiece", () => {
-
   beforeEach(() => {
     (getTypeString as jest.Mock).mockImplementation((cell) => {
       switch (cell) {
@@ -35,19 +34,19 @@ describe("NextPiece", () => {
 
     expect(screen.getByText(/Next Piece/i)).toBeInTheDocument();
     const cells = screen.getAllByRole("listitem");
-    expect(cells).toHaveLength(16); 
-    cells.forEach(cell => {
-        expect(cell).not.toHaveClass();
-      });
+    expect(cells).toHaveLength(16);
+    cells.forEach((cell) => {
+      expect(cell).not.toHaveClass();
+    });
   });
 
   it("renders the next piece grid correctly when nextPiece is provided", () => {
     const nextPiece = {
       tiles: [
-        { x: 0, y: 0, type: 1 }, 
-        { x: 1, y: 0, type: 1 }, 
-        { x: 0, y: 1, type: 1 }, 
-        { x: 1, y: 1, type: 1 }, 
+        { x: 0, y: 0, type: 1 },
+        { x: 1, y: 0, type: 1 },
+        { x: 0, y: 1, type: 1 },
+        { x: 1, y: 1, type: 1 },
       ],
       type: 1,
     };
@@ -58,7 +57,6 @@ describe("NextPiece", () => {
     const cells = screen.getAllByRole("listitem");
     expect(cells).toHaveLength(16);
 
-  
     expect(cells[5]).toHaveClass("I_BLOCK");
     expect(cells[6]).toHaveClass("I_BLOCK");
     expect(cells[9]).toHaveClass("I_BLOCK");
@@ -68,9 +66,9 @@ describe("NextPiece", () => {
   it("renders a T_BLOCK correctly", () => {
     const nextPiece = {
       tiles: [
-        { x: 0, y: 0, type: 2 }, 
-        { x: 1, y: 0, type: 2 }, 
-        { x: 2, y: 0, type: 2 }, 
+        { x: 0, y: 0, type: 2 },
+        { x: 1, y: 0, type: 2 },
+        { x: 2, y: 0, type: 2 },
         { x: 1, y: 1, type: 2 },
       ],
       type: 2,
@@ -79,9 +77,8 @@ describe("NextPiece", () => {
     render(<NextPiece nextPiece={nextPiece} />);
 
     const cells = screen.getAllByRole("listitem");
-    expect(cells).toHaveLength(16); 
+    expect(cells).toHaveLength(16);
 
-    
     expect(cells[4]).toHaveClass("T_BLOCK");
     expect(cells[5]).toHaveClass("T_BLOCK");
     expect(cells[6]).toHaveClass("T_BLOCK");
@@ -108,5 +105,4 @@ describe("NextPiece", () => {
     expect(cells[9]).toHaveClass("I_BLOCK");
     expect(cells[10]).toHaveClass("I_BLOCK");
   });
-  
 });
