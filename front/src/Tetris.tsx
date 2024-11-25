@@ -68,14 +68,6 @@ function Tetris() {
             reconnection: false,
           });
 
-          newSocket.on("connect_error", (error) => {
-            console.error("Socket connection error:", error);
-          });
-
-          newSocket.on("disconnect", (reason) => {
-            console.warn("Socket disconnected:", reason);
-          });
-
           setSocket(newSocket);
 
           return () => {
@@ -104,8 +96,9 @@ function Tetris() {
       console.log("Connected to server");
     });
     socket.on("join", (data) => {
+      console.log(status, data.type);
       setPlayers(data.playerlist);
-      if (data.type === "waiter") {
+      if (data.type == "waiter") {
         setStatus("waiting");
         for (const player of data.playerlist) {
           const empty = Array.from({ length: 20 }, () => Array(10).fill(0));
@@ -151,7 +144,6 @@ function Tetris() {
       console.log("disconnected from server");
     });
     socket.on("setleader", (data) => {
-      // setIsLeader(data.playername === "player");
       if (data.playername === myname) setIsLeader(true);
     });
     socket.on("gameover", (data) => {
@@ -160,7 +152,6 @@ function Tetris() {
       else otherboardRef.current?.updateBoardStatus("died", data.dier);
     });
     socket.on("endgame", (data) => {
-      console.log("here");
       if (status === "playing") setStatus("end-play");
       else if (status === "waiting") setStatus("end-wait");
       if (data.winner) {
