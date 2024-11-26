@@ -96,7 +96,6 @@ function Tetris() {
       console.log("Connected to server");
     });
     socket.on("join", (data) => {
-      console.log(status, data.type);
       setPlayers(data.playerlist);
       if (data.type == "waiter") {
         setStatus("waiting");
