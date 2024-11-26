@@ -31,17 +31,6 @@ https://github.com/user-attachments/assets/adcea9bd-e5ba-4f23-a75d-7028b7010e98
 ## Installation 📦
 
 
-
-### static-tetris
-
-You can either use vscode extension named `live server` or
-
-```
-firefox static_tetris/index.html
-```
-
-or whatever!
-
 ### back
 
 ```
