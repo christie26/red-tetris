@@ -241,7 +241,6 @@ describe("Tetris Component Good Connection", () => {
 });
 
 describe("Tetris Component socket-join", () => {
-
   let mockSocket: Socket;
 
   beforeEach(() => {
@@ -356,6 +355,40 @@ describe("Tetris Component socket-join", () => {
     await waitFor(() => {
       expect(screen.getByText("alice")).toBeInTheDocument();
       expect(screen.getByText("bob")).toBeInTheDocument();
+    });
+  });
+  test("socket-join setScores", async () => {
+    render(
+      <MemoryRouter initialEntries={["/room/player"]}>
+        <Routes>
+          <Route path="/:room/:player" element={<Tetris />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    await waitFor(() => expect(io).toHaveBeenCalledTimes(1));
+
+    const mockScore = '[["player", 5], ["player2", 10]]';
+    const mockSocket = (io as jest.Mock).mock.results[0].value;
+    const mockPlayerList = ["alice", "bob"];
+
+    type EventHandler = [event: string, handler: (...args: any[]) => void];
+    await act(async () => {
+      mockSocket.on.mock.calls.forEach(([event, handler]: EventHandler) => {
+        if (event === "join") {
+          handler({
+            playerlist: mockPlayerList,
+            type: "leader",
+            score: mockScore,
+          });
+        }
+      });
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole("table")).toBeInTheDocument();
+      expect(screen.getByText("Player")).toBeInTheDocument();
+      expect(screen.getByText("Score")).toBeInTheDocument();
     });
   });
 });
@@ -485,8 +518,124 @@ describe("Tetris Component socket-leave", () => {
       expect(screen.getByText("bob")).toBeInTheDocument();
     });
   });
-  // TODO test("socket-leve update other's board")
+  // NOTE - hard to simulate cause we can't change 'status'.
+  // test("socket-leave update other's board", async () => {
+  //   render(
+  //     <MemoryRouter initialEntries={["/room/player"]}>
+  //       <Routes>
+  //         <Route path="/:room/:player" element={<Tetris />} />
+  //       </Routes>
+  //     </MemoryRouter>,
+  //   );
+
+  //   await waitFor(() => expect(io).toHaveBeenCalledTimes(1));
+
+  //   const mockSocket = (io as jest.Mock).mock.results[0].value;
+  //   const mockPlayerList = ["alice", "bob", "player"];
+  //   const mockPlayer = "alice";
+
+  //   type EventHandler = [event: string, handler: (...args: any[]) => void];
+  //   await act(async () => {
+  //     mockSocket.on.mock.calls.forEach(([event, handler]: EventHandler) => {
+  //       if (event === "startgame") handler({ playerlist: mockPlayerList });
+  //     });
+  //   });
+
+  //   await act(async () => {
+  //     mockSocket.on.mock.calls.forEach(([event, handler]: EventHandler) => {
+  //       if (event === "leave") {
+  //         handler({ playerlist: mockPlayerList, player: mockPlayer });
+  //       }
+  //     });
+  //   });
+
+  //   await waitFor(() => {
+  //     const otherBoardDiv = screen.getAllByRole("listitem")[0].parentElement;
+  //     expect(otherBoardDiv).toHaveClass("otherboard", "offline");
+  //     // expect(otherBoardDiv).toHaveClass("offline"); // Dynamically added class
+  //     expect(otherBoardDiv).toHaveAttribute("id", "alice");
+  //   });
+  // });
 });
+describe("Tetris Component socket-nextpiece", () => {
+  let mockSocket: Socket;
+
+  beforeEach(() => {
+    const useStateMock = jest.requireMock("react").useState;
+    const setStatusMock = jest.fn();
+    useStateMock.mockImplementation((initialValue: string) => {
+      if (initialValue === "ready") {
+        return ["ready", setStatusMock];
+      }
+      return originalReact.useState(initialValue);
+    });
+
+    global.fetch = jest.fn(() =>
+      Promise.resolve({
+        status: 200,
+        json: () => Promise.resolve({}),
+      }),
+    ) as jest.Mock;
+
+    mockSocket = {
+      on: jest.fn(),
+      off: jest.fn(),
+      emit: jest.fn(),
+    } as unknown as Socket;
+    (io as jest.Mock).mockReturnValue(mockSocket);
+  });
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
+
+  test("socket-nextpiece", async () => {
+    const { container } = render(
+      <MemoryRouter initialEntries={["/room/player"]}>
+        <Routes>
+          <Route path="/:room/:player" element={<Tetris />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    await waitFor(() => expect(io).toHaveBeenCalledTimes(1));
+
+    const mockSocket = (io as jest.Mock).mock.results[0].value;
+    const mockPiece = {
+      type: 1,
+      tiles: [
+        { x: 0, y: 0, type: 2 },
+        { x: 1, y: 0, type: 2 },
+        { x: 0, y: 1, type: 2 },
+        { x: 1, y: 1, type: 2 },
+      ],
+    };
+    type EventHandler = [event: string, handler: (...args: any[]) => void];
+    await act(async () => {
+      mockSocket.on.mock.calls.forEach(([event, handler]: EventHandler) => {
+        if (event === "nextpiece") {
+          handler({ piece: mockPiece });
+        }
+      });
+    });
+    await waitFor(() => {
+      const nextPieceContainer = container.querySelector(".nextpiece");
+      expect(nextPieceContainer).toBeInTheDocument();
+
+      const gridItems = nextPieceContainer?.querySelectorAll("li");
+
+      expect(gridItems).toHaveLength(16);
+
+      if (gridItems) {
+        const tBlockCount = Array.from(gridItems).filter((item) =>
+          item.classList.contains("T_BLOCK"),
+        ).length;
+
+        expect(tBlockCount).toBe(4);
+      }
+    });
+  });
+});
+
 describe("Tetris Component socket-endgame", () => {
   let mockSocket: Socket;
 

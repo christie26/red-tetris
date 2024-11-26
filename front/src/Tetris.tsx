@@ -96,7 +96,6 @@ function Tetris() {
       console.log("Connected to server");
     });
     socket.on("join", (data) => {
-      console.log(status, data.type);
       setPlayers(data.playerlist);
       if (data.type == "waiter") {
         setStatus("waiting");
@@ -130,7 +129,6 @@ function Tetris() {
       }
     });
     socket.on("nextpiece", (data) => {
-      console.log(data.piece.tiles);
       setNextPiece(data.piece);
     });
     socket.on("updateboard", (data) => {
