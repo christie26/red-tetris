@@ -22,7 +22,7 @@ import {
   afterEach,
   afterAll,
 } from "@jest/globals";
-import request  from "supertest";
+import request from "supertest";
 
 let httpServer: http.Server;
 let ioServer: Server;
@@ -54,11 +54,6 @@ describe("Express HTTP routes", () => {
   beforeEach((done) => {
     const currentTest = expect.getState().currentTestName;
 
-    if (currentTest === "Express HTTP routes App-connection-wrong-param") {
-      // this doesn't work to fix
-      done();
-      return;
-    }
     clientSocket = Client(`http://localhost:${port}`, {
       query: { room: "test-room", player: "test-player" },
     });
@@ -93,19 +88,19 @@ describe("Express HTTP routes", () => {
   });
 
   test("App-connection-Good-path-and-unique-user-status-200", async () => {
-    const res = await request(app).get('/room/port');
+    const res = await request(app).get("/room/port");
     expect(res.status).toBe(200);
   });
 
   test("App-connection-red-tetris-logo", async () => {
-    const res = await request(app).get('/redtetris.ico');
+    const res = await request(app).get("/redtetris.ico");
     expect(res.status).toBe(200);
   });
 
   test("App-connection-user-not-unique-status-400", async () => {
-    await request(app).get('/test-room/test-player');
+    await request(app).get("/test-room/test-player");
 
-    const res = await request(app).get('/test-room/test-player');
+    const res = await request(app).get("/test-room/test-player");
     expect(res.status).toBe(400);
     expect(res.text).toBe("Player name is not unique.");
   });
@@ -168,9 +163,6 @@ describe("Socket.io events", () => {
       }
     }, 50);
   });
-
-
-  // these tests make leaks 
 
   test("App-Keboard-event-arrow-up", (done) => {
     const player = findPlayer(clientSocket.id);

@@ -13,28 +13,26 @@ import {
   afterAll,
 } from "@jest/globals";
 
-// Mocking socket.io for testing
 jest.mock("../app.js", () => ({
   io: {
-    to: jest.fn().mockReturnThis(), // Make sure it returns itself for chaining
-    emit: jest.fn(), // Mock the emit function
+    to: jest.fn().mockReturnThis(),
+    emit: jest.fn(),
   },
 }));
 
 describe("Player Class Tests", () => {
-  let player;
-  let room;
-  let socket = "testSocket"; // Example socket identifier
-  let key = "testKey"; // Example key for board
+  let player: any;
+  let room: any;
+  let socket = "testSocket";
+  let key = "testKey";
 
   beforeEach(() => {
-    // Set up a fresh instance of Room and Player for each test.
     room = new Room("TestRoom");
     player = new Player("John", socket, key, true, room);
   });
 
   // Constructor Tests
-  test("should create player with correct attributes", () => {
+  test("Player-Should create player with correct attributes", () => {
     expect(player.playername).toBe("John");
     expect(player.socket).toBe(socket);
     expect(player.isLeader).toBe(true);
@@ -44,7 +42,7 @@ describe("Player Class Tests", () => {
   });
 
   // Update Key Tests
-  test("should update the board key correctly", () => {
+  test("Player-Should update the board key correctly", () => {
     const newKey = "newTestKey";
     const originalBoard = player.Board;
     player.updateKey(newKey);
@@ -55,8 +53,8 @@ describe("Player Class Tests", () => {
   });
 
   // Game Over Tests
-  test("should handle game over correctly", () => {
-    player.isPlaying = true; // Simulate that the player is currently playing
+  test("Player-Should handle game over correctly", () => {
+    player.isPlaying = true;
 
     // Mocking Board and Room methods
     jest.spyOn(player.Board, "freezeBoard").mockImplementation(() => {});
@@ -70,14 +68,14 @@ describe("Player Class Tests", () => {
   });
 
   // Sending Next Piece Tests
-  test("should send next piece via socket", () => {
+  test("Player-Should send next piece via socket", () => {
     const nextPiece = {
       type: "T",
       shape: [
         [1, 1, 1],
         [0, 1, 0],
       ],
-    }; // Example piece
+    };
     player.sendNextPiece(nextPiece);
 
     expect(io.to).toHaveBeenCalledWith(socket);
@@ -85,8 +83,8 @@ describe("Player Class Tests", () => {
   });
 
   // Edge Case for Game Over without playing
-  test("should not crash if gameover is called when not playing", () => {
-    player.isPlaying = false; // Ensure the player is not playing
-    expect(() => player.gameover()).not.toThrow(); // Should not throw an error
+  test("Player-Should not crash if gameover is called when not playing", () => {
+    player.isPlaying = false;
+    expect(() => player.gameover()).not.toThrow();
   });
 });

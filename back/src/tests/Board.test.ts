@@ -27,7 +27,7 @@ describe("Board", () => {
   let board: Board;
   let mockPlayer: Player;
   let mockRoom: Room;
-  let server;
+  let server: any;
   const mockKey = "testKey";
 
   const generateMockPiece = (type: number, x: number, y: number): Piece => {
@@ -112,12 +112,12 @@ describe("Board", () => {
     const fixPieceIfTouchSpy = jest.spyOn(Board.prototype, "fixPieceIfTouch");
     const fixPieceToBoardSpy = jest.spyOn(Board.prototype, "fixPieceToBoard");
 
-  for (let stop = 0; stop < 10; stop++) {
-    board.fixedTiles[stop] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    for (let stop = 0; stop < 10; stop++) {
+      board.fixedTiles[stop] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     }
-      for (let stop = 10; stop < 19; stop++) {
-        board.fixedTiles[stop] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
-      }
+    for (let stop = 10; stop < 19; stop++) {
+      board.fixedTiles[stop] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+    }
 
     board.recievePenalty(8);
     board.applyPenalty();
@@ -396,7 +396,6 @@ describe("Board", () => {
     expect(fixPieceIfTouchSpy).toHaveBeenCalled();
     expect(fixPieceToBoardSpy).toHaveBeenCalled();
   });
-  
 
   test("Board-line-is-not-full", () => {
     for (let stop = 0; stop < 5; stop++) {
