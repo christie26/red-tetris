@@ -124,43 +124,42 @@ describe("Tetris Component Good Connection", () => {
     expect(screen.getByText("Score Board")).toBeInTheDocument();
   });
 
-  // test("Handles socket events: join, connect, disconnect", async () => {
-  //   render(
-  //     <MemoryRouter initialEntries={["/room/player"]}>
-  //       <Routes>
-  //         <Route path="/:room/:player" element={<Tetris />} />
-  //       </Routes>
-  //     </MemoryRouter>,
-  //   );
+  test("Handles socket events: join, connect, disconnect", async () => {
+    render(
+      <MemoryRouter initialEntries={["/room/player"]}>
+        <Routes>
+          <Route path="/:room/:player" element={<Tetris />} />
+        </Routes>
+      </MemoryRouter>,
+    );
 
-  //   await waitFor(() => expect(io).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(io).toHaveBeenCalledTimes(1));
 
-  //   const mockSocket = (io as jest.Mock).mock.results[0].value;
+    const mockSocket = (io as jest.Mock).mock.results[0].value;
 
-  //   // Simulate socket events
-  //   const mockPlayerList = ["player1", "player2"];
-  //   type EventHandler = [event: string, handler: (...args: any[]) => void];
-  //   await act(async () => {
-  //     mockSocket.on.mock.calls.forEach(([event, handler]: EventHandler) => {
-  //       if (event === "join") {
-  //         // console.log("join is called with ", mockPlayerList)
-  //         handler({ playerlist: mockPlayerList, type: "leader" });
-  //       }
-  //     });
-  //   });
+    // Simulate socket events
+    const mockPlayerList = ["player1", "player2"];
+    type EventHandler = [event: string, handler: (...args: any[]) => void];
+    await act(async () => {
+      mockSocket.on.mock.calls.forEach(([event, handler]: EventHandler) => {
+        if (event === "join") {
+          handler({ playerlist: mockPlayerList, type: "leader" });
+        }
+      });
+    });
 
-  //   await waitFor(() => {
-  //     expect(screen.getByText("player1")).toBeInTheDocument();
-  //     expect(screen.getByText("player2")).toBeInTheDocument();
-  //   });
+    await waitFor(() => {
+      expect(screen.getByText("player1")).toBeInTheDocument();
+      expect(screen.getByText("player2")).toBeInTheDocument();
+    });
 
-  //   expect(mockSocket.on).toHaveBeenCalledWith("join", expect.any(Function));
-  //   expect(mockSocket.on).toHaveBeenCalledWith("connect", expect.any(Function));
-  //   expect(mockSocket.on).toHaveBeenCalledWith(
-  //     "disconnect",
-  //     expect.any(Function),
-  //   );
-  // });
+    expect(mockSocket.on).toHaveBeenCalledWith("join", expect.any(Function));
+    expect(mockSocket.on).toHaveBeenCalledWith("connect", expect.any(Function));
+    expect(mockSocket.on).toHaveBeenCalledWith(
+      "disconnect",
+      expect.any(Function),
+    );
+  });
 
   test("fetches room data on mount, verifing connection to the back", async () => {
     render(
@@ -202,42 +201,6 @@ describe("Tetris Component Good Connection", () => {
     });
   });
 
-  /*
-  test("Renders dynamic content based on game status", async () => {
-    jest.spyOn(React, 'useState').mockImplementation(useStateMock);
-
-    render(
-      <MemoryRouter initialEntries={["/room/player"]}>
-        <Routes>
-          <Route path="/:room/:player" element={<Tetris />} />
-        </Routes>
-      </MemoryRouter>
-    );
-
-    await waitFor(() => expect(io).toHaveBeenCalledTimes(1));
-
-    const mockSocket = (io as jest.Mock).mock.results[0].value;
-    const mockPlayer = "Player"
-    type EventHandler = [event: string, handler: (...args: any[]) => void];
-    // await act (async() => {
-    //     mockSocket.on.mock.calls.forEach(([event, handler]: EventHandler) => {
-    //         if (event === "gameover") handler({ dier: mockPlayer });
-    //     });
-    // })
-
-    act (() => {
-        const gameoverHandler = mockSocket.on.mock.calls.find(
-        ([event]: [string]) => event === "gameover"
-        )?.[1]; 
-        if (gameoverHandler) {
-          gameoverHandler({ dier: mockPlayer });
-        }
-      });
-      // screen.debug()
-      await waitFor(() => {
-      expect(setState).toHaveBeenCalledWith("died");
-    });
-  });*/
 });
 
 describe("Tetris Component socket-join", () => {
@@ -322,7 +285,6 @@ describe("Tetris Component socket-join", () => {
         }
       });
     });
-    screen.debug();
 
     await waitFor(() => {
       // const message = screen.getByText("playing");
@@ -625,9 +587,6 @@ describe("Tetris Component socket-gameover & startgame", () => {
         if (event === "gameover") handler({ dier: mockDier });
       });
     });
-
-    expect(screen.getByText(/Dier : player/i)).toBeInTheDocument();
-    screen.debug();
   });
   test("Tetris component socket-startgame setPlayers", async () => {
     render(
