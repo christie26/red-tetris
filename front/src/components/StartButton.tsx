@@ -14,7 +14,6 @@ const StartButton: React.FC<StartButtonProps> = ({
   speed,
 }) => {
   const handleClick = () => {
-    console.log("Leader button clicked");
     socket?.emit("leaderClick", { speed: speed });
   };
   if (visible)

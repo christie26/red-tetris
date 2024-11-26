@@ -200,7 +200,6 @@ describe("Tetris Component Good Connection", () => {
       key: "ArrowLeft",
     });
   });
-
 });
 
 describe("Tetris Component socket-join", () => {
@@ -713,7 +712,6 @@ describe("Tetris Component socket-gameover & startgame", () => {
     const mockDier = "player";
     const mockScore = '[["player", 10], ["player2", 100]]';
 
-    
     render(
       <MemoryRouter initialEntries={["/room/player"]}>
         <Routes>
@@ -721,7 +719,7 @@ describe("Tetris Component socket-gameover & startgame", () => {
         </Routes>
       </MemoryRouter>,
     );
-    
+
     await waitFor(() => expect(io).toHaveBeenCalledTimes(1));
 
     const mockSocket = (io as jest.Mock).mock.results[0].value;
@@ -774,5 +772,4 @@ describe("Tetris Component socket-gameover & startgame", () => {
       expect(elementsBob).toHaveLength(2);
     });
   });
-});
 });

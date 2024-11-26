@@ -33,10 +33,6 @@ class Board {
   }
 
   startgame(): void {
-    // if (!this.currentPiece || !this.currentPiece.tiles) {
-    //   console.error("Current piece is invalid");
-    //   return;
-    // }
     if (this.touchOtherPiece(this.currentPiece.tiles)) {
       for (const tile of this.currentPiece.tiles) {
         this.fixedTiles[tile.y][tile.x] = tile.type;

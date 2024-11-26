@@ -81,7 +81,7 @@ function Tetris() {
         }
       } catch (error) {
         setStatus("waitServer");
-        console.log("Fetch or connection error:", error);
+        console.error("Fetch or connection error:", error);
       }
     };
 

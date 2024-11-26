@@ -52,17 +52,4 @@ describe("StartButton Component", () => {
 
     expect(mockEmit).toHaveBeenCalledWith("leaderClick", { speed });
   });
-
-  test("logs 'Leader button clicked' when button is clicked", () => {
-    const consoleSpy = jest.spyOn(console, "log").mockImplementation();
-    render(
-      <StartButton socket={mockSocket as Socket} visible={true} speed={1} />,
-    );
-    const button = screen.getByRole("button", { name: /start/i });
-    fireEvent.click(button);
-
-    expect(consoleSpy).toHaveBeenCalledWith("Leader button clicked");
-
-    consoleSpy.mockRestore();
-  });
 });
