@@ -152,7 +152,6 @@ class Room {
       dier.playername,
     );
 
-
     this.checkIfGameEnd();
   }
   checkIfGameEnd(): void {
