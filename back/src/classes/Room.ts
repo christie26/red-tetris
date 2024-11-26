@@ -63,45 +63,59 @@ class Room {
     const targetPlayer = this.players.find(
       (player) => player.playername === playername,
     );
-    if (!targetPlayer) {
+    if (targetPlayer) this.playerLeave(targetPlayer);
+    else {
       const targetWaiter = this.waiters.find(
         (waiter) => waiter.playername === playername,
       );
-      if (!targetWaiter) {
+      if (targetWaiter) this.waiterLeave(targetWaiter.playername);
+      else
         console.error(
           `Attempt to disconnect, ${playername} is not in the room.`,
         );
-        return;
-      }
-      this.waiters = this.waiters.filter((p) => p.playername !== playername);
-      console.log(
-        `[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} left.`,
-        this.roomname,
-        playername,
-      );
-      return;
     }
+  }
+  playerLeave(targetPlayer: Player): void {
+    // delete score - leave
     this.score.delete(targetPlayer.playername);
+
+    // set new leader - leave & gameover
     if (targetPlayer.isLeader) this.setNewLeader();
-    this.players = this.players.filter((p) => p.playername !== playername);
+
+    // if Room is playing, ends game - leave & gameover
+    if (this.isPlaying) {
+      this.freezeIfPlaying(targetPlayer);
+      this.checkIfGameEnd();
+    }
+
+    // remove targetPlayer from players - leave
+    this.players = this.players.filter(
+      (p) => p.playername !== targetPlayer.playername,
+    );
+
+    // announce & console
+    this.socketToPlayers("leave", {
+      player: targetPlayer.playername,
+      playerlist: this.getPlayerlist(),
+    });
+    if (this.isPlaying)
+      this.socketToWaiters("leave", {
+        player: targetPlayer.playername,
+        playerlist: this.getPlayerlist(),
+      });
+    console.log(
+      `[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} left.`,
+      this.roomname,
+      targetPlayer.playername,
+    );
+  }
+  waiterLeave(playername: string): void {
+    this.waiters = this.waiters.filter((p) => p.playername !== playername);
     console.log(
       `[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} left.`,
       this.roomname,
       playername,
     );
-
-    this.socketToPlayers("leave", {
-      player: playername,
-      playerlist: this.getPlayerlist(),
-    });
-    if (this.isPlaying) {
-      this.socketToWaiters("leave", {
-        player: playername,
-        playerlist: this.getPlayerlist(),
-      });
-      this.freezeIfPlaying(targetPlayer);
-      this.checkEndgame();
-    }
   }
 
   /* start & end game */
@@ -126,8 +140,11 @@ class Room {
       player.playername,
     );
   }
-  onePlayerDied(dier: Player): void {
+  playerDied(dier: Player): void {
+    // update board
     this.updateBoard(dier.playername, dier.Board.fixedTiles, "died");
+
+    // announce & console
     this.socketToAll("gameover", { dier: dier.playername });
     console.log(
       `[${c.GREEN}%s${c.RESET}] ${c.YELLOW}%s${c.RESET} gameover.`,
@@ -135,19 +152,18 @@ class Room {
       dier.playername,
     );
 
-    if (this.players.length === 1) {
-      this.endgame(null);
-      return;
-    }
 
-    this.checkEndgame();
+    this.checkIfGameEnd();
   }
-  checkEndgame(): void {
+  checkIfGameEnd(): void {
     const winner = this.players.filter((player) => player.isPlaying);
+
     if (winner.length === 1) this.endgame(winner[0].playername);
+    else if (this.players.length === 1) this.endgame(null);
   }
   endgame(winner: string | null): void {
     this.isPlaying = false;
+
     for (const player of this.players) {
       if (player.isPlaying) {
         player.Board.freezeBoard();
@@ -156,17 +172,18 @@ class Room {
     }
 
     if (winner) this.updateWinnerScore(winner);
+
+    // announce & console
+    console.log(`[${c.GREEN}%s${c.RESET}] game ends.`, this.roomname);
     this.socketToAll("endgame", { winner: winner, score: this.getScoreJson() });
+    
     this.addWaitersToScore();
 
-    console.log(`[${c.GREEN}%s${c.RESET}] game ends.`, this.roomname);
+    // move all waiters to players
     this.players.push(...this.waiters);
     this.waiters.length = 0;
-    if (this.players[0])
-      io.to(this.players[0].socket).emit("setleader", {
-        playername: this.players[0].playername,
-      });
 
+    // update a key
     this.key = uuidv4();
     this.players.forEach((player) => {
       player.updateKey(this.key);

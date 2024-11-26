@@ -33,7 +33,7 @@ class Player {
   gameover(): void {
     this.isPlaying = false;
     this.Board.freezeBoard();
-    this.Room.onePlayerDied(this);
+    this.Room.playerDied(this);
   }
 
   sendNextPiece(nextPiece: Piece): void {

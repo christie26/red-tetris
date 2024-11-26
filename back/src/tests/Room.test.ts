@@ -144,7 +144,7 @@ describe("Room Class Unit Test - playerDisconnect", () => {
   });
   test("Room-playerDisconnect-player-ready", (done) => {
     const freezeIfPlayingSpy = jest.spyOn(room, "freezeIfPlaying");
-    const checkEndgameSpy = jest.spyOn(room, "checkEndgame");
+    const checkIfGameEndSpy = jest.spyOn(room, "checkIfGameEnd");
     room.addPlayer("player1", "socket1");
 
     expect(room.players).toHaveLength(1);
@@ -152,12 +152,12 @@ describe("Room Class Unit Test - playerDisconnect", () => {
     room.playerDisconnect("player1");
     expect(room.players).toHaveLength(0);
     expect(freezeIfPlayingSpy).not.toHaveBeenCalled();
-    expect(checkEndgameSpy).not.toHaveBeenCalled();
+    expect(checkIfGameEndSpy).not.toHaveBeenCalled();
     done();
   });
   test("Room-playerDisconnect-player-three-playing", (done) => {
     const freezeIfPlayingSpy = jest.spyOn(room, "freezeIfPlaying");
-    const checkEndgameSpy = jest.spyOn(room, "checkEndgame");
+    const checkIfGameEndSpy = jest.spyOn(room, "checkIfGameEnd");
     const endgameSpy = jest.spyOn(room, "endgame");
 
     room.addPlayer("player1", "socket1");
@@ -177,7 +177,7 @@ describe("Room Class Unit Test - playerDisconnect", () => {
       }),
     );
     expect(freezeIfPlayingSpy).toHaveBeenCalled();
-    expect(checkEndgameSpy).toHaveBeenCalled();
+    expect(checkIfGameEndSpy).toHaveBeenCalled();
     expect(endgameSpy).not.toHaveBeenCalled();
     expect(room.players[0].isPlaying).toBe(true);
     expect(room.isPlaying).toBe(true);
@@ -185,7 +185,7 @@ describe("Room Class Unit Test - playerDisconnect", () => {
   });
   test("Room-playerDisconnect-player-two-playing", () => {
     const freezeIfPlayingSpy = jest.spyOn(room, "freezeIfPlaying");
-    const checkEndgameSpy = jest.spyOn(room, "checkEndgame");
+    const checkIfGameEndSpy = jest.spyOn(room, "checkIfGameEnd");
     const endgameSpy = jest.spyOn(room, "endgame");
 
     room.addPlayer("player1", "socket1");
@@ -198,7 +198,7 @@ describe("Room Class Unit Test - playerDisconnect", () => {
     expect(room.players).toHaveLength(1);
 
     expect(freezeIfPlayingSpy).toHaveBeenCalled();
-    expect(checkEndgameSpy).toHaveBeenCalled();
+    expect(checkIfGameEndSpy).toHaveBeenCalled();
     expect(endgameSpy).toHaveBeenCalled();
     expect(room.players[0].isPlaying).toBe(false);
     expect(room.isPlaying).toBe(false);
@@ -281,7 +281,7 @@ describe("Room Class Unit Test - leaderStartGame", () => {
   });
 });
 
-describe("Room Class Unit Test - onePlayerDied", () => {
+describe("Room Class Unit Test - playerDied", () => {
   let room: Room;
 
   beforeAll((done) => {
@@ -298,13 +298,13 @@ describe("Room Class Unit Test - onePlayerDied", () => {
   });
   afterEach(() => {});
 
-  test("Room-onePlayerDied", () => {
+  test("Room-playerDied", () => {
     const updateBoardSpy = jest.spyOn(room, "updateBoard");
 
     room.addPlayer("player1", "socket1");
     room.addPlayer("player2", "socket2");
     room.leaderStartGame(1);
-    room.onePlayerDied(room.players[0]);
+    room.playerDied(room.players[0]);
 
     expect(room.isPlaying).toBe(true);
     expect(updateBoardSpy).toHaveBeenCalledWith(
@@ -319,9 +319,9 @@ describe("Room Class Unit Test - onePlayerDied", () => {
       }),
     );
   });
-  test("Room-onePlayerDied-endgame", () => {
-    const onePlayerDiedSpy = jest.spyOn(room, "onePlayerDied");
-    const checkEndgameSpy = jest.spyOn(room, "checkEndgame");
+  test("Room-playerDied-endgame", () => {
+    const playerDiedSpy = jest.spyOn(room, "playerDied");
+    const checkIfGameEndSpy = jest.spyOn(room, "checkIfGameEnd");
     const endgameSpy = jest.spyOn(room, "endgame");
 
     room.addPlayer("player1", "socket1");
@@ -331,19 +331,19 @@ describe("Room Class Unit Test - onePlayerDied", () => {
     expect(room.isPlaying).toBe(true);
 
     room.players[0].isPlaying = false;
-    room.onePlayerDied(room.players[0]);
+    room.playerDied(room.players[0]);
 
-    expect(onePlayerDiedSpy).toHaveBeenCalled();
-    expect(checkEndgameSpy).toHaveBeenCalled();
+    expect(playerDiedSpy).toHaveBeenCalled();
+    expect(checkIfGameEndSpy).toHaveBeenCalled();
     expect(endgameSpy).toHaveBeenCalledWith("player2");
 
     expect(room.isPlaying).toBe(false);
   });
-  test("Room-onePlayerDied-soloplay", () => {
+  test("Room-playerDied-soloplay", () => {
     const endgameSpy = jest.spyOn(room, "endgame");
     room.addPlayer("player1", "socket1");
     room.leaderStartGame(1);
-    room.onePlayerDied(room.players[0]);
+    room.playerDied(room.players[0]);
 
     expect(endgameSpy).toHaveBeenCalledWith(null);
   });
@@ -365,7 +365,7 @@ describe("Room Class Unit Test - endgame", () => {
     done();
   });
 
-  test("Room-checkEndgame", () => {
+  test("Room-checkIfGameEnd", () => {
     const endgameSpy = jest.spyOn(room, "endgame");
 
     room.addPlayer("player1", "socket1");
@@ -373,7 +373,7 @@ describe("Room Class Unit Test - endgame", () => {
     room.players[0].isPlaying = true;
     room.players[1].isPlaying = false;
 
-    room.checkEndgame();
+    room.checkIfGameEnd();
 
     expect(endgameSpy).toHaveBeenCalledWith("player1");
   });
@@ -385,7 +385,7 @@ describe("Room Class Unit Test - endgame", () => {
 
     expect(room.isPlaying).toBe(true);
 
-    room.onePlayerDied(room.players[1]);
+    room.playerDied(room.players[1]);
     room.endgame("player1");
 
     expect(room.isPlaying).toBe(false);

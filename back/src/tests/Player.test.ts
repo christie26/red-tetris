@@ -58,13 +58,13 @@ describe("Player Class Tests", () => {
 
     // Mocking Board and Room methods
     jest.spyOn(player.Board, "freezeBoard").mockImplementation(() => {});
-    jest.spyOn(player.Room, "onePlayerDied").mockImplementation(() => {});
+    jest.spyOn(player.Room, "playerDied").mockImplementation(() => {});
 
     player.gameover();
 
     expect(player.isPlaying).toBe(false);
     expect(player.Board.freezeBoard).toHaveBeenCalled();
-    expect(player.Room.onePlayerDied).toHaveBeenCalledWith(player);
+    expect(player.Room.playerDied).toHaveBeenCalledWith(player);
   });
 
   // Sending Next Piece Tests
