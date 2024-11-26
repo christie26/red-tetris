@@ -353,6 +353,7 @@ describe("Tetris Component socket-join", () => {
     });
   });
 });
+
 describe("Tetris Component socket-setleader", () => {
   let mockSocket: Socket;
 
@@ -420,6 +421,7 @@ describe("Tetris Component socket-setleader", () => {
     });
   });
 });
+
 describe("Tetris Component socket-leave", () => {
   let mockSocket: Socket;
 
@@ -518,6 +520,7 @@ describe("Tetris Component socket-leave", () => {
   //   });
   // });
 });
+
 describe("Tetris Component socket-nextpiece", () => {
   let mockSocket: Socket;
 
@@ -596,6 +599,7 @@ describe("Tetris Component socket-nextpiece", () => {
     });
   });
 });
+
 describe("Tetris Component socket-updateboard", () => {
   let mockSocket: Socket;
 
@@ -639,7 +643,7 @@ describe("Tetris Component socket-updateboard", () => {
     await waitFor(() => expect(io).toHaveBeenCalledTimes(1));
 
     const mockSocket = (io as jest.Mock).mock.results[0].value;
-    const mockBoard = Array(20).map(() => Array(10).fill(0));
+    const mockBoard = Array.from({ length: 20 }, () => new Array(10).fill(0));
     mockBoard[18] = Array(10).fill(2);
     mockBoard[19] = Array(10).fill(3);
 
@@ -658,7 +662,7 @@ describe("Tetris Component socket-updateboard", () => {
 
       const gridItems = myBoard?.querySelectorAll("li");
 
-      expect(gridItems).toHaveLength(20);
+      expect(gridItems).toHaveLength(200);
 
       if (gridItems) {
         const tBlockCount = Array.from(gridItems).filter((item) =>
@@ -748,6 +752,7 @@ describe("Tetris Component socket-endgame", () => {
     expect(scoreCell2).toBeInTheDocument();
   });
 });
+
 describe("Tetris Component socket-gameover & startgame", () => {
   let mockSocket: Socket;
 
