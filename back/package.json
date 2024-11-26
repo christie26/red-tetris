@@ -7,7 +7,7 @@
         "start": "node ./dist/app.js",
         "dev": "tsc && node ./dist/app.js",
         "build": "tsc",
-        "test": "jest --coverage",
+        "test": "jest --coverage --detectOpenHandles",
         "format": "prettier 'src/**/*.{js,jsx,ts,tsx}' --write"
     },
     "keywords": [],
