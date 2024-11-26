@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import React from "react";
 import { OtherBoard } from "../components/OtherBoard";
 
 describe("OtherBoard Component", () => {
@@ -39,14 +40,14 @@ describe("OtherBoard Component", () => {
       const { container } = render(
         <OtherBoard playername="Player1" board={null} status="active" />,
       );
-      expect(container.firstChild).toBeNull(); // No content should be rendered
+      expect(container.firstChild).toBeNull();
     });
 
     test("returns null if board is undefined", () => {
       const { container } = render(
         <OtherBoard playername="Player1" board={undefined} status="active" />,
       );
-      expect(container.firstChild).toBeNull(); // No content should be rendered
+      expect(container.firstChild).toBeNull();
     });
   });
 

@@ -789,7 +789,6 @@ describe("Tetris Component socket-gameover & startgame", () => {
   test("Tetris component socket-gameover", async () => {
     const mockPlayerList = ["player", "player2"];
     const mockDier = "player";
-    const mockScore = '[["player", 10], ["player2", 100]]';
 
     render(
       <MemoryRouter initialEntries={["/room/player"]}>

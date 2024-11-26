@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React from "react";
 import { render, screen } from "@testing-library/react";
 import OtherBoardsContainer from "../components/OtherBoardsContainer";
 import { act } from "react";
@@ -33,8 +33,8 @@ describe("OtherBoardsContaine 3 players", () => {
 
   it("should render OtherBoards if there are 2 or more players", () => {
     const gamestatus = "ready";
-
     const playersWithTwo = ["player1", "player2"];
+
     render(
       <OtherBoardsContainer
         players={playersWithTwo}
