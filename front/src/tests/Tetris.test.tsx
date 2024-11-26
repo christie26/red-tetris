@@ -596,6 +596,80 @@ describe("Tetris Component socket-nextpiece", () => {
     });
   });
 });
+describe("Tetris Component socket-updateboard", () => {
+  let mockSocket: Socket;
+
+  beforeEach(() => {
+    const useStateMock = jest.requireMock("react").useState;
+    const setStatusMock = jest.fn();
+    useStateMock.mockImplementation((initialValue: string) => {
+      if (initialValue === "ready") {
+        return ["ready", setStatusMock];
+      }
+      return originalReact.useState(initialValue);
+    });
+
+    global.fetch = jest.fn(() =>
+      Promise.resolve({
+        status: 200,
+        json: () => Promise.resolve({}),
+      }),
+    ) as jest.Mock;
+
+    mockSocket = {
+      on: jest.fn(),
+      off: jest.fn(),
+      emit: jest.fn(),
+    } as unknown as Socket;
+    (io as jest.Mock).mockReturnValue(mockSocket);
+  });
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
+
+  test("socket-updateboard-myboard", async () => {
+    const { container } = render(
+      <MemoryRouter initialEntries={["/room/player"]}>
+        <Routes>
+          <Route path="/:room/:player" element={<Tetris />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    await waitFor(() => expect(io).toHaveBeenCalledTimes(1));
+
+    const mockSocket = (io as jest.Mock).mock.results[0].value;
+    const mockBoard = Array(20).map(() => Array(10).fill(0));
+    mockBoard[18] = Array(10).fill(2);
+    mockBoard[19] = Array(10).fill(3);
+
+    const mockPlayer = "player";
+    type EventHandler = [event: string, handler: (...args: any[]) => void];
+    await act(async () => {
+      mockSocket.on.mock.calls.forEach(([event, handler]: EventHandler) => {
+        if (event === "updateboard") {
+          handler({ board: mockBoard, player: mockPlayer });
+        }
+      });
+    });
+    await waitFor(() => {
+      const myBoard = container.querySelector(".myboard");
+      expect(myBoard).toBeInTheDocument();
+
+      const gridItems = myBoard?.querySelectorAll("li");
+
+      expect(gridItems).toHaveLength(20);
+
+      if (gridItems) {
+        const tBlockCount = Array.from(gridItems).filter((item) =>
+          item.classList.contains("L_BLOCK"),
+        ).length;
+
+        expect(tBlockCount).toBe(10);
+      }
+    });
+  });
+});
 
 describe("Tetris Component socket-endgame", () => {
   let mockSocket: Socket;
