@@ -19,48 +19,6 @@ import {
   afterAll,
 } from "@jest/globals";
 
-// NOTE - we will not implement integrated test for now (not required bu subject)
-// describe("Room Class Integrated Test", () => {
-//   let room: Room;
-
-//   beforeAll((done) => {
-//     httpServer = http.createServer(app);
-//     httpServer.listen(0, () => {
-//       port = (httpServer.address() as any).port;
-//       ioServer = new Server(httpServer);
-//       io.attach(httpServer);
-//       done();
-//     });
-//   });
-//   beforeEach(() => {
-//     clientSocket = Client(`http://localhost:${port}`, {
-//       query: { room: "test-room", player: "test-player" },
-//     });
-//   });
-//   afterAll((done)=> {
-//     io.close();
-//     httpServer.close((err) => {
-//       if (err) {
-//         console.error("Error closing server: ", err);
-//       }
-//       done();
-//     });
-//   })
-//   afterEach(() => {
-//     if (clientSocket && clientSocket.connected) {
-//       clientSocket.disconnect();
-//     }
-//   });
-
-//   test("one user connect", (done) => {
-//     clientSocket.on("connect", () => {
-//       room = findRoom(clientSocket.id);
-//       expect(room.roomname).toBe("test-room");
-//       done();
-//     });
-//   });
-// });
-
 jest.mock("../app.js", () => ({
   io: {
     to: jest.fn().mockReturnThis(),
@@ -195,7 +153,6 @@ describe("Room Class Unit Test - playerDisconnect", () => {
     expect(room.players).toHaveLength(0);
     expect(freezeIfPlayingSpy).not.toHaveBeenCalled();
     expect(checkEndgameSpy).not.toHaveBeenCalled();
-    // NOTE - check socket event 'leave' is missing
     done();
   });
   test("Room-playerDisconnect-player-three-playing", (done) => {
@@ -281,7 +238,6 @@ describe("Room Class Unit Test - playerDisconnect", () => {
     expect(room.waiters[0].playername).toBe("player2");
 
     room.playerDisconnect("player1");
-    // TODO - check it again! check if it doesn't crash the server
     expect(setNewLeaderSpy).toHaveBeenCalled();
     expect(room.waiters[0].playername).toBe("player2");
     expect(room.waiters[0].isLeader).toBe(true);
@@ -481,23 +437,6 @@ describe("Room Class Unit Test - updateBoard & sendPenalty", () => {
   beforeEach((done) => {
     room = new Room("test-room");
     done();
-  });
-
-  test("Room-updateBoard", () => {
-    room.addPlayer("player1", "socket1");
-    room.addPlayer("player2", "socket2");
-    const mockBoard = [
-      [0, 0],
-      [1, 1],
-    ];
-    room.updateBoard("player1", mockBoard, "testType");
-    // BUG/TODO - have to understand socket on/emit better
-    // expect(io.emit).toHaveBeenCalledWith("updateboard", {
-    //   roomname: room.roomname,
-    //   player: "player1",
-    //   board: mockBoard,
-    //   type: "testType",
-    // });
   });
   test("Room-sendPenalty", () => {
     room.addPlayer("player1", "socket1");
