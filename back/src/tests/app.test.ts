@@ -169,39 +169,7 @@ describe("Socket.io events", () => {
     }, 50);
   });
 
-  // test("App-Keboard-event-sprint-space", (done) => {
-  //   const player = findPlayer(clientSocket.id);
-  //   player.isPlaying = true;
-  //   const changeSpeedModeSpy = jest.spyOn(Board.prototype, "changeSpeedMode");
 
-  //   clientSocket.emit("keyboard", { type: "down", key: " " });
-
-  //   setTimeout(() => {
-  //     try {
-  //       expect(changeSpeedModeSpy).toHaveBeenCalledWith("sprint");
-  //       done();
-  //     } catch (error) {
-  //       done(error);
-  //     }
-  //   }, 50);
-  // });
-
-  // test("App-Keboard-event-arrow-down", (done) => {
-  //   const player = findPlayer(clientSocket.id);
-  //   player.isPlaying = true;
-  //   const changeSpeedModeSpy = jest.spyOn(Board.prototype, "changeSpeedMode");
-
-  //   clientSocket.emit("keyboard", { type: "down", key: " " });
-
-  //   setTimeout(() => {
-  //     try {
-  //       expect(changeSpeedModeSpy).toHaveBeenCalledWith("sprint");
-  //       done();
-  //     } catch (error) {
-  //       done(error);
-  //     }
-  //   }, 50);
-  // });
   // these tests make leaks 
 
   test("App-Keboard-event-arrow-up", (done) => {
