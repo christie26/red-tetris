@@ -239,8 +239,8 @@ describe("Room Class Unit Test - playerDisconnect", () => {
 
     room.playerDisconnect("player1");
     expect(setNewLeaderSpy).toHaveBeenCalled();
-    expect(room.waiters[0].playername).toBe("player2");
-    expect(room.waiters[0].isLeader).toBe(true);
+    expect(room.players[0].playername).toBe("player2");
+    expect(room.players[0].isLeader).toBe(true);
   });
 });
 
@@ -345,7 +345,7 @@ describe("Room Class Unit Test - playerDied", () => {
     room.leaderStartGame(1);
     room.playerDied(room.players[0]);
 
-    expect(endgameSpy).toHaveBeenCalledWith(null);
+    expect(endgameSpy).toHaveBeenCalledWith("player1");
   });
 });
 
