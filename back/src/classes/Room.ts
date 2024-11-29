@@ -120,6 +120,12 @@ class Room {
 
   /* start & end game */
   leaderStartGame(speed: number): void {
+    for (const player of this.players) {
+      if (player.Board.key !== this.key) {
+        // TODO - let client know the situation (message: server is not ready, try again in few seconds)
+        return;
+      }
+    }
     this.speedLevel = speed;
     for (const player of this.players) {
       player.Board.changeSpeedLevel(speed);

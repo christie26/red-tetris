@@ -22,12 +22,14 @@ class Player {
     this.socket = socket;
     this.isLeader = isLeader;
     this.Board = new Board(key, this);
+    this.Board.key = key;
     this.isPlaying = false;
     this.Room = Room;
   }
 
   updateKey(key: string): void {
     this.Board = new Board(key, this);
+    this.Board.key = key;
   }
 
   gameover(): void {

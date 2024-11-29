@@ -24,6 +24,7 @@ class Board {
   unpaidPenalties: number = 0;
   createRandom: () => number;
   speedLevel: number = 1;
+  key: string;
 
   constructor(key: string, Player: Player) {
     this.Player = Player;
@@ -33,13 +34,6 @@ class Board {
   }
 
   startgame(): void {
-    if (this.touchOtherPiece(this.currentPiece.tiles)) {
-      for (const tile of this.currentPiece.tiles) {
-        this.fixedTiles[tile.y][tile.x] = tile.type;
-      }
-      this.Player.gameover();
-      return;
-    }
 
     this.renderPiece();
     clearInterval(this.intervalId);
