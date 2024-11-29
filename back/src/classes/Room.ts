@@ -122,7 +122,8 @@ class Room {
   leaderStartGame(speed: number): void {
     for (const player of this.players) {
       if (player.Board.key !== this.key) {
-        // TODO - let client know the situation (message: server is not ready, try again in few seconds)
+        this.players[0].socket
+        io.to(this.players[0].socket).emit("notReady");
         return;
       }
     }

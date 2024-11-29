@@ -67,15 +67,15 @@ app.get("/:room/:player", (req: Request, res: Response) => {
   }
 });
 
-// app.get("/error", (req: Request, res: Response) => {
-//   res.status(403).send("Forbidden: Access denied");
-// });
-
 io.on("connection", (socket) => {
   const queryParams = socket.handshake.query;
   if (!isQueryParams(queryParams)) {
     socket.emit("redirect", "/error");
     socket.disconnect();
+    return;
+  }
+  if (!checkUserUnique(queryParams.player, queryParams.room)) {
+    socket.emit("invalidName");
     return;
   }
   addUserToRoom(queryParams.room, queryParams.player, socket.id);

@@ -74,7 +74,7 @@ function Tetris() {
             newSocket.disconnect();
           };
         } else if (res.status === 400) {
-          setStatus("error");
+          setStatus("error-invalidName");
           console.error("Bad request: Room or player invalid");
         } else {
           console.error(`Unexpected response status: ${res.status}`);
@@ -94,6 +94,14 @@ function Tetris() {
 
     socket.on("connect", () => {
       console.log("Connected to server");
+    });
+    socket.on("invalidName", () => {
+      console.log("invalidName received");
+      setStatus("error-invalidName");
+    });
+    socket.on("notReady", () => {
+      console.log("notready received");
+      setStatus("error-notready");
     });
     socket.on("join", (data) => {
       setPlayers(data.playerlist);

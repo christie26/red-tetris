@@ -41,9 +41,11 @@ const ResultBox: React.FC<ResultBoxProps> = ({
   } else if (status === "waitServer") {
     message =
       "waiting for server ... refresh the page in a few second. If it doesn't work for long, ask Yoonseo.";
-  } else if (status === "error") {
+  } else if (status === "error-invalidName") {
     message =
       "There is already a player with same name. Choose different name and try again.";
+  } else if (status === "error-notready") {
+    message = "Your server is not ready, try again in few seconds.";
   }
   if (status !== "ready" && status !== "error" && message.length === 0)
     return null;
