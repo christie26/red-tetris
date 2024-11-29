@@ -172,8 +172,8 @@ class Room {
 
     for (const player of this.players) {
       if (player.isPlaying) {
-        player.Board.freezeBoard();
         player.isPlaying = false;
+        player.Board.freezeBoard();
       }
     }
 
@@ -239,8 +239,8 @@ class Room {
   }
   freezeIfPlaying(targetplayer: Player): void {
     if (targetplayer.isPlaying) {
-      targetplayer.Board.freezeBoard();
       targetplayer.isPlaying = false;
+      targetplayer.Board.freezeBoard();
     }
   }
   setNewLeader(): void {
