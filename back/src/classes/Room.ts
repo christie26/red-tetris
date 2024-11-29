@@ -84,7 +84,10 @@ class Room {
 
     // if Room is playing, ends game - leave & gameover
     if (this.isPlaying) {
-      this.freezeIfPlaying(targetPlayer);
+      if (targetPlayer.isPlaying) {
+        targetPlayer.isPlaying = false;
+        targetPlayer.Board.freezeBoard();
+      }
       this.checkIfGameEnd();
     }
 
@@ -236,12 +239,6 @@ class Room {
   /* utilities */
   getPlayerlist(): string[] {
     return this.players.map((player) => player.playername);
-  }
-  freezeIfPlaying(targetplayer: Player): void {
-    if (targetplayer.isPlaying) {
-      targetplayer.isPlaying = false;
-      targetplayer.Board.freezeBoard();
-    }
   }
   setNewLeader(): void {
     let newLeader: Player | undefined;

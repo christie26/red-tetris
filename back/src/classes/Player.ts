@@ -33,8 +33,10 @@ class Player {
   }
 
   gameover(): void {
-    this.isPlaying = false;
-    this.Board.freezeBoard();
+    if (this.isPlaying) {
+      this.isPlaying = false;
+      this.Board.freezeBoard();
+    }
     this.Room.playerDied(this);
   }
 
