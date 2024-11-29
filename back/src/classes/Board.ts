@@ -75,7 +75,7 @@ class Board {
     if (this.canGoDown()) {
       this.moveTiles(this.currentPiece.tiles, "down");
       this.renderPiece();
-
+      
       if (this.applyPenalty()) this.newPiece();
     } else {
       this.fixPieceToBoard();
@@ -281,20 +281,16 @@ class Board {
     }
     return skip;
   }
-  fixPieceIfTouch(line: number): boolean {
+  fixPieceIfTouch(penaltyLine: number): boolean {
     const dropTile = this.dropLocation();
     const distance = dropTile[0].y - this.currentPiece.tiles[0].y;
-    if (line < distance) return false;
-    else if (line == distance) {
-      this.fixPieceToBoard();
-      return true;
-    } else {
+    if (penaltyLine > distance) {
       for (const tile of this.currentPiece.tiles) {
-        tile.y -= distance;
+        tile.y += distance;
       }
       this.fixPieceToBoard();
       return true;
-    }
+    } else return false;
   }
 
   /* clear line */
