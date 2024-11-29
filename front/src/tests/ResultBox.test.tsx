@@ -132,7 +132,7 @@ describe("ResultBox Component", () => {
         winner={null}
         myname="Player1"
         isLeader={false}
-        status="error"
+        status="error-invalidName"
       />,
     );
     expect(

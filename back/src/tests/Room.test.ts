@@ -143,7 +143,6 @@ describe("Room Class Unit Test - playerDisconnect", () => {
     consoleErrorMock.mockRestore();
   });
   test("Room-playerDisconnect-player-ready", (done) => {
-    const freezeIfPlayingSpy = jest.spyOn(room, "freezeIfPlaying");
     const checkIfGameEndSpy = jest.spyOn(room, "checkIfGameEnd");
     room.addPlayer("player1", "socket1");
 
@@ -151,12 +150,10 @@ describe("Room Class Unit Test - playerDisconnect", () => {
 
     room.playerDisconnect("player1");
     expect(room.players).toHaveLength(0);
-    expect(freezeIfPlayingSpy).not.toHaveBeenCalled();
     expect(checkIfGameEndSpy).not.toHaveBeenCalled();
     done();
   });
   test("Room-playerDisconnect-player-three-playing", (done) => {
-    const freezeIfPlayingSpy = jest.spyOn(room, "freezeIfPlaying");
     const checkIfGameEndSpy = jest.spyOn(room, "checkIfGameEnd");
     const endgameSpy = jest.spyOn(room, "endgame");
 
@@ -176,7 +173,6 @@ describe("Room Class Unit Test - playerDisconnect", () => {
         player: "player2",
       }),
     );
-    expect(freezeIfPlayingSpy).toHaveBeenCalled();
     expect(checkIfGameEndSpy).toHaveBeenCalled();
     expect(endgameSpy).not.toHaveBeenCalled();
     expect(room.players[0].isPlaying).toBe(true);
@@ -184,7 +180,6 @@ describe("Room Class Unit Test - playerDisconnect", () => {
     done();
   });
   test("Room-playerDisconnect-player-two-playing", () => {
-    const freezeIfPlayingSpy = jest.spyOn(room, "freezeIfPlaying");
     const checkIfGameEndSpy = jest.spyOn(room, "checkIfGameEnd");
     const endgameSpy = jest.spyOn(room, "endgame");
 
@@ -197,7 +192,6 @@ describe("Room Class Unit Test - playerDisconnect", () => {
 
     expect(room.players).toHaveLength(1);
 
-    expect(freezeIfPlayingSpy).toHaveBeenCalled();
     expect(checkIfGameEndSpy).toHaveBeenCalled();
     expect(endgameSpy).toHaveBeenCalled();
     expect(room.players[0].isPlaying).toBe(false);

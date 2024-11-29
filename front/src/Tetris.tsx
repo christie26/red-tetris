@@ -105,7 +105,7 @@ function Tetris() {
     });
     socket.on("join", (data) => {
       setPlayers(data.playerlist);
-      if (data.type == "waiter") {
+      if (data.type === "waiter") {
         setStatus("waiting");
         for (const player of data.playerlist) {
           const empty = Array.from({ length: 20 }, () => Array(10).fill(0));

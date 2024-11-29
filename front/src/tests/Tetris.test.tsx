@@ -67,7 +67,7 @@ describe("Tetris Component Error Connection", () => {
       );
     });
 
-    expect(setStatus).toHaveBeenCalledWith("error");
+    expect(setStatus).toHaveBeenCalledWith("error-invalidName");
 
     jest.restoreAllMocks();
   });

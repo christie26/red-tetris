@@ -35,6 +35,13 @@ class Board {
 
   startgame(): void {
 
+    if (this.touchOtherPiece(this.currentPiece.tiles)) {
+      for (const tile of this.currentPiece.tiles) {
+        this.fixedTiles[tile.y][tile.x] = tile.type;
+      }
+      this.Player.gameover();
+      return;
+    }
     this.renderPiece();
     clearInterval(this.intervalId);
     this.intervalId = setInterval(() => this.routine(), 500 / this.speedLevel);
@@ -336,7 +343,6 @@ class Board {
     );
     clearInterval(this.intervalId);
     this.intervalId = null;
-    this.currentPiece = null;
   }
 
   /* utilities */

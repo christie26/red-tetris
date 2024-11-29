@@ -36,6 +36,8 @@ class Player {
     if (this.isPlaying) {
       this.isPlaying = false;
       this.Board.freezeBoard();
+    } else {
+      console.log("protected!");
     }
     this.Room.playerDied(this);
   }
