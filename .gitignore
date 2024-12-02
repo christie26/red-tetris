@@ -1,0 +1,10 @@
+*~
+*.swp
+*.swo
+log
+tmp
+node_modules
+.DS_Store
+.env
+back/dist
+back/coverage

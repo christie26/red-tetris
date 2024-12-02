@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/red-tetris/static/css/main.d8123e74.css",
+    "main.js": "/red-tetris/static/js/main.7b774e7d.js",
+    "static/media/Jersey25-Regular.ttf": "/red-tetris/static/media/Jersey25-Regular.124a1cfeb3bb037fee5b.ttf",
+    "static/media/PressStart2P-Regular.ttf": "/red-tetris/static/media/PressStart2P-Regular.21503c6a5385ab41dde9.ttf",
+    "index.html": "/red-tetris/index.html",
+    "main.d8123e74.css.map": "/red-tetris/static/css/main.d8123e74.css.map",
+    "main.7b774e7d.js.map": "/red-tetris/static/js/main.7b774e7d.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.d8123e74.css",
+    "static/js/main.7b774e7d.js"
+  ]
+}
