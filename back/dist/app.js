@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.app = exports.io = void 0;
+exports.io = void 0;
 exports.isQueryParams = isQueryParams;
 exports.findRoom = findRoom;
 exports.findPlayer = findPlayer;
@@ -25,7 +25,6 @@ const c = {
     RESET: "\x1b[0m",
 };
 const app = (0, express_1.default)();
-exports.app = app;
 const server = http_1.default.createServer(app);
 const io = new socket_io_1.Server(server, {
     cors: {
@@ -40,7 +39,7 @@ const PORT = process.env.NODE_ENV === "test" ? 0 : process.env.PORT || 8000;
 const NODE_ENV = process.env.NODE_ENV || 'development'; // Default to 'development' if not set
 // Log environment mode
 if (NODE_ENV === 'production') {
-    console.log('Running in production mode');
+    console.log('Running in production mode :)');
 }
 else if (NODE_ENV === 'test') {
     console.log('Running in test mode');
@@ -185,3 +184,4 @@ function addUserToRoom(roomname, playername, socketId) {
     }
     room.addPlayer(playername, socketId);
 }
+exports.default = app;

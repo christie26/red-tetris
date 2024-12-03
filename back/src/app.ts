@@ -215,3 +215,4 @@ function addUserToRoom(
 }
 
 export default app;
+export {io};
