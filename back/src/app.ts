@@ -45,7 +45,7 @@ const NODE_ENV = process.env.NODE_ENV || 'development'; // Default to 'developme
 
 // Log environment mode
 if (NODE_ENV === 'production') {
-  console.log('Running in production mode');
+  console.log('Running in production mode :)');
 } else if (NODE_ENV === 'test') {
   console.log('Running in test mode');
 } else {
@@ -214,4 +214,4 @@ function addUserToRoom(
   room.addPlayer(playername, socketId);
 }
 
-export { io, app };
+export default app;
