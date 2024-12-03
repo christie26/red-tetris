@@ -2,11 +2,11 @@
     "name": "tetris-back",
     "version": "1.0.0",
     "description": "",
-    "main": "index.ts",
+    "main": "./dist/app.js",
     "scripts": {
         "start": "node ./dist/app.js",
         "dev": "tsc && node ./dist/app.js",
-        "build": "tsc",
+        "build": "rimraf dist && tsc",
         "test": "jest --coverage --detectOpenHandles",
         "format": "prettier 'src/**/*.{js,jsx,ts,tsx}' --write"
     },
@@ -19,6 +19,8 @@
         "@types/uuid": "^10.0.0",
         "cors": "^2.8.5",
         "express": "4.14.0",
+        "pre-commit": "^1.2.2",
+        "rimraf": "^6.0.1",
         "seedrandom": "^3.0.5",
         "socket.io": "^4.8.0",
         "socket.io-client": "^4.8.0",
@@ -44,5 +46,8 @@
         "ts-node": "^10.9.2",
         "ts-node-dev": "^2.0.0",
         "typescript": "^5.6.3"
-    }
+    },
+    "pre-commit": [
+        "build"
+    ]
 }
