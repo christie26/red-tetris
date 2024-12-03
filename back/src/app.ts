@@ -59,6 +59,10 @@ app.get("/redtetris.ico", (req: Request, res: Response) => {
   res.send();
 });
 
+app.get("/test", (req: Request, res: Response) => {
+  res.status(200).send("This is a test endpoint!");
+});
+
 app.get("/:room/:player", (req: Request, res: Response) => {
   if (checkUserUnique(req.params.player, req.params.room)) {
     res.status(200).send("Good");
