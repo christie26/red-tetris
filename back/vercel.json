@@ -3,10 +3,11 @@
     "buildCommand": "npm run build",
     "builds": [
       {
-        "src": "dist/app.js",
-        "use": "@vercel/node"
+          "src": "dist/app.js",
+          "use": "@vercel/node",
+          "config": { "includeFiles": ["dist/**"] }
       }
-    ],
+  ],
     "routes": [
       {
         "src": "/(.*)",
