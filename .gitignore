@@ -6,5 +6,5 @@ tmp
 node_modules
 .DS_Store
 .env
-back/dist
+# back/dist
 back/coverage
