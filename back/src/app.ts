@@ -39,15 +39,25 @@ const io = new Server(server, {
     credentials: true,
   },
 });
-const PORT = process.env.NODE_ENV === "test" ? 0 : 8000; // Use port 0 in test, 8000 otherwise
+const PORT = process.env.NODE_ENV === "test" ? 0 : process.env.PORT || 8000;
 
-if (process.env.NODE_ENV !== "test") {
-  // use this for the test
+const NODE_ENV = process.env.NODE_ENV || 'development'; // Default to 'development' if not set
+
+// Log environment mode
+if (NODE_ENV === 'production') {
+  console.log('Running in production mode');
+} else if (NODE_ENV === 'test') {
+  console.log('Running in test mode');
+} else {
+  console.log('Running in development mode');
+}
+
+// Start server if not in test environment
+if (NODE_ENV !== 'test') {
   server.listen(PORT, () => {
     console.log(`red-tetris server listening on port ${PORT}`);
   });
 }
-
 app.use(
   cors({
     origin: "http://localhost:3000",
@@ -55,6 +65,8 @@ app.use(
     credentials: true,
   }),
 );
+app.get("/", (req, res) => res.send("Express on Vercel"));
+
 app.get("/redtetris.ico", (req: Request, res: Response) => {
   res.send();
 });
